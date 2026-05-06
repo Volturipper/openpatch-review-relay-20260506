@@ -1,0 +1,100 @@
+{
+  "file_name": "openpatch-review-decision-round-1.json",
+  "schema_version": "openpatch.independent_review_decision.v1",
+  "review_round": 1,
+  "reviewer_role": "independent_reviewer",
+  "created_at": "2026-05-06T10:32:34Z",
+  "candidate": {
+    "file_name": "openpatch_agent_gateway_v16_candidate.zip",
+    "sha256_expected": "d7cfcf2a5099498bc9d8003569212da5551558c0b5c4601ff175efde600ae699",
+    "sha256_actual": "d7cfcf2a5099498bc9d8003569212da5551558c0b5c4601ff175efde600ae699",
+    "sha256_match": true,
+    "generation": "v16 candidate"
+  },
+  "hosted_review_input": {
+    "relay_repo": "https://github.com/Volturipper/openpatch-review-relay-20260506",
+    "designer_delivery_repo": "https://github.com/Volturipper/openpatch-designer-deliveries",
+    "baseline_only_repo": "https://github.com/afumu/openpatch"
+  },
+  "verdict": "ready_for_controlled_smoke",
+  "verdict_scope": "Only bridge-only dry-run and Chrome/CDP observe-only controlled smoke are allowed. Real upload/apply/install remains blocked.",
+  "allowed_smoke_scope": [
+    "bridge-only local dry-run smoke",
+    "Chrome Dev/CDP observe-only marker/API smoke in isolated test profile",
+    "Local Bridge state/receipt/latest/queue readback",
+    "Auto Continue signal/heartbeat observation only"
+  ],
+  "not_approved_for": [
+    "local merge/install as production extension",
+    "real GitHub upload or apply route",
+    "clicking OpenPatch upload/archive buttons in live pages without owner action-time approval",
+    "using real PAT/cookies/browser profile/.env",
+    "Auto Continue live adapter install or blind waiting automation",
+    "treating GitHub-hosted assets as merge targets"
+  ],
+  "top_risks": [
+    {
+      "id": "R1",
+      "severity": "P0",
+      "title": "Generic .zip route confusion can send archives to apply route."
+    },
+    {
+      "id": "R2",
+      "severity": "P0",
+      "title": "preflight can report go while readiness/config are no_go."
+    },
+    {
+      "id": "R3",
+      "severity": "P1",
+      "title": "GitHub test upload handoff cannot inherit resolved route aliases."
+    },
+    {
+      "id": "R4",
+      "severity": "P1",
+      "title": "Some smoke-plan strings are stale."
+    },
+    {
+      "id": "R5",
+      "severity": "P1",
+      "title": "Codex brief can recommend a bridge-smoke command even when action_now says fix blockers."
+    },
+    {
+      "id": "R6",
+      "severity": "P1",
+      "title": "Auto Continue integration is still contract-level, not live verified."
+    }
+  ],
+  "required_designer_changes": [
+    "Implement hard route classifier and asset_kind schema; unknown .zip must be unknown_blocked.",
+    "Make UI marker include asset_kind, route_decision, route_decision_reason, allowed_action, and not_approval=true for archive/review evidence.",
+    "Fix preflightBundle blocker logic to use readiness.go_no_go and config_lint.errors.",
+    "Fix githubUploadGate to use route.route_context aliases and reject ambiguous route_context.",
+    "Update v16 smokePlan stale V11/V15 references.",
+    "Make codexBrief next_command align with blockers.",
+    "Add regression fixtures for generic candidate zip, review result zip, exact changed-files.zip, webai-roundpack.zip, ambiguous routes, missing aliases, and bad config preflight.",
+    "Add a compact openpatch-agent-gateway-contract-v16.md with exact DOM markers, page events, button states, queue/latest/receipt fields, and failure states.",
+    "Add Auto Continue heartbeat contract and receipt-missing stop condition.",
+    "Document GitHub-hosted assets as hosted evidence only, not merge/install/approval."
+  ],
+  "tests_performed": [
+    "Attachment SHA256 matched expected.",
+    "Internal SHA256SUMS.txt verified 376/376 entries.",
+    "Zip path scan found no unsafe absolute/../ paths and no symlinks; two executable bits on CLI .mjs files only.",
+    "Secret-pattern scan found no PAT/OpenAI/private-key/cookie assignment pattern values.",
+    "openpatch-main npm test passed: 14/14.",
+    "openpatch-main npm run check passed and manifest parsed.",
+    "node --check passed for local bridge, ledger CLI, and Auto Continue v9 adapter.",
+    "Controlled local bridge smoke passed in isolated root on port 17874 with dry_run_planned receipt and no token.",
+    "Adversarial classifier probe showed generic candidate/review .zip files default to patch_upload.",
+    "Bad-config probe showed preflight bridge-only false-go while readiness/config_lint were no_go."
+  ],
+  "minimal_smoke_plan_summary": [
+    "verify_attachment_and_paths",
+    "bridge_only_dry_run",
+    "contract_readback",
+    "chrome_dev_observe_only",
+    "auto_continue_signal_observe_only",
+    "evidence_return"
+  ],
+  "decision_notes": "Proceed to controlled smoke only if Codex does not click upload/archive buttons and does not use real PAT/browser profile/secrets. Route classifier and preflight false-go fixes are required before any GitHub test upload or broader automation."
+}
