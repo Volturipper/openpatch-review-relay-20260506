@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.chrome_smoke_handoff.v17",
+  "project": "openpatch-smoke",
+  "purpose": "load the unpacked extension in an isolated Chrome Dev profile and verify marker/API/bridge status without touching real accounts beyond the test chat page selected by owner",
+  "default_commands": [
+    "node local-bridge/openpatch-ledger-cli.mjs health",
+    "node local-bridge/openpatch-ledger-cli.mjs preflight --project openpatch-smoke --target chrome",
+    "node local-bridge/openpatch-ledger-cli.mjs instances-register --instance chrome-dev-openpatch-smoke-1778065333349 --project openpatch-smoke --browser-profile chrome-dev-openpatch-smoke",
+    "node local-bridge/openpatch-ledger-cli.mjs instances-compact",
+    "node local-bridge/openpatch-ledger-cli.mjs operation-brief --project openpatch-smoke --intent smoke"
+  ],
+  "browser_expectations": [
+    "extension loads without manifest/runtime errors",
+    "OpenPatch buttons expose data-openpatch-marker=openpatch.agent_button.v17",
+    "page event API answers get-buttons/get-agent-summary/get-route-visual",
+    "bridge status badge is visible or marker reports bridgeStatusHint",
+    "no token value is printed in page DOM or console summaries"
+  ],
+  "evidence_required": [
+    "chrome_extension_load_status.json",
+    "button_marker_sample.json",
+    "page_api_get_buttons.json",
+    "bridge_health.json",
+    "instances_compact.json",
+    "console_error_summary.txt"
+  ],
+  "codex_output_template": {
+    "schema_version": "openpatch.chrome_smoke_evidence.v17",
+    "project": "openpatch-smoke",
+    "instance_id": "chrome-dev-openpatch-smoke-1778065333349",
+    "pass": false,
+    "files_created": [],
+    "console_errors": [],
+    "marker_sample": null,
+    "next_recommended_action": ""
+  },
+  "recommended_agent_action": "run_chrome_dev_profile_smoke_and_return_evidence_json",
+  "generated_at": "2026-05-06T11:02:13.349Z"
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "openpatch.agent_button.v11.schema",
+  "type": "object",
+  "required": ["schemaVersion", "status", "mode", "buttonId", "pageSessionId"],
+  "properties": {
+    "schemaVersion": { "const": "openpatch.agent_button.v11" },
+    "status": { "type": "string" },
+    "mode": { "type": "string" },
+    "buttonId": { "type": "string" },
+    "pageSessionId": { "type": "string" },
+    "routeConflictHint": { "type": "string" },
+    "routeVisualHint": { "type": "string" },
+    "smokeHandoffHint": { "type": "string" },
+    "bridgeInstanceHint": { "type": "string" },
+    "recommendedAgentAction": { "type": "string" }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.instance_register.v11",
+  "instance": {
+    "schema_version": "openpatch.browser_instance.v1",
+    "instance_id": "smoke-browser-1",
+    "browser_profile": "",
+    "page_url_host": "",
+    "project_hint": "openpatch-smoke",
+    "route_profile": "",
+    "capabilities": [],
+    "ttl_ms": 60000,
+    "first_seen_at": "2026-05-06T02:14:35.381Z",
+    "last_seen_at": "2026-05-06T02:14:35.381Z"
+  }
+}

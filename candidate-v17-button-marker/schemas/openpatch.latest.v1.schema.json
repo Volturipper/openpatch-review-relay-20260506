@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.latest.v1.schema.json",
+  "type": "object",
+  "required": ["schema_version", "project", "latest_round", "status", "archive_only", "allow_execution", "latest", "updated_at"],
+  "properties": {
+    "schema_version": { "const": "openpatch.latest.v1" },
+    "project": { "type": "string" },
+    "latest_round": { "type": "string" },
+    "status": { "type": "string" },
+    "archive_only": { "const": true },
+    "allow_execution": { "const": false },
+    "latest": { "type": "object" },
+    "recent_rounds": { "type": "array" },
+    "codex_should_read": { "type": "array", "items": { "type": "string" } },
+    "next_actor": { "type": "string" },
+    "updated_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}

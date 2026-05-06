@@ -1,0 +1,15 @@
+{
+  "schema_version": "openpatch.repo_aliases.v1",
+  "repos": [
+    {
+      "repo_alias": "example-dry-run-archive",
+      "provider": "github",
+      "owner": "example-owner",
+      "repo": "example-archive-repo",
+      "branch": "webai-archive",
+      "archive_root": "rounds",
+      "index_root": "index",
+      "dry_run": true
+    }
+  ]
+}

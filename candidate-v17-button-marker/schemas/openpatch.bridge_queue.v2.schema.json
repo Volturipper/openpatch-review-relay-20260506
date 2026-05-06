@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.bridge_queue.v2.schema.json",
+  "type": "object",
+  "required": ["schema_version", "items"],
+  "properties": {
+    "schema_version": { "const": "openpatch.bridge_queue.v2" },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["project", "round_id", "status", "action"],
+        "properties": {
+          "idempotency_key": { "type": "string" },
+          "project": { "type": "string" },
+          "round_id": { "type": "string" },
+          "file_sha256": { "type": "string" },
+          "status": { "type": "string" },
+          "action": { "type": "string" },
+          "retry_count": { "type": "number" },
+          "claimed_by": { "type": "string" },
+          "updated_at": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "updated_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}

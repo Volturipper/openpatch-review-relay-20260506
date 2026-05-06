@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.auto_continue_plan.v1",
+  "project": "webai-transfer",
+  "should_request_roundpack": true,
+  "should_pause_until_archive_receipt": true,
+  "reason": "interval_reached",
+  "required_marker": "[ROUND_PACK_READY]",
+  "preferred_file_name": "webai-roundpack-webai-transfer.zip",
+  "prompt_hint": "use_openpatch_roundpack_prompt",
+  "next_agent_action": "send_roundpack_prompt_wait_for_attachment_then_trigger_archive",
+  "created_at": "2026-05-05T23:41:28.375Z"
+}

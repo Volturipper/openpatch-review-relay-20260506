@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.agent_summary.v1.schema.json",
+  "type": "object",
+  "required": ["ok", "schema_version", "project", "status", "recommended_agent_action"],
+  "properties": {
+    "ok": { "type": "boolean" },
+    "schema_version": { "const": "openpatch.agent_summary.v1" },
+    "project": { "type": "string" },
+    "latest_round": { "type": "string" },
+    "status": { "type": "string" },
+    "latest": { "type": "object" },
+    "queue": { "type": "object" },
+    "duplicates": { "type": "array" },
+    "total_receipts": { "type": "number" },
+    "recommended_agent_action": { "type": "string" },
+    "codex_commands": { "type": "array", "items": { "type": "string" } },
+    "updated_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}

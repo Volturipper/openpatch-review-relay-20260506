@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.evidence_pack.v16",
+  "project": "openpatch-smoke",
+  "target": "bridge-only",
+  "round_id": "v16-test",
+  "payload_sha256": "5c14fb0192a6086fadd3bdabe1a34c9ca3a778cb2731446a3d9a3e2389df2e78",
+  "summary": "cli evidence pack placeholder",
+  "payload": {
+    "actor": "codex-or-agent",
+    "created_by_cli": true
+  },
+  "received_at": "2026-05-06T09:22:20.253Z",
+  "evidence_path": "/mnt/data/op_v16_bridge_data/evidence-packs/openpatch-smoke/v16-test.json"
+}

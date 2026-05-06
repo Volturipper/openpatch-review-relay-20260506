@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.config_lint.v13",
+  "errors": [],
+  "warnings": [],
+  "summary": {
+    "repo_count": 1,
+    "key_alias_count": 1,
+    "route_profile_count": 0,
+    "project_count": 0,
+    "binding_count": 0,
+    "error_count": 0,
+    "warning_count": 0
+  },
+  "binding_summary": [],
+  "recommended_agent_action": "continue",
+  "checked_at": "2026-05-06T02:44:07.873Z"
+}

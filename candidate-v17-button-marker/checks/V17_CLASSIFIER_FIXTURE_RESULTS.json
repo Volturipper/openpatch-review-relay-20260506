@@ -1,0 +1,51 @@
+{
+  "schema_version": "openpatch.v17_classifier_fixture_results.v1",
+  "pass": true,
+  "results": [
+    {
+      "fixture": "generic_candidate_zip",
+      "file_name": "openpatch_agent_gateway_v17_candidate.zip",
+      "expected_asset_kind": "candidate_or_evidence_archive",
+      "actual_asset_kind": "candidate_or_evidence_archive",
+      "expected_route_decision": "archive_allowed",
+      "actual_route_decision": "archive_allowed",
+      "pass": true
+    },
+    {
+      "fixture": "review_result_zip",
+      "file_name": "openpatch_review_round_1_result.zip",
+      "expected_asset_kind": "review_evidence",
+      "actual_asset_kind": "review_evidence",
+      "expected_route_decision": "archive_allowed",
+      "actual_route_decision": "archive_allowed",
+      "pass": true
+    },
+    {
+      "fixture": "exact_changed_files_zip",
+      "file_name": "changed-files.zip",
+      "expected_asset_kind": "changed_files_zip",
+      "actual_asset_kind": "changed_files_zip",
+      "expected_route_decision": "patch_upload_allowed",
+      "actual_route_decision": "patch_upload_allowed",
+      "pass": true
+    },
+    {
+      "fixture": "webai_roundpack_zip",
+      "file_name": "webai-roundpack.zip",
+      "expected_asset_kind": "roundpack_archive",
+      "actual_asset_kind": "roundpack_archive",
+      "expected_route_decision": "archive_allowed",
+      "actual_route_decision": "archive_allowed",
+      "pass": true
+    },
+    {
+      "fixture": "unknown_zip",
+      "file_name": "random.zip",
+      "expected_asset_kind": "unknown_zip",
+      "actual_asset_kind": "unknown_zip",
+      "expected_route_decision": "unknown_blocked",
+      "actual_route_decision": "unknown_blocked",
+      "pass": true
+    }
+  ]
+}

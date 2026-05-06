@@ -1,0 +1,57 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.codex_handoff.v12",
+  "project": "openpatch-smoke",
+  "target": "bridge-only",
+  "go_no_go": "go_with_warnings",
+  "one_line_task": "Run bridge-only smoke for openpatch-smoke, collect JSON evidence, and stop at the next real blocker.",
+  "default_commands": [
+    "node local-bridge/openpatch-ledger-cli.mjs health",
+    "node local-bridge/openpatch-ledger-cli.mjs config-lint",
+    "node local-bridge/openpatch-ledger-cli.mjs archive-base64 --project openpatch-smoke --round smoke-001 --file webai-roundpack.zip --content-base64 ZHVtbXk= --dry-run"
+  ],
+  "evidence_required": [
+    "health.json",
+    "config_lint.json",
+    "readiness.json",
+    "smoke_plan.json",
+    "archive_or_receipt.json when applicable",
+    "go_no_go_summary.json"
+  ],
+  "stop_at": [
+    "config-lint errors",
+    "route conflict marked blocking",
+    "unexpected secret/token printed",
+    "real GitHub upload requested without the matching one-run approval",
+    "browser profile is not the intended isolated profile"
+  ],
+  "readiness": {
+    "ok": true,
+    "schema_version": "openpatch.readiness_report.v12",
+    "project": "openpatch-smoke",
+    "target": "bridge-only",
+    "go_no_go": "go_with_warnings",
+    "blocking": [],
+    "warnings": [
+      {
+        "code": "no_browser_instances_registered",
+        "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
+      }
+    ],
+    "compact": {
+      "latest_round": "",
+      "latest_status": "missing",
+      "queue_counts": {},
+      "instance_count": 0,
+      "github_rate_last_status": 0
+    },
+    "recommended_agent_action": "run_bridge_only_smoke_and_collect_evidence",
+    "codex_commands": [
+      "node local-bridge/openpatch-ledger-cli.mjs readiness --project openpatch-smoke --target bridge-only",
+      "node local-bridge/openpatch-ledger-cli.mjs smoke-plan --project openpatch-smoke --target bridge",
+      "node local-bridge/openpatch-ledger-cli.mjs evidence-template --project openpatch-smoke --target bridge-only"
+    ],
+    "checked_at": "2026-05-06T02:14:35.170Z"
+  },
+  "created_at": "2026-05-06T02:14:35.173Z"
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": "openpatch.sha_index.v1",
+  "entries": [
+    {
+      "project": "openpatch-smoke",
+      "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
+      "first_round_id": "v15-cli-smoke-001",
+      "latest_round_id": "v15-cli-smoke-001",
+      "count": 1,
+      "created_at": "2026-05-06T09:15:42.048Z",
+      "updated_at": "2026-05-06T09:15:42.048Z"
+    },
+    {
+      "project": "openpatch-smoke",
+      "file_sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
+      "first_round_id": "v15-smoke-001",
+      "latest_round_id": "v15-smoke-001",
+      "count": 1,
+      "created_at": "2026-05-06T09:15:39.845Z",
+      "updated_at": "2026-05-06T09:15:39.845Z"
+    }
+  ],
+  "updated_at": "2026-05-06T09:15:42.048Z"
+}

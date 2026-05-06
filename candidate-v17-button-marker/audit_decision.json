@@ -1,0 +1,51 @@
+{
+  "schema_version": "openpatch.re_candidate_decision.v17",
+  "artifact": "openpatch_agent_gateway_v17_button_marker_candidate.zip",
+  "terminology": "OpenPatch RE",
+  "candidate_generation": "v17-followup-button-marker-counter",
+  "source_baseline": "v16 candidate reviewed in round 1",
+  "decision": "ready_for_repo_or_relay_reviewer_audit",
+  "allowed_next_scope_after_reviewer_acceptance": [
+    "bridge-only dry-run controlled smoke",
+    "Chrome/CDP observe-only controlled smoke"
+  ],
+  "still_blocked": [
+    "real GitHub upload/apply",
+    "production install",
+    "live Auto Continue adapter install",
+    "claiming hosted evidence as approval",
+    "printing or requesting secrets/PATs/cookies/browser profile internals/.env"
+  ],
+  "round_1_reviewer_required_fixes": {
+    "hard_route_classifier_and_asset_kind_schema": "implemented",
+    "ui_marker_required_fields": "implemented",
+    "preflight_bundle_blocker_logic": "implemented",
+    "github_upload_gate_route_alias_and_ambiguity": "implemented",
+    "smoke_plan_stale_refs": "implemented",
+    "codex_brief_next_command_alignment": "implemented",
+    "regression_fixtures": "implemented",
+    "compact_contract": "implemented",
+    "auto_continue_heartbeat_and_receipt_missing_stop": "implemented",
+    "hosted_assets_evidence_only_doc": "implemented"
+  },
+  "self_check_summary": {
+    "npm_test": "pass_15_of_15",
+    "npm_run_check": "pass",
+    "node_check": "pass",
+    "classifier_fixtures": "pass",
+    "bridge_smoke": "pass_bridge_only_dry_run",
+    "real_github_upload": "not_run",
+    "chrome_dev_profile_smoke": "not_run",
+    "live_auto_continue_install": "not_run",
+    "button_marker_counter_self_test": "pass"
+  },
+  "recommended_next_action": "repo_or_relay_reviewer_audit_then_controlled_bridge_or_chrome_observe_only_smoke",
+  "created_at": "2026-05-06T00:00:00Z",
+  "additional_v17_followup_requirement": {
+    "stable_per_button_marker_counter_metadata": "implemented",
+    "dom_required_fields": "implemented",
+    "lazy_loaded_history_not_required": "implemented_via_loaded_message_hash_and_message_local_index",
+    "self_test_evidence": "checks/V17_BUTTON_MARKER_COUNTER_RESULTS.json"
+  },
+  "updated_at": "2026-05-06T00:00:00Z"
+}

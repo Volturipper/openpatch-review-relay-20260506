@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "status": "claimed",
+  "lease_until": "2026-05-06T00:59:12.774Z",
+  "task": {
+    "schema_version": "openpatch.bridge_queue_item.v1",
+    "idempotency_key": "v9-queue-r1-abc",
+    "project": "v9-queue",
+    "round_id": "r1",
+    "file_sha256": "abc",
+    "status": "claimed",
+    "action": "archive_roundpack",
+    "route_context": {},
+    "created_at": "2026-05-06T00:56:58.370Z",
+    "updated_at": "2026-05-06T00:58:12.774Z",
+    "claimed_by": "test-agent",
+    "lease_until": "2026-05-06T00:59:12.774Z"
+  }
+}

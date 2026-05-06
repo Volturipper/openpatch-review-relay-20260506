@@ -1,0 +1,41 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.config_lint.v13",
+  "errors": [],
+  "warnings": [],
+  "summary": {
+    "repo_count": 2,
+    "key_alias_count": 1,
+    "route_profile_count": 2,
+    "project_count": 2,
+    "binding_count": 2,
+    "error_count": 0,
+    "warning_count": 0
+  },
+  "binding_summary": [
+    {
+      "profile_id": "webai-transfer-designer-chat",
+      "project": "webai-transfer",
+      "repo_alias": "webai-round-ledger",
+      "key_alias": "gh-webai-ledger",
+      "repo_known": true,
+      "key_known": true,
+      "allowed_by_repo": true,
+      "allowed_by_key": true,
+      "repo_dry_run": false
+    },
+    {
+      "profile_id": "default-archive",
+      "project": "default",
+      "repo_alias": "dry-run-archive",
+      "key_alias": "gh-webai-ledger",
+      "repo_known": true,
+      "key_known": true,
+      "allowed_by_repo": true,
+      "allowed_by_key": true,
+      "repo_dry_run": true
+    }
+  ],
+  "recommended_agent_action": "continue",
+  "checked_at": "2026-05-06T02:44:57.584Z"
+}

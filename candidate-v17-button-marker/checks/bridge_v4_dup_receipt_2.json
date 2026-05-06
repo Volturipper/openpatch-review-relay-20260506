@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "status": "received_duplicate_sha",
+  "receipt": {
+    "project": "webai-transfer",
+    "round_id": "r002",
+    "receipt_path": "/mnt/data/openpatch_v4_bridge_test_dup/receipts/webai-transfer/r002.json",
+    "file_sha256": "same",
+    "received_at": "2026-05-05T23:31:29.584Z"
+  },
+  "latest": {
+    "schema_version": "openpatch.bridge_latest.v1",
+    "project": "webai-transfer",
+    "latest_round": "r002",
+    "status": "uploaded",
+    "latest": {
+      "project": "webai-transfer",
+      "round_id": "r002",
+      "status": "uploaded",
+      "file_sha256": "same",
+      "receipt_path": "/mnt/data/openpatch_v4_bridge_test_dup/receipts/webai-transfer/r002.json",
+      "received_at": "2026-05-05T23:31:29.584Z"
+    },
+    "recent_rounds": [
+      {
+        "project": "webai-transfer",
+        "round_id": "r002",
+        "status": "uploaded",
+        "file_sha256": "same",
+        "receipt_path": "/mnt/data/openpatch_v4_bridge_test_dup/receipts/webai-transfer/r002.json",
+        "received_at": "2026-05-05T23:31:29.584Z"
+      },
+      {
+        "project": "webai-transfer",
+        "round_id": "r001",
+        "status": "uploaded",
+        "file_sha256": "same",
+        "receipt_path": "/mnt/data/openpatch_v4_bridge_test_dup/receipts/webai-transfer/r001.json",
+        "received_at": "2026-05-05T23:31:29.394Z"
+      }
+    ],
+    "codex_next_query": "/latest?project=webai-transfer",
+    "updated_at": "2026-05-05T23:31:29.585Z"
+  },
+  "duplicate": {
+    "project": "webai-transfer",
+    "file_sha256": "same",
+    "first_round_id": "r001",
+    "latest_round_id": "r002",
+    "count": 2
+  }
+}

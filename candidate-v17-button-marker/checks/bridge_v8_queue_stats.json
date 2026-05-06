@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.queue_stats.v1",
+  "project": "v8stress",
+  "total": 0,
+  "counts": {},
+  "updated_at": "2026-05-06T00:48:56.165Z"
+}

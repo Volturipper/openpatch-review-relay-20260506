@@ -1,0 +1,77 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.smoke_plan.v17",
+  "project": "openpatch-smoke",
+  "target": "all",
+  "config_lint": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0
+  },
+  "steps": [
+    {
+      "id": "bridge-health",
+      "title": "Confirm local bridge is alive",
+      "actor": "codex",
+      "command": "node local-bridge/openpatch-ledger-cli.mjs health",
+      "expected": "ok=true",
+      "level": "safe"
+    },
+    {
+      "id": "bridge-config-lint",
+      "title": "Lint repo/key/route aliases without printing secrets",
+      "actor": "codex",
+      "command": "node local-bridge/openpatch-ledger-cli.mjs config-lint",
+      "expected": "errors=[]",
+      "level": "safe"
+    },
+    {
+      "id": "bridge-dry-run-archive",
+      "title": "Dry-run archive a tiny fixture through the bridge",
+      "actor": "codex",
+      "command": "node local-bridge/openpatch-ledger-cli.mjs archive-base64 --project openpatch-smoke --round smoke-001 --file webai-roundpack.zip --content-base64 ZHVtbXk= --dry-run",
+      "expected": "status=dry_run_planned",
+      "level": "safe"
+    },
+    {
+      "id": "chrome-load-unpacked",
+      "title": "Load unpacked extension in dedicated Chrome Dev profile",
+      "actor": "owner_or_codex_with_approval",
+      "command": "open browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V17.md",
+      "expected": "extension loads; no real upload required",
+      "level": "controlled"
+    },
+    {
+      "id": "chrome-marker-check",
+      "title": "Open a ChatGPT page with a test attachment and verify v11 marker/status badge",
+      "actor": "codex_or_owner",
+      "command": "use page event openpatch:api:get-buttons",
+      "expected": "schemaVersion=openpatch.agent_button.v17",
+      "level": "controlled"
+    },
+    {
+      "id": "github-test-upload",
+      "title": "Archive-only upload to a single fine-grained PAT test repo",
+      "actor": "codex_with_owner_approval",
+      "command": "open task_cards/FOR_GITHUB_TEST_UPLOAD_V17.md",
+      "expected": "receipt/latest/result created in archive repo",
+      "level": "approval_required"
+    },
+    {
+      "id": "auto-continue-adapter",
+      "title": "Install adapter into the current Auto Continue script as a module, not a hard merge",
+      "actor": "codex_or_ai_author",
+      "command": "open auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V17.md",
+      "expected": "adapter can request roundpack and wait for archive receipt",
+      "level": "controlled"
+    }
+  ],
+  "stop_conditions": [
+    "bridge health fails",
+    "config-lint has errors before real upload",
+    "route conflict is ambiguous",
+    "GitHub upload is not archive-only",
+    "unexpected token/key value appears in output"
+  ],
+  "created_at": "2026-05-06T11:02:12.645Z"
+}

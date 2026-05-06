@@ -1,0 +1,26 @@
+{
+  "schema_version": "openpatch.bridge_latest.v5",
+  "project": "webai-transfer",
+  "latest_round": "r001",
+  "status": "dry_run_planned",
+  "latest": {
+    "project": "webai-transfer",
+    "round_id": "r001",
+    "status": "dry_run_planned",
+    "file_sha256": "3f9cc96bc748f758c5ac5f9bacdb46b57d7e821f8a8cf26681307fbfff27c55d",
+    "receipt_path": "/mnt/data/openpatch_v5_bridge_test/receipts/webai-transfer/r001.json",
+    "received_at": "2026-05-05T23:36:30.898Z"
+  },
+  "recent_rounds": [
+    {
+      "project": "webai-transfer",
+      "round_id": "r001",
+      "status": "dry_run_planned",
+      "file_sha256": "3f9cc96bc748f758c5ac5f9bacdb46b57d7e821f8a8cf26681307fbfff27c55d",
+      "receipt_path": "/mnt/data/openpatch_v5_bridge_test/receipts/webai-transfer/r001.json",
+      "received_at": "2026-05-05T23:36:30.898Z"
+    }
+  ],
+  "codex_next_query": "/latest?project=webai-transfer",
+  "updated_at": "2026-05-05T23:36:30.899Z"
+}

@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.bridge_health.v1",
+  "service": "openpatch-local-bridge",
+  "root": "/tmp/tmp.AYcqPz9lgs",
+  "time": "2026-05-05T23:27:15.778Z"
+}

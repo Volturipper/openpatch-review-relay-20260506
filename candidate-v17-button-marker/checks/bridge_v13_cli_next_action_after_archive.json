@@ -1,0 +1,50 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.agent_next_action.v13",
+  "project": "openpatch-smoke",
+  "target": "bridge-only",
+  "go_no_go": "go_with_warnings",
+  "recommended_agent_action": "read_latest_receipt",
+  "actions": [
+    {
+      "priority": 10,
+      "action": "read_latest_receipt",
+      "command": "node local-bridge/openpatch-ledger-cli.mjs receipt --project openpatch-smoke --round v13-smoke",
+      "reason": "latest archived round exists"
+    },
+    {
+      "priority": 20,
+      "action": "check_readiness",
+      "command": "node local-bridge/openpatch-ledger-cli.mjs readiness --project openpatch-smoke --target bridge-only",
+      "reason": "current go/no-go is go_with_warnings"
+    },
+    {
+      "priority": 30,
+      "action": "inspect_queue",
+      "command": "node local-bridge/openpatch-ledger-cli.mjs queue-stats --project openpatch-smoke",
+      "reason": "claim/retry/release tasks if needed"
+    }
+  ],
+  "compact": {
+    "ok": true,
+    "schema_version": "openpatch.compact_summary.v1",
+    "project": "openpatch-smoke",
+    "latest_round": "v13-smoke",
+    "status": "dry_run_planned",
+    "archive_only": true,
+    "allow_execution": false,
+    "file_sha256": "b5a2c96250612366ea272ffac6d9744aaf4b45aacd96aa7cfcb931ee3b558259",
+    "queue_counts": {},
+    "recommended_agent_action": "read_latest_receipt_or_fetch_roundpack",
+    "codex_next": "node local-bridge/openpatch-ledger-cli.mjs receipt --project openpatch-smoke --round v13-smoke",
+    "updated_at": "2026-05-06T02:44:09.512Z"
+  },
+  "readiness_compact": {
+    "latest_round": "v13-smoke",
+    "latest_status": "dry_run_planned",
+    "queue_counts": {},
+    "instance_count": 0,
+    "github_rate_last_status": 0
+  },
+  "generated_at": "2026-05-06T02:44:09.516Z"
+}

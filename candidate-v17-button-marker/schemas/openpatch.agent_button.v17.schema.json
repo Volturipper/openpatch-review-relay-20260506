@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.agent_button.v17.schema.json",
+  "title": "OpenPatch RE v17 Agent Button Marker",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "status",
+    "asset_kind",
+    "route_decision",
+    "route_decision_reason",
+    "allowed_action",
+    "not_approval",
+    "fileName",
+    "routeContext",
+    "buttonId",
+    "button_index",
+    "visible_count",
+    "message_id",
+    "message_button_index",
+    "message_visible_count",
+    "counter_scope"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "openpatch.agent_button.v17"
+    },
+    "status": {
+      "type": "string"
+    },
+    "asset_kind": {
+      "type": "string"
+    },
+    "route_decision": {
+      "type": "string"
+    },
+    "route_decision_reason": {
+      "type": "string"
+    },
+    "allowed_action": {
+      "type": "string"
+    },
+    "not_approval": {
+      "type": "boolean"
+    },
+    "fileName": {
+      "type": "string"
+    },
+    "routeContext": {
+      "type": "object"
+    },
+    "recommendedAgentAction": {
+      "type": "string"
+    },
+    "decisionHint": {
+      "type": "string"
+    },
+    "buttonId": {
+      "type": "string"
+    },
+    "button_index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "visible_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "message_id": {
+      "type": "string"
+    },
+    "message_button_index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "message_visible_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "counter_scope": {
+      "type": "string"
+    },
+    "counter_note": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

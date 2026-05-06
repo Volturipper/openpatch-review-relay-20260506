@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OpenPatch Settings</title>
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+  <body class="page">
+    <main class="shell">
+      <header class="header">
+        <div>
+          <h1>OpenPatch 设置</h1>
+          <p>只需要配置 Token、仓库和目标分支。</p>
+        </div>
+        <div class="actions compact-actions">
+          <a class="button-link" href="about.html">About</a>
+          <span id="token-state" class="badge">未配置</span>
+        </div>
+      </header>
+
+      <form id="options-form" class="panel">
+        <label>
+          GitHub Token
+          <input id="github-token" type="password" autocomplete="off" placeholder="fine-grained-token-or-key-alias">
+        </label>
+
+        <label>
+          仓库地址
+          <input id="repository" type="text" placeholder="afumu/snake-game-test 或 GitHub URL">
+        </label>
+
+        <details open>
+          <summary>高级设置</summary>
+          <div class="grid">
+            <label>
+              目标分支
+              <input id="base-branch" type="text" placeholder="main">
+            </label>
+
+            <label>
+              Patch 目录
+              <input id="patch-dir" type="text" placeholder=".ai-patches">
+            </label>
+
+            <label>
+              Project ID
+              <input id="project-id" type="text" placeholder="webai-transfer">
+            </label>
+
+            <label>
+              Route Profile ID
+              <input id="route-profile-id" type="text" placeholder="designer-chat-a">
+            </label>
+
+            <label>
+              Repo Alias
+              <input id="repo-alias" type="text" placeholder="archive-repo-default">
+            </label>
+
+            <label>
+              Key Alias
+              <input id="key-alias" type="text" placeholder="github-archive-key">
+            </label>
+
+            <label>
+              Archive Root
+              <input id="archive-root" type="text" placeholder="rounds">
+            </label>
+
+            <label>
+              Index Root
+              <input id="index-root" type="text" placeholder="index">
+            </label>
+
+            <label>
+              Archive Mode
+              <select id="archive-mode-default">
+                <option value="auto">auto</option>
+                <option value="archive_only">archive_only</option>
+                <option value="patch_upload">patch_upload</option>
+              </select>
+            </label>
+
+            <label>
+              Local Bridge URL
+              <input id="bridge-url" type="text" placeholder="http://127.0.0.1:17873">
+            </label>
+          </div>
+
+          <label class="check">
+            <input id="bridge-enabled" type="checkbox">
+            启用本地 Agent Bridge 状态联动
+          </label>
+
+          <label class="check">
+            <input id="bridge-handles-upload" type="checkbox">
+            由本地 Bridge 代理 GitHub 上传与 key/repo alias
+          </label>
+
+          <label class="check">
+            <input id="auto-open-branch" type="checkbox">
+            Upload 后打开目标分支页面
+          </label>
+        </details>
+
+        <div class="actions">
+          <button type="submit" class="primary">保存设置</button>
+          <button type="button" id="clear-token">清除 Token</button>
+        </div>
+
+        <p id="status" class="status"></p>
+      </form>
+    </main>
+
+    <script type="module" src="../src/options.js"></script>
+  </body>
+</html>

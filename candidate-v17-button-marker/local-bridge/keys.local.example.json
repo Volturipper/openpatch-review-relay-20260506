@@ -1,0 +1,14 @@
+{
+  "schema_version": "openpatch.keys.local.v1",
+  "keys": [
+    {
+      "key_alias": "gh-webai-ledger",
+      "provider": "github",
+      "token_env": "GITHUB_TOKEN_FOR_WEBAI_LEDGER",
+      "allowed_repo_aliases": [
+        "webai-round-ledger",
+        "dry-run-archive"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": "openpatch.route_profiles.v1",
+  "profiles": [
+    {
+      "profile_id": "webai-transfer-designer-chat",
+      "project": "webai-transfer",
+      "repo_alias": "webai-round-ledger",
+      "key_alias": "gh-webai-ledger",
+      "archive_root": "rounds",
+      "index_root": "index",
+      "mode": "roundpack_archive",
+      "priority": 50,
+      "match": {
+        "url_contains": [
+          "chatgpt.com/c/"
+        ],
+        "title_contains": [
+          "webai_transfer",
+          "webai transfer",
+          "designer"
+        ]
+      }
+    },
+    {
+      "profile_id": "default-archive",
+      "default": true,
+      "project": "default",
+      "repo_alias": "dry-run-archive",
+      "key_alias": "gh-webai-ledger",
+      "archive_root": "rounds",
+      "index_root": "index",
+      "mode": "roundpack_archive",
+      "priority": 1,
+      "match": {}
+    }
+  ]
+}

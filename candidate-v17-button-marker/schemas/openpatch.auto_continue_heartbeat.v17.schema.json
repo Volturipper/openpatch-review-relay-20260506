@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.auto_continue_heartbeat.v17.schema.json",
+  "title": "OpenPatch RE v17 Auto Continue Heartbeat",
+  "type": "object",
+  "required": ["schema_version", "page_session_id", "project", "status", "receipt_required", "receipt_status", "next_action"],
+  "properties": {
+    "schema_version": { "const": "openpatch.auto_continue_heartbeat.v17" },
+    "page_session_id": { "type": "string" },
+    "project": { "type": "string" },
+    "status": { "enum": ["continue_allowed", "roundpack_required", "waiting_for_receipt", "receipt_missing", "blocked"] },
+    "receipt_required": { "type": "boolean" },
+    "receipt_status": { "enum": ["not_required", "pending", "observed", "missing"] },
+    "next_action": { "type": "string" }
+  },
+  "additionalProperties": true
+}

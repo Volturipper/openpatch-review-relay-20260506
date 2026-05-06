@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.github_rate_status.v8",
+  "last_request_at": 0,
+  "in_flight": 0,
+  "total_requests": 0,
+  "retry_count": 0,
+  "last_status": 0,
+  "last_error": "",
+  "rate_limit": null,
+  "updated_at": "2026-05-06T00:48:57.083Z"
+}

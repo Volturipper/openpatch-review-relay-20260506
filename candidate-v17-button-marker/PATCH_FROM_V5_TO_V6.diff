@@ -1,0 +1,1835 @@
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/audit_decision.json /mnt/data/openpatch_agent_gateway_v6_candidate/audit_decision.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/audit_decision.json	2026-05-05 23:37:05.686814463 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/audit_decision.json	2026-05-05 23:42:35.872076737 +0000
+@@ -1,26 +1,48 @@
+ {
+-  "schema_version": "openpatch.audit_decision.v5",
++  "schema_version": "openpatch.agent_gateway.audit_decision.v6",
+   "decision": "candidate_continue_iteration",
+-  "summary": "v5 adds bridge-side GitHub upload proxy, local key/repo aliases, sanitized config APIs, and Codex CLI dry-run archive support.",
+-  "release_status": "not_production_release",
++  "release_status": "not_production_released",
++  "round": "v6",
++  "role": "web_ai_designer_helper_candidate_packager",
++  "scope": [
++    "agent marker v6",
++    "page event API for Auto Continue",
++    "local bridge agent summary / receipt / events / queue claim-retry",
++    "Codex CLI convenience commands",
++    "dry-run self tests"
++  ],
+   "completed": [
+-    "bridge_side_archive_base64_endpoint",
+-    "local_key_alias_plan_and_example",
+-    "repo_alias_plan_and_example",
+-    "extension_bridge_handles_upload_option",
+-    "codex_cli_archive_base64_command",
+-    "sandbox_dry_run_self_tests"
++    "npm test passed 14/14",
++    "npm run check passed",
++    "local bridge dry-run archive smoke passed",
++    "auto-continue plan endpoint smoke passed",
++    "agent-summary / receipt / events / queue claim-retry smoke passed"
+   ],
+   "not_completed": [
+-    "real_chrome_extension_install_test",
+-    "real_github_token_upload_test",
+-    "multi_browser_concurrency_stress_test",
+-    "live_auto_continue_integration_test"
++    "real Chrome Dev profile install smoke test",
++    "real GitHub fine-grained PAT upload test",
++    "multi-browser long-run concurrency test",
++    "UI polish"
++  ],
++  "default_next_step": "isolated_smoke_test_then_external_review",
++  "do_not_overinterpret": [
++    "candidate package is not a production release",
++    "archive upload does not approve execution/apply/merge",
++    "dry-run evidence is not proof of real GitHub upload"
+   ],
+-  "next_iteration": [
+-    "real Chrome Dev profile smoke test",
+-    "single test GitHub repo upload with fine-grained token",
+-    "Auto Continue scheduler integration",
+-    "multi-page queue and backoff stress test"
+-  ]
++  "codex_convenience": {
++    "allowed_by_design": [
++      "query health/config/status/latest/agent-summary",
++      "query receipt/events/queue/sha-index",
++      "enqueue/claim/retry queue tasks",
++      "run dry-run archive-base64",
++      "generate Auto Continue plan"
++    ],
++    "requires_real_environment_decision": [
++      "load extension into real browser profile",
++      "use real GitHub token",
++      "upload to real archive repo",
++      "merge/apply code changes outside archive ledger"
++    ]
++  }
+ }
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/SELF_TEST_REPORT_V6.md /mnt/data/openpatch_agent_gateway_v6_candidate/checks/SELF_TEST_REPORT_V6.md
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/SELF_TEST_REPORT_V6.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/SELF_TEST_REPORT_V6.md	2026-05-05 23:42:11.990355955 +0000
+@@ -0,0 +1,47 @@
++# SELF_TEST_REPORT_V6
++
++## 范围
++
++本轮只在 ChatGPT sandbox 内对候选源码做无副作用自测。未触达真实 GitHub token、真实浏览器 profile、真实用户仓库或生产服务。
++
++## 命令与结果
++
++✅ `node --check openpatch-main/src/content-script.js` pass  
++✅ `node --check openpatch-main/src/background.js` pass  
++✅ `node --check local-bridge/openpatch-local-bridge.mjs` pass  
++✅ `node --check local-bridge/openpatch-ledger-cli.mjs` pass  
++✅ `cd openpatch-main && npm test` pass，14/14 tests passed  
++✅ `cd openpatch-main && npm run check` pass，14/14 tests passed，manifest parse OK  
++✅ Local Bridge `/health` pass  
++✅ Local Bridge `/auto-continue/plan` pass  
++✅ Local Bridge `/archive/base64` dry-run pass  
++✅ Local Bridge `/agent/summary` pass  
++✅ Local Bridge `/receipt` pass  
++✅ Queue enqueue / claim / retry pass  
++✅ `/events` pass  
++✅ Codex CLI `agent-summary` pass
++
++## 证据文件
++
++```text
++checks/npm_test_v6.log
++checks/npm_run_check_v6.log
++checks/bridge_v6_health.json
++checks/bridge_v6_auto_continue_plan.json
++checks/bridge_v6_archive_dry_run.json
++checks/bridge_v6_agent_summary.json
++checks/bridge_v6_receipt_query.json
++checks/bridge_v6_queue_enqueue.json
++checks/bridge_v6_queue_claim.json
++checks/bridge_v6_queue_retry.json
++checks/bridge_v6_events.json
++checks/bridge_v6_cli_agent_summary.json
++checks/bridge_v6_server.log
++```
++
++## 未完成
++
++⬜ 未做真实 Chrome Dev profile 安装测试。  
++⬜ 未做真实 GitHub fine-grained PAT 上传测试。  
++⬜ 未做真实多页面/多浏览器并发压力测试。  
++⬜ 未做 UI/UX polish。
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v4_server.pid /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v4_server.pid
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v4_server.pid	2026-05-05 23:31:09.186173462 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v4_server.pid	1970-01-01 00:00:00.000000000 +0000
+@@ -1 +0,0 @@
+-7095
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_agent_summary.json /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_agent_summary.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_agent_summary.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_agent_summary.json	2026-05-05 23:41:28.672418600 +0000
+@@ -0,0 +1,45 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.agent_summary.v1",
++  "project": "webai-transfer",
++  "latest_round": "round-v6-001",
++  "status": "dry_run_planned",
++  "latest": {
++    "schema_version": "openpatch.bridge_latest.v6",
++    "project": "webai-transfer",
++    "latest_round": "round-v6-001",
++    "status": "dry_run_planned",
++    "latest": {
++      "project": "webai-transfer",
++      "round_id": "round-v6-001",
++      "status": "dry_run_planned",
++      "file_sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
++      "receipt_path": "/mnt/data/openpatch_v6_bridge_test/receipts/webai-transfer/round-v6-001.json",
++      "received_at": "2026-05-05T23:41:28.569Z"
++    },
++    "recent_rounds": [
++      {
++        "project": "webai-transfer",
++        "round_id": "round-v6-001",
++        "status": "dry_run_planned",
++        "file_sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
++        "receipt_path": "/mnt/data/openpatch_v6_bridge_test/receipts/webai-transfer/round-v6-001.json",
++        "received_at": "2026-05-05T23:41:28.569Z"
++      }
++    ],
++    "codex_next_query": "/latest?project=webai-transfer",
++    "updated_at": "2026-05-05T23:41:28.570Z"
++  },
++  "queue": {
++    "count": 0,
++    "items": []
++  },
++  "duplicates": [],
++  "total_receipts": 1,
++  "recommended_agent_action": "read_latest_receipt_then_continue",
++  "codex_commands": [
++    "node local-bridge/openpatch-ledger-cli.mjs latest --project webai-transfer",
++    "node local-bridge/openpatch-ledger-cli.mjs receipt --project webai-transfer --round round-v6-001"
++  ],
++  "updated_at": "2026-05-05T23:41:28.671Z"
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_archive_dry_run.json /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_archive_dry_run.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_archive_dry_run.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_archive_dry_run.json	2026-05-05 23:41:28.576987109 +0000
+@@ -0,0 +1,90 @@
++{
++  "ok": true,
++  "status": "dry_run_planned",
++  "mode": "bridge_archive_base64",
++  "project": "webai-transfer",
++  "round_id": "round-v6-001",
++  "file_sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
++  "repo_alias": "example-dry-run-archive",
++  "key_alias": "example-gh-token-env",
++  "paths": {
++    "archive_path": "rounds/webai-transfer/2026/05/05/round-v6-001/webai-roundpack.zip",
++    "manifest_path": "rounds/webai-transfer/2026/05/05/round-v6-001/archive_manifest.json",
++    "receipt_path": "rounds/webai-transfer/2026/05/05/round-v6-001/upload_receipt.json",
++    "latest_path": "index/latest/webai-transfer.json"
++  },
++  "github": {
++    "owner": "example-owner",
++    "repo": "example-archive-repo",
++    "branch": "webai-archive",
++    "archive_path": "rounds/webai-transfer/2026/05/05/round-v6-001/webai-roundpack.zip",
++    "manifest_path": "rounds/webai-transfer/2026/05/05/round-v6-001/archive_manifest.json",
++    "receipt_path": "rounds/webai-transfer/2026/05/05/round-v6-001/upload_receipt.json",
++    "latest_path": "index/latest/webai-transfer.json",
++    "dry_run": true
++  },
++  "commit_sha": "",
++  "receipt": {
++    "schema_version": "openpatch.upload_receipt.v6",
++    "status": "dry_run_planned",
++    "archive_only": true,
++    "allow_execution": false,
++    "project": "webai-transfer",
++    "round_id": "round-v6-001",
++    "file_name": "webai-roundpack.zip",
++    "file_sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
++    "route_context": {
++      "project": "webai-transfer",
++      "repo_alias": "example-dry-run-archive",
++      "key_alias": "example-gh-token-env",
++      "archive_root": "rounds",
++      "index_root": "index",
++      "route_profile": "manual"
++    },
++    "github": {
++      "owner": "example-owner",
++      "repo": "example-archive-repo",
++      "branch": "webai-archive",
++      "archive_path": "rounds/webai-transfer/2026/05/05/round-v6-001/webai-roundpack.zip",
++      "manifest_path": "rounds/webai-transfer/2026/05/05/round-v6-001/archive_manifest.json",
++      "receipt_path": "rounds/webai-transfer/2026/05/05/round-v6-001/upload_receipt.json",
++      "latest_path": "index/latest/webai-transfer.json",
++      "dry_run": true
++    },
++    "created_at": "2026-05-05T23:41:28.569Z",
++    "next_actions": [
++      "read_latest",
++      "fetch_roundpack",
++      "read_receipt",
++      "continue_agent_workflow"
++    ]
++  },
++  "latest": {
++    "schema_version": "openpatch.latest.v6",
++    "project": "webai-transfer",
++    "latest_round": "round-v6-001",
++    "status": "dry_run_planned",
++    "archive_only": true,
++    "allow_execution": false,
++    "latest": {
++      "round_id": "round-v6-001",
++      "project": "webai-transfer",
++      "status": "dry_run_planned",
++      "file_name": "webai-roundpack.zip",
++      "file_sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
++      "archive_path": "rounds/webai-transfer/2026/05/05/round-v6-001/webai-roundpack.zip",
++      "receipt_path": "rounds/webai-transfer/2026/05/05/round-v6-001/upload_receipt.json",
++      "created_at": "2026-05-05T23:41:28.569Z"
++    },
++    "recent_rounds": [],
++    "codex_should_read": [
++      "upload_receipt.json",
++      "archive_manifest.json",
++      "NEXT_FOR_CODEX.md",
++      "ROUND_SUMMARY.md"
++    ],
++    "next_actor": "codex_or_reviewer",
++    "updated_at": "2026-05-05T23:41:28.569Z"
++  },
++  "duplicate": null
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_auto_continue_plan.json /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_auto_continue_plan.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_auto_continue_plan.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_auto_continue_plan.json	2026-05-05 23:41:28.377011432 +0000
+@@ -0,0 +1,13 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.auto_continue_plan.v1",
++  "project": "webai-transfer",
++  "should_request_roundpack": true,
++  "should_pause_until_archive_receipt": true,
++  "reason": "interval_reached",
++  "required_marker": "[ROUND_PACK_READY]",
++  "preferred_file_name": "webai-roundpack-webai-transfer.zip",
++  "prompt_hint": "use_openpatch_roundpack_prompt",
++  "next_agent_action": "send_roundpack_prompt_wait_for_attachment_then_trigger_archive",
++  "created_at": "2026-05-05T23:41:28.375Z"
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_cli_agent_summary.json /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_cli_agent_summary.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_cli_agent_summary.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_cli_agent_summary.json	2026-05-05 23:41:29.273421822 +0000
+@@ -0,0 +1,61 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.agent_summary.v1",
++  "project": "webai-transfer",
++  "latest_round": "round-v6-001",
++  "status": "dry_run_planned",
++  "latest": {
++    "schema_version": "openpatch.bridge_latest.v6",
++    "project": "webai-transfer",
++    "latest_round": "round-v6-001",
++    "status": "dry_run_planned",
++    "latest": {
++      "project": "webai-transfer",
++      "round_id": "round-v6-001",
++      "status": "dry_run_planned",
++      "file_sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
++      "receipt_path": "/mnt/data/openpatch_v6_bridge_test/receipts/webai-transfer/round-v6-001.json",
++      "received_at": "2026-05-05T23:41:28.569Z"
++    },
++    "recent_rounds": [
++      {
++        "project": "webai-transfer",
++        "round_id": "round-v6-001",
++        "status": "dry_run_planned",
++        "file_sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
++        "receipt_path": "/mnt/data/openpatch_v6_bridge_test/receipts/webai-transfer/round-v6-001.json",
++        "received_at": "2026-05-05T23:41:28.569Z"
++      }
++    ],
++    "codex_next_query": "/latest?project=webai-transfer",
++    "updated_at": "2026-05-05T23:41:28.570Z"
++  },
++  "queue": {
++    "count": 1,
++    "items": [
++      {
++        "schema_version": "openpatch.bridge_queue_item.v1",
++        "idempotency_key": "webai-transfer-round-v6-002-abc",
++        "project": "webai-transfer",
++        "round_id": "round-v6-002",
++        "file_sha256": "abc",
++        "status": "retry_requested",
++        "action": "archive_roundpack",
++        "route_context": {},
++        "created_at": "2026-05-05T23:41:28.792Z",
++        "updated_at": "2026-05-05T23:41:28.971Z",
++        "claimed_by": "codex",
++        "retry_count": 1,
++        "retry_reason": "smoke retry"
++      }
++    ]
++  },
++  "duplicates": [],
++  "total_receipts": 1,
++  "recommended_agent_action": "read_latest_receipt_then_continue",
++  "codex_commands": [
++    "node local-bridge/openpatch-ledger-cli.mjs latest --project webai-transfer",
++    "node local-bridge/openpatch-ledger-cli.mjs receipt --project webai-transfer --round round-v6-001"
++  ],
++  "updated_at": "2026-05-05T23:41:29.214Z"
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_events.json /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_events.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_events.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_events.json	2026-05-05 23:41:29.006953892 +0000
+@@ -0,0 +1,60 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_events.v1",
++  "events": [
++    {
++      "schema_version": "openpatch.bridge_event.v1",
++      "type": "auto_continue_plan",
++      "detail": {
++        "project": "webai-transfer",
++        "should_request_roundpack": true,
++        "reason": "interval_reached"
++      },
++      "created_at": "2026-05-05T23:41:28.375Z"
++    },
++    {
++      "schema_version": "openpatch.bridge_event.v1",
++      "type": "archive_base64",
++      "detail": {
++        "project": "webai-transfer",
++        "round_id": "round-v6-001",
++        "status": "dry_run_planned",
++        "file_sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
++        "repo_alias": "example-dry-run-archive",
++        "key_alias": "example-gh-token-env",
++        "dry_run": true
++      },
++      "created_at": "2026-05-05T23:41:28.576Z"
++    },
++    {
++      "schema_version": "openpatch.bridge_event.v1",
++      "type": "queue_enqueued",
++      "detail": {
++        "project": "webai-transfer",
++        "round_id": "round-v6-002",
++        "idempotency_key": "webai-transfer-round-v6-002-abc"
++      },
++      "created_at": "2026-05-05T23:41:28.794Z"
++    },
++    {
++      "schema_version": "openpatch.bridge_event.v1",
++      "type": "queue_claimed",
++      "detail": {
++        "project": "webai-transfer",
++        "round_id": "round-v6-002",
++        "idempotency_key": "webai-transfer-round-v6-002-abc"
++      },
++      "created_at": "2026-05-05T23:41:28.882Z"
++    },
++    {
++      "schema_version": "openpatch.bridge_event.v1",
++      "type": "queue_retry_requested",
++      "detail": {
++        "project": "webai-transfer",
++        "round_id": "round-v6-002",
++        "idempotency_key": ""
++      },
++      "created_at": "2026-05-05T23:41:28.971Z"
++    }
++  ]
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_health.json /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_health.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_health.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_health.json	2026-05-05 23:41:28.265660364 +0000
+@@ -0,0 +1,24 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_health.v6",
++  "service": "openpatch-local-bridge",
++  "root": "/mnt/data/openpatch_v6_bridge_test",
++  "capabilities": [
++    "routes",
++    "resolve_route",
++    "receipts",
++    "latest",
++    "sha_index",
++    "queue",
++    "config_status",
++    "archive_base64",
++    "bridge_side_github_upload",
++    "agent_summary",
++    "receipt_query",
++    "queue_claim",
++    "queue_retry",
++    "auto_continue_plan",
++    "events"
++  ],
++  "time": "2026-05-05T23:41:28.183Z"
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_queue_claim.json /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_queue_claim.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_queue_claim.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_queue_claim.json	2026-05-05 23:41:28.883649483 +0000
+@@ -0,0 +1,17 @@
++{
++  "ok": true,
++  "status": "claimed",
++  "task": {
++    "schema_version": "openpatch.bridge_queue_item.v1",
++    "idempotency_key": "webai-transfer-round-v6-002-abc",
++    "project": "webai-transfer",
++    "round_id": "round-v6-002",
++    "file_sha256": "abc",
++    "status": "claimed",
++    "action": "archive_roundpack",
++    "route_context": {},
++    "created_at": "2026-05-05T23:41:28.792Z",
++    "updated_at": "2026-05-05T23:41:28.881Z",
++    "claimed_by": "codex"
++  }
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_queue_enqueue.json /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_queue_enqueue.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_queue_enqueue.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_queue_enqueue.json	2026-05-05 23:41:28.795199607 +0000
+@@ -0,0 +1,16 @@
++{
++  "ok": true,
++  "status": "queued",
++  "task": {
++    "schema_version": "openpatch.bridge_queue_item.v1",
++    "idempotency_key": "webai-transfer-round-v6-002-abc",
++    "project": "webai-transfer",
++    "round_id": "round-v6-002",
++    "file_sha256": "abc",
++    "status": "queued",
++    "action": "archive_roundpack",
++    "route_context": {},
++    "created_at": "2026-05-05T23:41:28.792Z",
++    "updated_at": "2026-05-05T23:41:28.792Z"
++  }
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_queue_retry.json /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_queue_retry.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_queue_retry.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_queue_retry.json	2026-05-05 23:41:28.972457224 +0000
+@@ -0,0 +1,4 @@
++{
++  "ok": true,
++  "status": "retry_requested"
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_receipt_query.json /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_receipt_query.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_receipt_query.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_receipt_query.json	2026-05-05 23:41:28.706293341 +0000
+@@ -0,0 +1,102 @@
++{
++  "ok": true,
++  "status": "found",
++  "project": "webai-transfer",
++  "round_id": "round-v6-001",
++  "receipt_path": "/mnt/data/openpatch_v6_bridge_test/receipts/webai-transfer/round-v6-001.json",
++  "receipt": {
++    "schema_version": "openpatch.bridge_archive_receipt.v6",
++    "source": "local-bridge",
++    "local_receipt_path": "/mnt/data/openpatch_v6_bridge_test/receipts/webai-transfer/round-v6-001.json",
++    "receipt": {
++      "schema_version": "openpatch.upload_receipt.v6",
++      "status": "dry_run_planned",
++      "archive_only": true,
++      "allow_execution": false,
++      "project": "webai-transfer",
++      "round_id": "round-v6-001",
++      "file_name": "webai-roundpack.zip",
++      "file_sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
++      "route_context": {
++        "project": "webai-transfer",
++        "repo_alias": "example-dry-run-archive",
++        "key_alias": "example-gh-token-env",
++        "archive_root": "rounds",
++        "index_root": "index",
++        "route_profile": "manual"
++      },
++      "github": {
++        "owner": "example-owner",
++        "repo": "example-archive-repo",
++        "branch": "webai-archive",
++        "archive_path": "rounds/webai-transfer/2026/05/05/round-v6-001/webai-roundpack.zip",
++        "manifest_path": "rounds/webai-transfer/2026/05/05/round-v6-001/archive_manifest.json",
++        "receipt_path": "rounds/webai-transfer/2026/05/05/round-v6-001/upload_receipt.json",
++        "latest_path": "index/latest/webai-transfer.json",
++        "dry_run": true
++      },
++      "created_at": "2026-05-05T23:41:28.569Z",
++      "next_actions": [
++        "read_latest",
++        "fetch_roundpack",
++        "read_receipt",
++        "continue_agent_workflow"
++      ]
++    },
++    "manifest": {
++      "schema_version": "openpatch.archive_manifest.v6",
++      "archive_only": true,
++      "allow_execution": false,
++      "project": "webai-transfer",
++      "round_id": "round-v6-001",
++      "title": "",
++      "files": [
++        {
++          "name": "webai-roundpack.zip",
++          "sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
++          "role": "roundpack_or_artifact",
++          "path": "rounds/webai-transfer/2026/05/05/round-v6-001/webai-roundpack.zip"
++        }
++      ],
++      "receipt_path": "rounds/webai-transfer/2026/05/05/round-v6-001/upload_receipt.json",
++      "latest_path": "index/latest/webai-transfer.json",
++      "route_context": {
++        "project": "webai-transfer",
++        "repo_alias": "example-dry-run-archive",
++        "key_alias": "example-gh-token-env",
++        "archive_root": "rounds",
++        "index_root": "index",
++        "route_profile": "manual"
++      },
++      "created_at": "2026-05-05T23:41:28.569Z"
++    },
++    "latest": {
++      "schema_version": "openpatch.latest.v6",
++      "project": "webai-transfer",
++      "latest_round": "round-v6-001",
++      "status": "dry_run_planned",
++      "archive_only": true,
++      "allow_execution": false,
++      "latest": {
++        "round_id": "round-v6-001",
++        "project": "webai-transfer",
++        "status": "dry_run_planned",
++        "file_name": "webai-roundpack.zip",
++        "file_sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
++        "archive_path": "rounds/webai-transfer/2026/05/05/round-v6-001/webai-roundpack.zip",
++        "receipt_path": "rounds/webai-transfer/2026/05/05/round-v6-001/upload_receipt.json",
++        "created_at": "2026-05-05T23:41:28.569Z"
++      },
++      "recent_rounds": [],
++      "codex_should_read": [
++        "upload_receipt.json",
++        "archive_manifest.json",
++        "NEXT_FOR_CODEX.md",
++        "ROUND_SUMMARY.md"
++      ],
++      "next_actor": "codex_or_reviewer",
++      "updated_at": "2026-05-05T23:41:28.569Z"
++    },
++    "commit_sha": ""
++  }
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_server.log /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_server.log
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_server.log	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_server.log	2026-05-05 23:41:27.269423270 +0000
+@@ -0,0 +1 @@
++{"ok":true,"service":"openpatch-local-bridge","port":17916,"root":"/mnt/data/openpatch_v6_bridge_test"}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_server.pid /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_server.pid
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/bridge_v6_server.pid	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/bridge_v6_server.pid	2026-05-05 23:41:26.786092532 +0000
+@@ -0,0 +1 @@
++44986
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/npm_run_check_v6.log /mnt/data/openpatch_agent_gateway_v6_candidate/checks/npm_run_check_v6.log
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/npm_run_check_v6.log	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/npm_run_check_v6.log	2026-05-05 23:41:17.199424421 +0000
+@@ -0,0 +1,99 @@
++
++> openpatch@0.2.0 check
++> node --test && node --check src/*.js && node -e "JSON.parse(require('fs').readFileSync('manifest.json','utf8')); console.log('manifest ok')"
++
++TAP version 13
++# Subtest: encodeGitHubPath preserves path separators and escapes segments
++ok 1 - encodeGitHubPath preserves path separators and escapes segments
++  ---
++  duration_ms: 0.728398
++  type: 'test'
++  ...
++# Subtest: buildContentsApiUrl encodes repository and path
++ok 2 - buildContentsApiUrl encodes repository and path
++  ---
++  duration_ms: 0.182792
++  type: 'test'
++  ...
++# Subtest: uploadPatchText uploads metadata first then patch to target branch
++ok 3 - uploadPatchText uploads metadata first then patch to target branch
++  ---
++  duration_ms: 5.81939
++  type: 'test'
++  ...
++# Subtest: uploadPatchText resolves missing owner from GitHub token user
++ok 4 - uploadPatchText resolves missing owner from GitHub token user
++  ---
++  duration_ms: 0.643365
++  type: 'test'
++  ...
++# Subtest: uploadPatchFile uploads zip as binary content
++ok 5 - uploadPatchFile uploads zip as binary content
++  ---
++  duration_ms: 0.530622
++  type: 'test'
++  ...
++# Subtest: uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++ok 6 - uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++  ---
++  duration_ms: 7.217092
++  type: 'test'
++  ...
++# Subtest: parseRepositoryInput accepts owner/repo and GitHub URLs
++ok 7 - parseRepositoryInput accepts owner/repo and GitHub URLs
++  ---
++  duration_ms: 2.938966
++  type: 'test'
++  ...
++# Subtest: looksLikePatchDownloadText detects loose Chinese diff labels
++ok 8 - looksLikePatchDownloadText detects loose Chinese diff labels
++  ---
++  duration_ms: 0.891018
++  type: 'test'
++  ...
++# Subtest: buildPatchUploadPath creates safe unique paths
++ok 9 - buildPatchUploadPath creates safe unique paths
++  ---
++  duration_ms: 1.145645
++  type: 'test'
++  ...
++# Subtest: zip upload paths and metadata paths are supported
++ok 10 - zip upload paths and metadata paths are supported
++  ---
++  duration_ms: 0.503378
++  type: 'test'
++  ...
++# Subtest: buildDefaultCommitTitle distinguishes zip packages
++ok 11 - buildDefaultCommitTitle distinguishes zip packages
++  ---
++  duration_ms: 0.181129
++  type: 'test'
++  ...
++# Subtest: encodeBase64Bytes encodes binary data
++ok 12 - encodeBase64Bytes encodes binary data
++  ---
++  duration_ms: 0.202906
++  type: 'test'
++  ...
++# Subtest: sanitizePatchName keeps fallback usable
++ok 13 - sanitizePatchName keeps fallback usable
++  ---
++  duration_ms: 0.129826
++  type: 'test'
++  ...
++# Subtest: roundpack helpers detect archive artifacts and build safe paths
++ok 14 - roundpack helpers detect archive artifacts and build safe paths
++  ---
++  duration_ms: 0.826405
++  type: 'test'
++  ...
++1..14
++# tests 14
++# suites 0
++# pass 14
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 367.404052
++manifest ok
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/checks/npm_test_v6.log /mnt/data/openpatch_agent_gateway_v6_candidate/checks/npm_test_v6.log
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/checks/npm_test_v6.log	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/checks/npm_test_v6.log	2026-05-05 23:41:15.899870065 +0000
+@@ -0,0 +1,98 @@
++
++> openpatch@0.2.0 test
++> node --test
++
++TAP version 13
++# Subtest: encodeGitHubPath preserves path separators and escapes segments
++ok 1 - encodeGitHubPath preserves path separators and escapes segments
++  ---
++  duration_ms: 0.70855
++  type: 'test'
++  ...
++# Subtest: buildContentsApiUrl encodes repository and path
++ok 2 - buildContentsApiUrl encodes repository and path
++  ---
++  duration_ms: 0.167746
++  type: 'test'
++  ...
++# Subtest: uploadPatchText uploads metadata first then patch to target branch
++ok 3 - uploadPatchText uploads metadata first then patch to target branch
++  ---
++  duration_ms: 4.930868
++  type: 'test'
++  ...
++# Subtest: uploadPatchText resolves missing owner from GitHub token user
++ok 4 - uploadPatchText resolves missing owner from GitHub token user
++  ---
++  duration_ms: 0.72141
++  type: 'test'
++  ...
++# Subtest: uploadPatchFile uploads zip as binary content
++ok 5 - uploadPatchFile uploads zip as binary content
++  ---
++  duration_ms: 0.517349
++  type: 'test'
++  ...
++# Subtest: uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++ok 6 - uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++  ---
++  duration_ms: 64.371692
++  type: 'test'
++  ...
++# Subtest: parseRepositoryInput accepts owner/repo and GitHub URLs
++ok 7 - parseRepositoryInput accepts owner/repo and GitHub URLs
++  ---
++  duration_ms: 3.307113
++  type: 'test'
++  ...
++# Subtest: looksLikePatchDownloadText detects loose Chinese diff labels
++ok 8 - looksLikePatchDownloadText detects loose Chinese diff labels
++  ---
++  duration_ms: 0.642938
++  type: 'test'
++  ...
++# Subtest: buildPatchUploadPath creates safe unique paths
++ok 9 - buildPatchUploadPath creates safe unique paths
++  ---
++  duration_ms: 0.95286
++  type: 'test'
++  ...
++# Subtest: zip upload paths and metadata paths are supported
++ok 10 - zip upload paths and metadata paths are supported
++  ---
++  duration_ms: 0.425588
++  type: 'test'
++  ...
++# Subtest: buildDefaultCommitTitle distinguishes zip packages
++ok 11 - buildDefaultCommitTitle distinguishes zip packages
++  ---
++  duration_ms: 0.153584
++  type: 'test'
++  ...
++# Subtest: encodeBase64Bytes encodes binary data
++ok 12 - encodeBase64Bytes encodes binary data
++  ---
++  duration_ms: 0.180643
++  type: 'test'
++  ...
++# Subtest: sanitizePatchName keeps fallback usable
++ok 13 - sanitizePatchName keeps fallback usable
++  ---
++  duration_ms: 0.112516
++  type: 'test'
++  ...
++# Subtest: roundpack helpers detect archive artifacts and build safe paths
++ok 14 - roundpack helpers detect archive artifacts and build safe paths
++  ---
++  duration_ms: 0.865541
++  type: 'test'
++  ...
++1..14
++# tests 14
++# suites 0
++# pass 14
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 288.361158
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/docs/14_V6_IMPLEMENTATION_REPORT.md /mnt/data/openpatch_agent_gateway_v6_candidate/docs/14_V6_IMPLEMENTATION_REPORT.md
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/docs/14_V6_IMPLEMENTATION_REPORT.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/docs/14_V6_IMPLEMENTATION_REPORT.md	2026-05-05 23:42:11.794035941 +0000
+@@ -0,0 +1,48 @@
++# OPENPATCH Agent Gateway v6 Implementation Report
++
++## 本轮目标
++
++把 v5 的本地 key/repo alias + bridge upload proxy，继续推进为更适合多页面、多浏览器、多组 Web AI 对话的 agent gateway：让 Auto Continue、Codex、其他脚本能用更短 API 判断状态、触发归档、读取反馈、领取/重试队列任务。
++
++## 我的角色
++
++Web AI 设计者辅助者 / 候选实现打包者。此包是候选版本，方便后续本地 Codex、其他 Web AI 或外部审查者继续验证和迭代；不是最终生产放行声明。
++
++## 本轮实际改动
++
++✅ 插件按钮 marker 升级到 `openpatch.agent_button.v6`，新增 `recommendedAgentAction`、`targetSummary`、`bridgeStatusHint`、`queueStatusHint` 等 agent 决策字段。  
++✅ 新增页面事件 API：`openpatch:api:get-roundpack-prompt`，Auto Continue 可按需获取内置 RoundPack prompt。  
++✅ 新增页面事件 API：`openpatch:api:get-agent-summary`，页面脚本可从 bridge 获取 compact summary。  
++✅ RoundPack prompt 增强，要求输出 `[ROUND_PACK_READY]` marker，便于 Auto Continue 判断何时暂停/归档/继续。  
++✅ 上传成功/失败 marker 现在带更明确的下一步动作建议，方便 agent 决策。  
++✅ Background 增加 bridge latest / queue / agent-summary 查询消息。  
++✅ Local Bridge 增加 `/agent/summary`、`/receipt`、`/events`、`/auto-continue/plan`、`/queue/claim`、`/queue/retry`。  
++✅ Codex CLI 增加 `agent-summary`、`receipt`、`events`、`queue-claim`、`queue-retry`、`auto-continue-plan`。  
++✅ Bridge 增加轻量 event log，便于多页面/多浏览器问题排查。  
++✅ 完成 npm 与 local bridge smoke tests。
++
++## 完成状态
++
++✅ 保留 v5 bridge-side GitHub upload proxy。  
++✅ 保留 dry-run archive 自测路径。  
++✅ 支持 Codex 更主动地查、取、认领、重试、规划下一步。  
++✅ 不把代码明文塞进聊天；完整 diff 和自检报告在包内。  
++⬜ 未做真实 Chrome Dev profile 安装测试。  
++⬜ 未做真实 GitHub token 上传测试。  
++⬜ 未做多浏览器长期压力测试。  
++⬜ 未做 UI 可视化 polish。
++
++## 不放行限制
++
++⚠️ v6 仍是候选包。  
++⚠️ 真实 key、真实 repo、真实浏览器 profile、真实多页面上传前，仍建议先做 isolated smoke test。  
++⚠️ 此包没有声明可直接覆盖现有生产插件。  
++⚠️ 归档入库不等于批准执行、合并、apply 或改真实项目。
++
++## 下一步任务
++
++1. 在隔离 Chrome Dev profile 做真实插件加载 smoke test。  
++2. 用 fine-grained PAT + 专用测试仓做一次真实 archive upload。  
++3. 让 Auto Continue 使用 `openpatch:api:get-roundpack-prompt` 和 `[ROUND_PACK_READY]` marker。  
++4. 用 Codex CLI 连续跑：`agent-summary` → `auto-continue-plan` → `archive-base64 --dry-run` → `receipt`。  
++5. 做多页面并发模拟，验证 queue claim/retry、latest、sha-index 不互相覆盖。
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/docs/15_V6_AGENT_API_QUICK_REFERENCE.md /mnt/data/openpatch_agent_gateway_v6_candidate/docs/15_V6_AGENT_API_QUICK_REFERENCE.md
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/docs/15_V6_AGENT_API_QUICK_REFERENCE.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/docs/15_V6_AGENT_API_QUICK_REFERENCE.md	2026-05-05 23:42:11.873327612 +0000
+@@ -0,0 +1,97 @@
++# v6 Agent API Quick Reference
++
++## Page Event API
++
++用于 Auto Continue / 页面脚本，不暴露 token。
++
++```text
++openpatch:api:get-buttons              -> openpatch:api:buttons
++openpatch:api:get-runtime-status       -> openpatch:api:runtime-status
++openpatch:api:set-route-context        -> openpatch:agent-status
++openpatch:api:resolve-route            -> openpatch:api:resolve-route-result
++openpatch:api:get-bridge-status        -> openpatch:api:bridge-status
++openpatch:api:get-roundpack-prompt     -> openpatch:api:roundpack-prompt
++openpatch:api:get-agent-summary        -> openpatch:api:agent-summary
++openpatch:api:request-archive          -> openpatch:api:archive-requested
++openpatch:api:trigger-upload           -> openpatch:api:trigger-upload-result
++openpatch:agent-status                 -> status event stream
++```
++
++## Button marker v6
++
++每个按钮作为 agent 可读状态节点，核心字段：
++
++```text
++schemaVersion = openpatch.agent_button.v6
++status
++mode
++action
++fileName
++buttonId
++pageSessionId
++routeContext.project
++routeContext.repoAlias
++routeContext.keyAlias
++stalenessStatus
++recommendedAgentAction
++targetSummary
++bridgeStatusHint
++queueStatusHint
++result
++error
++```
++
++## Local Bridge API
++
++```text
++GET  /health
++GET  /config-status
++GET  /routes
++GET  /repos
++GET  /keys
++GET  /status
++GET  /latest?project=<project>
++GET  /agent/summary?project=<project>
++GET  /receipt?project=<project>&round=<round_id>
++GET  /events?limit=<n>
++GET  /queue/status
++GET  /sha-index
++POST /resolve-route
++POST /archive/base64
++POST /receipts
++POST /queue/enqueue
++POST /queue/claim
++POST /queue/retry
++POST /queue/complete
++POST /queue/fail
++POST /auto-continue/plan
++```
++
++## Codex CLI
++
++```text
++node local-bridge/openpatch-ledger-cli.mjs health
++node local-bridge/openpatch-ledger-cli.mjs config-status
++node local-bridge/openpatch-ledger-cli.mjs agent-summary --project webai-transfer
++node local-bridge/openpatch-ledger-cli.mjs latest --project webai-transfer
++node local-bridge/openpatch-ledger-cli.mjs receipt --project webai-transfer --round <round_id>
++node local-bridge/openpatch-ledger-cli.mjs events --limit 20
++node local-bridge/openpatch-ledger-cli.mjs queue
++node local-bridge/openpatch-ledger-cli.mjs queue-claim --project webai-transfer --agent codex
++node local-bridge/openpatch-ledger-cli.mjs queue-retry --project webai-transfer --round <round_id>
++node local-bridge/openpatch-ledger-cli.mjs auto-continue-plan --project webai-transfer --message-count 5 --interval 5
++node local-bridge/openpatch-ledger-cli.mjs archive-base64 --project webai-transfer --round smoke --file webai-roundpack.zip --dry-run
++```
++
++## 建议默认读取顺序
++
++Codex 默认只读：
++
++```text
++agent-summary
++latest
++receipt
++NEXT_FOR_CODEX.md / ROUND_SUMMARY.md（从 roundpack 解包后）
++```
++
++不要默认读完整 transcript，除非任务需要。
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/docs/16_V6_AUTO_CONTINUE_BRIDGE.md /mnt/data/openpatch_agent_gateway_v6_candidate/docs/16_V6_AUTO_CONTINUE_BRIDGE.md
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/docs/16_V6_AUTO_CONTINUE_BRIDGE.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/docs/16_V6_AUTO_CONTINUE_BRIDGE.md	2026-05-05 23:42:11.967690747 +0000
+@@ -0,0 +1,59 @@
++# v6 Auto Continue Bridge
++
++## 目标
++
++让 ChatGPT Auto Continue 不再只是“继续发送”，而是能在多轮迭代中自动判断何时要求 Web AI 生成 RoundPack、何时暂停等待归档、何时根据 receipt 继续下一轮。
++
++## 推荐流程
++
++```text
++Auto Continue 统计本页面轮次 / token 压力 / 阶段完成状态
++  ↓
++调用 openpatch:api:get-roundpack-prompt 或 bridge /auto-continue/plan
++  ↓
++向 Web AI 发送 RoundPack prompt
++  ↓
++等待 [ROUND_PACK_READY] marker 和 webai-roundpack.zip 附件
++  ↓
++调用 openpatch:api:trigger-upload
++  ↓
++监听 openpatch:agent-status，直到 uploaded / failed
++  ↓
++成功：继续下一轮或转交 Codex
++失败：重试、查 receipt、或提示 owner
++```
++
++## Auto Continue 应新增状态
++
++```json
++{
++  "roundpack_required": false,
++  "roundpack_interval": 5,
++  "wait_for_roundpack_ready_marker": true,
++  "wait_for_archive_receipt": true,
++  "last_archive_status": "unknown",
++  "last_openpatch_button_id": ""
++}
++```
++
++## 何时请求 RoundPack
++
++✅ 每 N 轮。  
++✅ 上下文接近变长。  
++✅ 出现候选包/审核包/证据包。  
++✅ 用户说“打包”“交接”“审核”“给 Codex”。  
++✅ 页面要切换角色或项目。  
++
++## 何时继续
++
++✅ 收到 `openpatch:agent-status` 且 `status=uploaded`。  
++✅ bridge `/agent/summary` 显示 latest 已更新。  
++✅ `recommendedAgentAction` 为 `read_latest_or_trigger_next_auto_continue`。  
++
++## 何时停
++
++⚠️ 附件未出现。  
++⚠️ marker stale。  
++⚠️ route unresolved。  
++⚠️ upload failed 且 retry 后仍失败。  
++⚠️ 同一 SHA 重复但本轮声称有新内容，需要人工或审核者判断。
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/docs/17_V6_MULTI_PAGE_RELIABILITY.md /mnt/data/openpatch_agent_gateway_v6_candidate/docs/17_V6_MULTI_PAGE_RELIABILITY.md
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/docs/17_V6_MULTI_PAGE_RELIABILITY.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/docs/17_V6_MULTI_PAGE_RELIABILITY.md	2026-05-05 23:42:11.978509131 +0000
+@@ -0,0 +1,26 @@
++# v6 Multi-page / Multi-browser Reliability Notes
++
++## 已处理
++
++✅ 页面按钮带 `pageSessionId`、`buttonId`、`routeContext`、`targetSummary`。  
++✅ Bridge 有统一 latest / status / sha-index / queue / event log。  
++✅ queue 支持 enqueue / claim / retry / complete / fail。  
++✅ `/agent/summary` 给 Codex 和其他 agent 一个低 token 总览。  
++✅ `/receipt` 可按 project+round 查具体归档结果。  
++✅ `/events` 可排查多页面错序与失败。
++
++## 仍要继续增强
++
++⬜ 实际多浏览器同时上传时，需要进一步压测 latest 更新顺序。  
++⬜ 应增加 route profile conflict report：多个 profile 同分时提醒。  
++⬜ 应增加 long-running upload timeout 和 resumable retry。  
++⬜ 应增加 UI 层 bridge badge：route / key_alias / repo_alias / queue / latest。  
++⬜ 应支持每个浏览器 profile 的 instance_id，方便区分多浏览器来源。
++
++## 性能原则
++
++1. 页面 marker 保持短，不塞完整 manifest。  
++2. 大文件 hash 与上传由 bridge 做，页面只保留状态。  
++3. MutationObserver 使用 requestAnimationFrame 批处理。  
++4. latest / status / event log 由本地 bridge 统一写入，避免多个页面互相覆盖。  
++5. Codex 默认读 `/agent/summary`，不要读完整事件日志或 transcript。
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/local-bridge/openpatch-ledger-cli.mjs /mnt/data/openpatch_agent_gateway_v6_candidate/local-bridge/openpatch-ledger-cli.mjs
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/local-bridge/openpatch-ledger-cli.mjs	2026-05-05 23:35:51.467149408 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/local-bridge/openpatch-ledger-cli.mjs	2026-05-05 23:41:02.476854619 +0000
+@@ -11,8 +11,14 @@
+   repos
+   keys
+   status
++  agent-summary --project <project>
+   latest --project <project>
++  receipt --project <project> --round <round_id>
++  events [--limit <n>]
+   queue
++  queue-claim [--project <project>] [--agent <name>]
++  queue-retry --project <project> --round <round_id> [--reason <text>]
++  auto-continue-plan --project <project> --message-count <n> [--interval <n>] [--force]
+   sha-index
+   resolve --url <page_url> [--title <title>] [--project <project>]
+   enqueue --project <project> --round <round_id> [--sha <sha256>]
+@@ -54,15 +60,36 @@
+   if (command === "repos") return print(await request("/repos"));
+   if (command === "keys") return print(await request("/keys"));
+   if (command === "status") return print(await request("/status"));
++  if (command === "agent-summary") return print(await request(`/agent/summary?project=${encodeURIComponent(getArg("--project", "default"))}`));
+   if (command === "queue") return print(await request("/queue/status"));
++  if (command === "events") return print(await request(`/events?limit=${encodeURIComponent(getArg("--limit", "50"))}`));
+   if (command === "sha-index") return print(await request("/sha-index"));
+   if (command === "latest") return print(await request(`/latest?project=${encodeURIComponent(getArg("--project", "default"))}`));
++  if (command === "receipt") return print(await request(`/receipt?project=${encodeURIComponent(getArg("--project", "default"))}&round=${encodeURIComponent(getArg("--round", getArg("--round-id", "")))}`));
+   if (command === "resolve") {
+     return print(await request("/resolve-route", {
+       method: "POST",
+       body: { page_url: getArg("--url", ""), title: getArg("--title", ""), project_hint: getArg("--project", "") }
+     }));
+   }
++  if (command === "queue-claim") {
++    return print(await request("/queue/claim", {
++      method: "POST",
++      body: { project: getArg("--project", ""), claimed_by: getArg("--agent", "codex") }
++    }));
++  }
++  if (command === "queue-retry") {
++    return print(await request("/queue/retry", {
++      method: "POST",
++      body: { project: getArg("--project", "default"), round_id: getArg("--round", getArg("--round-id", "")), reason: getArg("--reason", "manual_retry") }
++    }));
++  }
++  if (command === "auto-continue-plan") {
++    return print(await request("/auto-continue/plan", {
++      method: "POST",
++      body: { project: getArg("--project", "default"), message_count: Number(getArg("--message-count", "0")), roundpack_interval: Number(getArg("--interval", "5")), force_roundpack: hasFlag("--force") }
++    }));
++  }
+   if (command === "enqueue") {
+     return print(await request("/queue/enqueue", {
+       method: "POST",
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/local-bridge/openpatch-local-bridge.mjs /mnt/data/openpatch_agent_gateway_v6_candidate/local-bridge/openpatch-local-bridge.mjs
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-05 23:35:33.911990629 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-05 23:40:46.892128123 +0000
+@@ -14,6 +14,7 @@
+ const QUEUE_FILE = path.join(ROOT, "queue.json");
+ const STATUS_FILE = path.join(ROOT, "status.json");
+ const SHA_INDEX_FILE = path.join(ROOT, "sha_index.json");
++const EVENTS_FILE = path.join(ROOT, "events.jsonl");
+ const LOCKS = new Map();
+ 
+ async function ensureRoot() {
+@@ -46,12 +47,12 @@
+     ]
+   });
+   await ensureJsonFile(STATUS_FILE, {
+-    schema_version: "openpatch.bridge_status.v5",
++    schema_version: "openpatch.bridge_status.v6",
+     receipts: [],
+     updated_at: new Date().toISOString()
+   });
+   await ensureJsonFile(QUEUE_FILE, {
+-    schema_version: "openpatch.bridge_queue.v1",
++    schema_version: "openpatch.bridge_queue.v2",
+     items: [],
+     updated_at: new Date().toISOString()
+   });
+@@ -77,6 +78,27 @@
+   await fs.rename(tmp, file);
+ }
+ 
++async function appendEvent(type, detail = {}) {
++  await fs.mkdir(path.dirname(EVENTS_FILE), { recursive: true });
++  const event = {
++    schema_version: "openpatch.bridge_event.v1",
++    type: safeString(type, 120),
++    detail,
++    created_at: nowIso()
++  };
++  await fs.appendFile(EVENTS_FILE, `${JSON.stringify(event)}\n`);
++  return event;
++}
++
++async function readRecentEvents(limit = 50) {
++  try {
++    const text = await fs.readFile(EVENTS_FILE, "utf8");
++    return text.trim().split(/\n+/).filter(Boolean).slice(-Number(limit || 50)).map((line) => JSON.parse(line));
++  } catch {
++    return [];
++  }
++}
++
+ async function withLock(name, fn) {
+   const previous = LOCKS.get(name) || Promise.resolve();
+   let release;
+@@ -174,7 +196,7 @@
+     ok: true,
+     status: "resolved",
+     route_context: {
+-      schema_version: "openpatch.route_context.v5",
++      schema_version: "openpatch.route_context.v6",
+       route_profile: safeString(selected.profile_id || selected.route_profile || "", 120),
+       project: safeId(selected.project || body.project_hint || "default", "default"),
+       repo_alias: safeString(selected.repo_alias || body.repo_alias || "", 120),
+@@ -234,7 +256,7 @@
+   const keys = await readJson(KEYS_FILE, { keys: [] });
+   return {
+     ok: true,
+-    schema_version: "openpatch.bridge_config_status.v5",
++    schema_version: "openpatch.bridge_config_status.v6",
+     root: ROOT,
+     files: { routes_file: ROUTES_FILE, repos_file: REPOS_FILE, keys_file: KEYS_FILE },
+     routes: (routes.profiles || []).map((item) => ({ profile_id: item.profile_id || item.route_profile || "", project: item.project || "", repo_alias: item.repo_alias || "", key_alias: item.key_alias || "", default: Boolean(item.default) })),
+@@ -297,7 +319,7 @@
+     const item = { project, round_id: roundId, status: receipt.status || "received", file_sha256: fileSha256, receipt_path: receiptPath, received_at: receipt.created_at || now };
+     const history = Array.isArray(previousLatest.recent_rounds) ? previousLatest.recent_rounds : [];
+     const latest = {
+-      schema_version: "openpatch.bridge_latest.v5",
++      schema_version: "openpatch.bridge_latest.v6",
+       project,
+       latest_round: roundId,
+       status: item.status,
+@@ -308,7 +330,7 @@
+     };
+     await writeJsonAtomic(latestFile, latest);
+ 
+-    const status = await readJson(STATUS_FILE, { schema_version: "openpatch.bridge_status.v5", receipts: [] });
++    const status = await readJson(STATUS_FILE, { schema_version: "openpatch.bridge_status.v6", receipts: [] });
+     const receipts = Array.isArray(status.receipts) ? status.receipts : [];
+     status.receipts = [item, ...receipts.filter((existing) => existing.round_id !== roundId || existing.project !== project)].slice(0, 500);
+     status.latest_by_project = { ...(status.latest_by_project || {}), [project]: roundId };
+@@ -340,10 +362,11 @@
+ 
+ async function receiveReceipt(body) {
+   const { payload, project, roundId, fileSha256 } = extractReceiptPayload(body);
+-  const receipt = { schema_version: "openpatch.bridge_receipt.v5", project, round_id: roundId, file_sha256: fileSha256, source: safeString(body.source || "openpatch-extension-or-agent", 120), payload_sha256: sha256Text(JSON.stringify(body)), received_at: nowIso(), payload };
++  const receipt = { schema_version: "openpatch.bridge_receipt.v6", project, round_id: roundId, file_sha256: fileSha256, source: safeString(body.source || "openpatch-extension-or-agent", 120), payload_sha256: sha256Text(JSON.stringify(body)), received_at: nowIso(), payload };
+   const receiptPath = path.join(RECEIPTS_DIR, project, `${roundId}.json`);
+   await writeJsonAtomic(receiptPath, receipt);
+   const { latest, duplicate } = await updateLocalLatestAndIndexes({ project, roundId, receipt: { ...payload, status: payload.status || "received", created_at: receipt.received_at }, fileSha256, receiptPath });
++  await appendEvent("receipt_received", { project, round_id: roundId, file_sha256: fileSha256, duplicate: Boolean(duplicate) });
+   return { ok: true, status: duplicate ? "received_duplicate_sha" : "received", receipt: { project, round_id: roundId, receipt_path: receiptPath, file_sha256: fileSha256, received_at: receipt.received_at }, latest, duplicate };
+ }
+ 
+@@ -367,7 +390,7 @@
+   const dryRun = Boolean(body.dry_run || repo?.dry_run);
+   const status = dryRun ? "dry_run_planned" : "uploaded";
+   const receipt = {
+-    schema_version: "openpatch.upload_receipt.v5",
++    schema_version: "openpatch.upload_receipt.v6",
+     status,
+     archive_only: true,
+     allow_execution: false,
+@@ -381,7 +404,7 @@
+     next_actions: ["read_latest", "fetch_roundpack", "read_receipt", "continue_agent_workflow"]
+   };
+   const manifest = {
+-    schema_version: "openpatch.archive_manifest.v5",
++    schema_version: "openpatch.archive_manifest.v6",
+     archive_only: true,
+     allow_execution: false,
+     project,
+@@ -395,7 +418,7 @@
+   };
+   const previousLatest = null;
+   const latest = {
+-    schema_version: "openpatch.latest.v5",
++    schema_version: "openpatch.latest.v6",
+     project,
+     latest_round: roundId,
+     status,
+@@ -423,15 +446,16 @@
+   }
+ 
+   const localReceiptPath = path.join(RECEIPTS_DIR, project, `${roundId}.json`);
+-  await writeJsonAtomic(localReceiptPath, { schema_version: "openpatch.bridge_archive_receipt.v5", source: "local-bridge", local_receipt_path: localReceiptPath, receipt, manifest, latest, commit_sha: commitSha });
++  await writeJsonAtomic(localReceiptPath, { schema_version: "openpatch.bridge_archive_receipt.v6", source: "local-bridge", local_receipt_path: localReceiptPath, receipt, manifest, latest, commit_sha: commitSha });
+   const local = await updateLocalLatestAndIndexes({ project, roundId, receipt, fileSha256, receiptPath: localReceiptPath });
++  await appendEvent("archive_base64", { project, round_id: roundId, status, file_sha256: fileSha256, repo_alias, key_alias, dry_run: dryRun });
+   return { ok: true, status, mode: "bridge_archive_base64", project, round_id: roundId, file_sha256: fileSha256, repo_alias, key_alias, paths: { archive_path: archivePath, manifest_path: manifestPath, receipt_path: receiptGithubPath, latest_path: latestGithubPath }, github: receipt.github, commit_sha: commitSha, receipt, latest, duplicate: local.duplicate };
+ }
+ 
+ async function enqueueTask(body) {
+   return withLock("queue", async () => {
+     const now = nowIso();
+-    const queue = await readJson(QUEUE_FILE, { schema_version: "openpatch.bridge_queue.v1", items: [] });
++    const queue = await readJson(QUEUE_FILE, { schema_version: "openpatch.bridge_queue.v2", items: [] });
+     const items = Array.isArray(queue.items) ? queue.items : [];
+     const project = safeId(body.project || "default", "default");
+     const roundId = safeId(body.round_id || body.roundId || `${Date.now()}`, "round");
+@@ -443,13 +467,14 @@
+     queue.items = [task, ...items].slice(0, 1000);
+     queue.updated_at = now;
+     await writeJsonAtomic(QUEUE_FILE, queue);
++    await appendEvent("queue_enqueued", { project, round_id: roundId, idempotency_key: idempotencyKey });
+     return { ok: true, status: "queued", task };
+   });
+ }
+ 
+ async function updateQueueTask(body, status) {
+   return withLock("queue", async () => {
+-    const queue = await readJson(QUEUE_FILE, { schema_version: "openpatch.bridge_queue.v1", items: [] });
++    const queue = await readJson(QUEUE_FILE, { schema_version: "openpatch.bridge_queue.v2", items: [] });
+     const items = Array.isArray(queue.items) ? queue.items : [];
+     const idempotencyKey = safeId(body.idempotency_key || body.idempotencyKey || "", "");
+     const project = safeId(body.project || "default", "default");
+@@ -468,21 +493,124 @@
+   });
+ }
+ 
++async function getReceiptQuery(params) {
++  const project = safeId(params.get("project") || "default", "default");
++  const roundId = safeId(params.get("round") || params.get("round_id") || "", "");
++  if (!roundId) return { ok: false, status: "round_missing", project };
++  const receiptPath = path.join(RECEIPTS_DIR, project, `${roundId}.json`);
++  const receipt = await readJson(receiptPath, null);
++  return receipt ? { ok: true, status: "found", project, round_id: roundId, receipt_path: receiptPath, receipt } : { ok: false, status: "missing", project, round_id: roundId, receipt_path: receiptPath };
++}
++
++async function claimQueueTask(body = {}) {
++  return withLock("queue", async () => {
++    const queue = await readJson(QUEUE_FILE, { schema_version: "openpatch.bridge_queue.v2", items: [] });
++    const items = Array.isArray(queue.items) ? queue.items : [];
++    const project = body.project ? safeId(body.project, "default") : "";
++    const now = nowIso();
++    const target = items.find((item) => (project ? item.project === project : true) && ["queued", "retry_requested"].includes(item.status));
++    if (!target) return { ok: true, status: "empty", task: null };
++    queue.items = items.map((item) => item.idempotency_key === target.idempotency_key ? { ...item, status: "claimed", claimed_by: safeString(body.claimed_by || body.agent || "agent", 120), updated_at: now } : item);
++    queue.updated_at = now;
++    await writeJsonAtomic(QUEUE_FILE, queue);
++    await appendEvent("queue_claimed", { project: target.project, round_id: target.round_id, idempotency_key: target.idempotency_key });
++    return { ok: true, status: "claimed", task: queue.items.find((item) => item.idempotency_key === target.idempotency_key) };
++  });
++}
++
++async function retryQueueTask(body = {}) {
++  return withLock("queue", async () => {
++    const queue = await readJson(QUEUE_FILE, { schema_version: "openpatch.bridge_queue.v2", items: [] });
++    const items = Array.isArray(queue.items) ? queue.items : [];
++    const idempotencyKey = safeId(body.idempotency_key || body.idempotencyKey || "", "");
++    const project = safeId(body.project || "default", "default");
++    const roundId = safeId(body.round_id || body.roundId || "", "");
++    const now = nowIso();
++    let changed = false;
++    queue.items = items.map((item) => {
++      const match = idempotencyKey ? item.idempotency_key === idempotencyKey : (item.project === project && item.round_id === roundId);
++      if (!match) return item;
++      changed = true;
++      return { ...item, status: "retry_requested", retry_count: Number(item.retry_count || 0) + 1, retry_reason: safeString(body.reason || "manual_retry", 300), updated_at: now };
++    });
++    queue.updated_at = now;
++    await writeJsonAtomic(QUEUE_FILE, queue);
++    if (changed) await appendEvent("queue_retry_requested", { project, round_id: roundId, idempotency_key: idempotencyKey });
++    return { ok: changed, status: changed ? "retry_requested" : "not_found" };
++  });
++}
++
++async function agentSummary(projectInput = "default") {
++  const project = safeId(projectInput || "default", "default");
++  const latest = await readJson(path.join(LATEST_DIR, `${project}.json`), { schema_version: "openpatch.bridge_latest.v6", project, status: "missing", latest_round: "" });
++  const queue = await readJson(QUEUE_FILE, { schema_version: "openpatch.bridge_queue.v2", items: [] });
++  const status = await readJson(STATUS_FILE, { schema_version: "openpatch.bridge_status.v6", receipts: [] });
++  const shaIndex = await readJson(SHA_INDEX_FILE, { schema_version: "openpatch.sha_index.v1", entries: [] });
++  const projectQueue = (queue.items || []).filter((item) => item.project === project).slice(0, 20);
++  const projectSha = (shaIndex.entries || []).filter((item) => item.project === project).slice(0, 10);
++  return {
++    ok: true,
++    schema_version: "openpatch.agent_summary.v1",
++    project,
++    latest_round: latest.latest_round || "",
++    status: latest.status || "missing",
++    latest,
++    queue: { count: projectQueue.length, items: projectQueue },
++    duplicates: projectSha.filter((entry) => Number(entry.count || 0) > 1),
++    total_receipts: Array.isArray(status.receipts) ? status.receipts.filter((item) => item.project === project).length : 0,
++    recommended_agent_action: latest.latest_round ? "read_latest_receipt_then_continue" : "request_roundpack_or_resolve_route",
++    codex_commands: [
++      `node local-bridge/openpatch-ledger-cli.mjs latest --project ${project}`,
++      `node local-bridge/openpatch-ledger-cli.mjs receipt --project ${project} --round ${latest.latest_round || "<round_id>"}`
++    ],
++    updated_at: nowIso()
++  };
++}
++
++async function autoContinuePlan(body = {}) {
++  const project = safeId(body.project || body.project_hint || "default", "default");
++  const messageCount = Number(body.message_count || body.messageCount || 0);
++  const interval = Math.max(1, Number(body.roundpack_interval || body.roundpackInterval || 5));
++  const force = Boolean(body.force_roundpack || body.forceRoundpack);
++  const shouldRequest = force || (messageCount > 0 && messageCount % interval === 0);
++  const plan = {
++    ok: true,
++    schema_version: "openpatch.auto_continue_plan.v1",
++    project,
++    should_request_roundpack: shouldRequest,
++    should_pause_until_archive_receipt: shouldRequest,
++    reason: force ? "force_roundpack" : (shouldRequest ? "interval_reached" : "continue_allowed"),
++    required_marker: "[ROUND_PACK_READY]",
++    preferred_file_name: `webai-roundpack-${project}.zip`,
++    prompt_hint: "use_openpatch_roundpack_prompt",
++    next_agent_action: shouldRequest ? "send_roundpack_prompt_wait_for_attachment_then_trigger_archive" : "continue_iteration",
++    created_at: nowIso()
++  };
++  await appendEvent("auto_continue_plan", { project, should_request_roundpack: shouldRequest, reason: plan.reason });
++  return plan;
++}
++
+ async function handle(req, res) {
+   if (req.method === "OPTIONS") return jsonResponse(res, 200, { ok: true });
+   const url = new URL(req.url || "/", `http://${req.headers.host || "127.0.0.1"}`);
+ 
+-  if (req.method === "GET" && url.pathname === "/health") return jsonResponse(res, 200, { ok: true, schema_version: "openpatch.bridge_health.v5", service: "openpatch-local-bridge", root: ROOT, capabilities: ["routes", "resolve_route", "receipts", "latest", "sha_index", "queue", "config_status", "archive_base64", "bridge_side_github_upload"], time: nowIso() });
++  if (req.method === "GET" && url.pathname === "/health") return jsonResponse(res, 200, { ok: true, schema_version: "openpatch.bridge_health.v6", service: "openpatch-local-bridge", root: ROOT, capabilities: ["routes", "resolve_route", "receipts", "latest", "sha_index", "queue", "config_status", "archive_base64", "bridge_side_github_upload", "agent_summary", "receipt_query", "queue_claim", "queue_retry", "auto_continue_plan", "events"], time: nowIso() });
+   if (req.method === "GET" && url.pathname === "/config-status") return jsonResponse(res, 200, await sanitizedConfigStatus());
+   if (req.method === "GET" && url.pathname === "/routes") return jsonResponse(res, 200, await readJson(ROUTES_FILE, { profiles: [] }));
+   if (req.method === "GET" && url.pathname === "/repos") return jsonResponse(res, 200, (await sanitizedConfigStatus()).repos);
+   if (req.method === "GET" && url.pathname === "/keys") return jsonResponse(res, 200, (await sanitizedConfigStatus()).keys);
+   if (req.method === "POST" && url.pathname === "/resolve-route") return jsonResponse(res, 200, await resolveRoute(await collectBody(req)));
++  if (req.method === "GET" && url.pathname === "/agent/summary") return jsonResponse(res, 200, await agentSummary(url.searchParams.get("project") || "default"));
++  if (req.method === "GET" && url.pathname === "/receipt") return jsonResponse(res, 200, await getReceiptQuery(url.searchParams));
++  if (req.method === "GET" && url.pathname === "/events") return jsonResponse(res, 200, { ok: true, schema_version: "openpatch.bridge_events.v1", events: await readRecentEvents(Number(url.searchParams.get("limit") || 50)) });
++  if (req.method === "POST" && url.pathname === "/auto-continue/plan") return jsonResponse(res, 200, await autoContinuePlan(await collectBody(req)));
+   if (req.method === "GET" && url.pathname === "/status") return jsonResponse(res, 200, await readJson(STATUS_FILE, { receipts: [] }));
+-  if (req.method === "GET" && url.pathname === "/latest") { const project = safeId(url.searchParams.get("project") || "default", "default"); return jsonResponse(res, 200, await readJson(path.join(LATEST_DIR, `${project}.json`), { schema_version: "openpatch.bridge_latest.v5", project, status: "missing", latest_round: "" })); }
++  if (req.method === "GET" && url.pathname === "/latest") { const project = safeId(url.searchParams.get("project") || "default", "default"); return jsonResponse(res, 200, await readJson(path.join(LATEST_DIR, `${project}.json`), { schema_version: "openpatch.bridge_latest.v6", project, status: "missing", latest_round: "" })); }
+   if (req.method === "GET" && url.pathname === "/sha-index") return jsonResponse(res, 200, await readJson(SHA_INDEX_FILE, { entries: [] }));
+   if (req.method === "GET" && url.pathname === "/queue/status") return jsonResponse(res, 200, await readJson(QUEUE_FILE, { items: [] }));
+   if (req.method === "POST" && url.pathname === "/queue/enqueue") return jsonResponse(res, 200, await enqueueTask(await collectBody(req)));
++  if (req.method === "POST" && url.pathname === "/queue/claim") return jsonResponse(res, 200, await claimQueueTask(await collectBody(req)));
++  if (req.method === "POST" && url.pathname === "/queue/retry") return jsonResponse(res, 200, await retryQueueTask(await collectBody(req)));
+   if (req.method === "POST" && url.pathname === "/queue/complete") return jsonResponse(res, 200, await updateQueueTask(await collectBody(req), "completed"));
+   if (req.method === "POST" && url.pathname === "/queue/fail") return jsonResponse(res, 200, await updateQueueTask(await collectBody(req), "failed"));
+   if (req.method === "POST" && url.pathname === "/receipts") return jsonResponse(res, 200, await receiveReceipt(await collectBody(req)));
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/openpatch-main/src/background.js /mnt/data/openpatch_agent_gateway_v6_candidate/openpatch-main/src/background.js
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/openpatch-main/src/background.js	2026-05-05 23:35:35.402708885 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/openpatch-main/src/background.js	2026-05-05 23:40:08.898296812 +0000
+@@ -72,6 +72,24 @@
+   }
+ 
+ 
++
++  if (message?.type === "GET_OPENPATCH_AGENT_SUMMARY") {
++    const config = await getConfig();
++    const project = message.project || message.projectId || config.projectId || "default";
++    return getBridgeJson(config, `/agent/summary?project=${encodeURIComponent(project)}`);
++  }
++
++  if (message?.type === "GET_OPENPATCH_BRIDGE_LATEST") {
++    const config = await getConfig();
++    const project = message.project || message.projectId || config.projectId || "default";
++    return getBridgeJson(config, `/latest?project=${encodeURIComponent(project)}`);
++  }
++
++  if (message?.type === "GET_OPENPATCH_BRIDGE_QUEUE") {
++    const config = await getConfig();
++    return getBridgeJson(config, "/queue/status");
++  }
++
+   if (message?.type === "ARCHIVE_ROUNDPACK_CONTENT") {
+     const fileName = message.fileName || "";
+     if (!isArchiveFileName(fileName)) {
+@@ -92,7 +110,9 @@
+         repo_alias: message.routeContext?.repoAlias || message.routeContext?.repo_alias || config.repoAlias || "",
+         key_alias: message.routeContext?.keyAlias || message.routeContext?.key_alias || config.keyAlias || "",
+         archive_root: config.archiveRoot || "rounds",
+-        index_root: config.indexRoot || "index"
++        index_root: config.indexRoot || "index",
++        page_url: message.routeContext?.pageUrl || message.routeContext?.page_url || "",
++        page_title: message.routeContext?.pageTitle || message.routeContext?.page_title || ""
+       });
+     } else {
+       result = await uploadRoundArchiveContent({
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/openpatch-main/src/content-script.js /mnt/data/openpatch_agent_gateway_v6_candidate/openpatch-main/src/content-script.js
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/openpatch-main/src/content-script.js	2026-05-05 23:30:15.713815517 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/openpatch-main/src/content-script.js	2026-05-05 23:39:56.671970852 +0000
+@@ -19,6 +19,10 @@
+   const AGENT_RESOLVE_ROUTE_RESPONSE_EVENT = "openpatch:api:resolve-route-result";
+   const AGENT_BRIDGE_STATUS_EVENT = "openpatch:api:get-bridge-status";
+   const AGENT_BRIDGE_STATUS_RESPONSE_EVENT = "openpatch:api:bridge-status";
++  const AGENT_ROUNDPACK_PROMPT_EVENT = "openpatch:api:get-roundpack-prompt";
++  const AGENT_ROUNDPACK_PROMPT_RESPONSE_EVENT = "openpatch:api:roundpack-prompt";
++  const AGENT_AGENT_SUMMARY_EVENT = "openpatch:api:get-agent-summary";
++  const AGENT_AGENT_SUMMARY_RESPONSE_EVENT = "openpatch:api:agent-summary";
+   const BUTTON_STALE_AFTER_MS = 10 * 60 * 1000;
+   const PAGE_SESSION_ID = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+   let routeContext = {
+@@ -57,14 +61,22 @@
+   const ROUNDPACK_PROMPT = `请为本轮 Web AI 工作生成一个可下载的 webai-roundpack.zip 文件，并严格遵守以下规则：
+ 
+ 1. 只生成一个 webai-roundpack.zip 附件，不要把文件全文粘贴在聊天正文。
+-2. zip 根目录必须包含 README.md、ROUND_SUMMARY.md、FULL_TRANSCRIPT.md、NEXT_FOR_CODEX.md、NEXT_FOR_REVIEWER.md、FILES_MANIFEST.json、SHA256SUMS.txt。
++2. zip 根目录必须包含 README.md、ROUND_SUMMARY.md、FULL_TRANSCRIPT.md、NEXT_FOR_CODEX.md、NEXT_FOR_REVIEWER.md、OWNER_DECISION.md、RISK_AND_BOUNDARY.md、FILES_MANIFEST.json、SHA256SUMS.txt。
+ 3. ROUND_SUMMARY.md 用简洁中文说明本轮做了什么、关键结论、生成文件、下一步建议、未完成项。
+-4. NEXT_FOR_CODEX.md 必须极短，只写 Codex 下一步默认该读什么、做什么、输出什么。
+-5. FILES_MANIFEST.json 必须是机器可读 JSON，并包含 round_id、project、source_ai、created_at、purpose、allow_execution=false、files、next_actor。
+-6. SHA256SUMS.txt 必须列出包内主要文件和附件的 SHA256。
++4. NEXT_FOR_CODEX.md 必须极短，只写 Codex 下一步默认该读什么、做什么、输出什么；不要要求 Codex 读完整 transcript，除非必要。
++5. FILES_MANIFEST.json 必须是机器可读 JSON，并包含 round_id、project、source_ai、created_at、purpose、allow_execution=false、files、next_actor、codex_default_read。
++6. SHA256SUMS.txt 必须列出包内主要文件和 ARTIFACTS 内附件的 SHA256。
+ 7. ARTIFACTS/ 可放本轮候选包、审核包、证据包或其他附件。
+ 8. 不要包含 secrets、.env、cookies、tokens、浏览器 profile、node_modules、缓存、大模型、ComfyUI models。
+-9. 本轮包是 archive_only，默认不授权执行、安装、apply、push 或提交真实项目。`;
++9. 本轮包是 archive_only，默认不授权执行、安装、apply、push 或提交真实项目。
++10. 聊天正文最后必须输出机器可读 marker：
++[ROUND_PACK_READY]
++project: <project>
++round_id: <round_id>
++file_name: webai-roundpack.zip
++next_actor: <owner|codex|reviewer|designer>
++[/ROUND_PACK_READY]
++11. 如果无法生成完整 FULL_TRANSCRIPT.md，请在 README.md 和 FULL_TRANSCRIPT.md 里说明缺失范围，不要假装完整。`;
+ 
+   const GIT_DIFF_PROMPT = `请为本次代码修改生成一个可下载的 openpatch.diff 文件，并严格遵守以下规则：
+ 
+@@ -192,6 +204,7 @@
+         setButtonMarker(button, {
+           status: "uploaded",
+           decisionHint: archiveMode ? "archive_complete_check_latest_receipt" : "upload_complete_check_github_feedback",
++          recommendedAgentAction: archiveMode ? "read_latest_or_trigger_next_auto_continue" : "check_github_workflow_or_feedback",
+           canRetry: "true",
+           result: sanitizeUploadResult(response.result)
+         });
+@@ -200,6 +213,7 @@
+         setButtonMarker(button, {
+           status: "failed",
+           decisionHint: "inspect_error_or_retry",
++          recommendedAgentAction: "retry_or_read_error_receipt",
+           canRetry: "true",
+           error: error?.message || "上传失败。"
+         });
+@@ -242,7 +256,7 @@
+   function buildAgentMarker({ sourceButton, suggestedName, label, archiveMode = false }) {
+     const href = sourceButton.getAttribute("href") || "";
+     return {
+-      schemaVersion: "openpatch.agent_button.v4",
++      schemaVersion: "openpatch.agent_button.v6",
+       marker: "openpatch-inline-upload",
+       status: "ready",
+       mode: archiveMode ? "roundpack_archive" : "patch_upload",
+@@ -259,6 +273,10 @@
+       canUpload: "true",
+       canRetry: "false",
+       decisionHint: archiveMode ? "ready_to_archive_attachment" : "ready_to_capture_attachment",
++      recommendedAgentAction: archiveMode ? "trigger_archive_or_wait_for_owner" : "trigger_upload_or_collect_patch",
++      targetSummary: buildTargetSummary(sanitizeRouteContext(routeContext)),
++      bridgeStatusHint: "unknown",
++      queueStatusHint: "not_enqueued",
+       stalenessStatus: "fresh",
+       routeContext: sanitizeRouteContext(routeContext),
+       createdAt: new Date().toISOString(),
+@@ -266,6 +284,26 @@
+     };
+   }
+ 
++  function buildTargetSummary(context) {
++    const value = context || {};
++    const project = value.project || "default";
++    const repoAlias = value.repoAlias || value.repo_alias || "unresolved-repo";
++    const keyAlias = value.keyAlias || value.key_alias || "unresolved-key";
++    const mode = value.mode || "auto";
++    return `${project} / ${repoAlias} / ${keyAlias} / ${mode}`.slice(0, 240);
++  }
++
++  function deriveRecommendedAgentAction(marker) {
++    const status = marker?.status || "unknown";
++    const stale = marker?.stalenessStatus || "unknown";
++    if (status === "uploaded") return "read_receipt_latest_then_continue";
++    if (status === "failed") return "retry_or_request_human_review";
++    if (stale === "stale") return "refresh_buttons_before_upload";
++    if (marker?.mode === "roundpack_archive" && status === "ready") return "trigger_archive_when_roundpack_expected";
++    if (status === "uploading" || status === "capturing") return "wait_for_status_event";
++    return "inspect_marker_then_decide";
++  }
++
+   function sanitizeRouteContext(context) {
+     const value = context || {};
+     return {
+@@ -302,16 +340,18 @@
+   function sanitizeUploadResult(result) {
+     if (!result || typeof result !== "object") return null;
+     return {
+-      owner: result.owner || "",
+-      repo: result.repo || "",
+-      branch: result.branch || "",
+-      path: result.path || "",
+-      manifestPath: result.manifestPath || "",
+-      receiptPath: result.receiptPath || "",
+-      latestPath: result.latestPath || "",
+-      project: result.project || "",
+-      roundId: result.roundId || "",
+-      fileSha256: result.fileSha256 || "",
++      status: result.status || result.receipt?.status || "",
++      mode: result.mode || "",
++      owner: result.owner || result.github?.owner || result.receipt?.github?.owner || "",
++      repo: result.repo || result.github?.repo || result.receipt?.github?.repo || "",
++      branch: result.branch || result.github?.branch || result.receipt?.github?.branch || "",
++      path: result.path || result.paths?.archive_path || result.receipt?.github?.archive_path || "",
++      manifestPath: result.manifestPath || result.paths?.manifest_path || result.receipt?.github?.manifest_path || "",
++      receiptPath: result.receiptPath || result.paths?.receipt_path || result.receipt?.github?.receipt_path || "",
++      latestPath: result.latestPath || result.paths?.latest_path || result.receipt?.github?.latest_path || "",
++      project: result.project || result.receipt?.project || "",
++      roundId: result.roundId || result.round_id || result.receipt?.round_id || "",
++      fileSha256: result.fileSha256 || result.file_sha256 || result.receipt?.file_sha256 || "",
+       commitSha: result.commitSha || "",
+       repositoryUrl: result.repositoryUrl || "",
+       branchUrl: result.branchUrl || ""
+@@ -340,10 +380,16 @@
+     button.dataset.openpatchKeyAlias = String(next.routeContext?.keyAlias || "");
+     button.dataset.openpatchProject = String(next.routeContext?.project || "");
+     button.dataset.openpatchStalenessStatus = String(next.stalenessStatus || "unknown");
++    button.dataset.openpatchRecommendedAgentAction = String(next.recommendedAgentAction || deriveRecommendedAgentAction(next));
++    button.dataset.openpatchTargetSummary = String(next.targetSummary || buildTargetSummary(next.routeContext || routeContext));
++    button.dataset.openpatchBridgeStatusHint = String(next.bridgeStatusHint || "unknown");
++    button.dataset.openpatchQueueStatusHint = String(next.queueStatusHint || "unknown");
+     button.dataset.openpatchExtension = String(next.extension || "");
+     button.dataset.openpatchCanUpload = String(next.canUpload || "false");
+     button.dataset.openpatchCanRetry = String(next.canRetry || "false");
+     button.dataset.openpatchDecisionHint = String(next.decisionHint || "");
++    next.recommendedAgentAction = next.recommendedAgentAction || deriveRecommendedAgentAction(next);
++    next.targetSummary = next.targetSummary || buildTargetSummary(next.routeContext || routeContext);
+     button.dataset.openpatchContext = JSON.stringify(next);
+ 
+     if (button.__openpatchMarkerNode) {
+@@ -439,7 +485,7 @@
+     }
+     window.dispatchEvent(new CustomEvent(AGENT_STATUS_RESPONSE_EVENT, {
+       detail: {
+-        schemaVersion: "openpatch.runtime_status.v2",
++        schemaVersion: "openpatch.runtime_status.v6",
+         requestId: event?.detail?.requestId || event?.detail?.request_id || "",
+         pageSessionId: PAGE_SESSION_ID,
+         routeContext: sanitizeRouteContext(routeContext),
+@@ -469,6 +515,47 @@
+     }));
+   });
+ 
++  window.addEventListener(AGENT_ROUNDPACK_PROMPT_EVENT, (event) => {
++    const detail = event?.detail || {};
++    const project = detail.project || routeContext.project || "default";
++    window.dispatchEvent(new CustomEvent(AGENT_ROUNDPACK_PROMPT_RESPONSE_EVENT, {
++      detail: {
++        schemaVersion: "openpatch.roundpack_prompt_response.v1",
++        requestId: detail.requestId || detail.request_id || "",
++        project,
++        routeContext: sanitizeRouteContext(routeContext),
++        prompt: ROUNDPACK_PROMPT.replace(/<project>/g, project),
++        recommendedAgentAction: "send_prompt_then_wait_for_round_pack_ready_marker",
++        createdAt: new Date().toISOString()
++      }
++    }));
++  });
++
++  window.addEventListener(AGENT_AGENT_SUMMARY_EVENT, async (event) => {
++    const detail = event?.detail || {};
++    let bridgeSummary = { available: false };
++    try {
++      const response = await chrome.runtime.sendMessage({
++        type: "GET_OPENPATCH_AGENT_SUMMARY",
++        project: detail.project || routeContext.project || "default"
++      });
++      bridgeSummary = response?.result || { available: false };
++    } catch (error) {
++      bridgeSummary = { available: false, error: error?.message || "agent_summary_unavailable" };
++    }
++    window.dispatchEvent(new CustomEvent(AGENT_AGENT_SUMMARY_RESPONSE_EVENT, {
++      detail: {
++        schemaVersion: "openpatch.agent_summary_response.v1",
++        requestId: detail.requestId || detail.request_id || "",
++        pageSessionId: PAGE_SESSION_ID,
++        routeContext: sanitizeRouteContext(routeContext),
++        buttons: getCurrentAgentMarkers(),
++        bridgeSummary,
++        createdAt: new Date().toISOString()
++      }
++    }));
++  });
++
+   window.addEventListener(AGENT_RESOLVE_ROUTE_EVENT, async (event) => {
+     const detail = event?.detail || {};
+     let result;
+@@ -539,9 +626,11 @@
+     const detail = event?.detail || {};
+     const buttonId = String(detail.buttonId || detail.button_id || "");
+     const fileName = String(detail.fileName || detail.file_name || "").toLowerCase();
++    const allowStale = Boolean(detail.allowStale || detail.allow_stale);
+     const candidates = Array.from(document.querySelectorAll(`.${BUTTON_CLASS}`));
+     const button = candidates.find((candidate) => {
+       const marker = refreshMarkerForAgent(candidate);
++      if (!allowStale && marker.stalenessStatus === "stale") return false;
+       if (buttonId && marker.buttonId === buttonId) return true;
+       if (fileName && String(marker.fileName || "").toLowerCase() === fileName) return true;
+       return false;
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/schemas/openpatch.agent_button.v6.schema.json /mnt/data/openpatch_agent_gateway_v6_candidate/schemas/openpatch.agent_button.v6.schema.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/schemas/openpatch.agent_button.v6.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/schemas/openpatch.agent_button.v6.schema.json	2026-05-05 23:42:24.069244286 +0000
+@@ -0,0 +1,25 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "openpatch.agent_button.v6.schema.json",
++  "type": "object",
++  "required": ["schemaVersion", "status", "mode", "buttonId", "pageSessionId", "fileName", "recommendedAgentAction"],
++  "properties": {
++    "schemaVersion": { "const": "openpatch.agent_button.v6" },
++    "marker": { "type": "string" },
++    "status": { "type": "string" },
++    "mode": { "type": "string" },
++    "action": { "type": "string" },
++    "fileName": { "type": "string" },
++    "buttonId": { "type": "string" },
++    "pageSessionId": { "type": "string" },
++    "routeContext": { "type": "object" },
++    "stalenessStatus": { "type": "string" },
++    "recommendedAgentAction": { "type": "string" },
++    "targetSummary": { "type": "string" },
++    "bridgeStatusHint": { "type": "string" },
++    "queueStatusHint": { "type": "string" },
++    "result": { "type": ["object", "null"] },
++    "error": { "type": "string" }
++  },
++  "additionalProperties": true
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/schemas/openpatch.agent_summary.v1.schema.json /mnt/data/openpatch_agent_gateway_v6_candidate/schemas/openpatch.agent_summary.v1.schema.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/schemas/openpatch.agent_summary.v1.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/schemas/openpatch.agent_summary.v1.schema.json	2026-05-05 23:42:24.178397857 +0000
+@@ -0,0 +1,21 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "openpatch.agent_summary.v1.schema.json",
++  "type": "object",
++  "required": ["ok", "schema_version", "project", "status", "recommended_agent_action"],
++  "properties": {
++    "ok": { "type": "boolean" },
++    "schema_version": { "const": "openpatch.agent_summary.v1" },
++    "project": { "type": "string" },
++    "latest_round": { "type": "string" },
++    "status": { "type": "string" },
++    "latest": { "type": "object" },
++    "queue": { "type": "object" },
++    "duplicates": { "type": "array" },
++    "total_receipts": { "type": "number" },
++    "recommended_agent_action": { "type": "string" },
++    "codex_commands": { "type": "array", "items": { "type": "string" } },
++    "updated_at": { "type": "string" }
++  },
++  "additionalProperties": true
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/schemas/openpatch.auto_continue_plan.v1.schema.json /mnt/data/openpatch_agent_gateway_v6_candidate/schemas/openpatch.auto_continue_plan.v1.schema.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/schemas/openpatch.auto_continue_plan.v1.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/schemas/openpatch.auto_continue_plan.v1.schema.json	2026-05-05 23:42:24.271389527 +0000
+@@ -0,0 +1,20 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "openpatch.auto_continue_plan.v1.schema.json",
++  "type": "object",
++  "required": ["ok", "schema_version", "project", "should_request_roundpack", "next_agent_action"],
++  "properties": {
++    "ok": { "type": "boolean" },
++    "schema_version": { "const": "openpatch.auto_continue_plan.v1" },
++    "project": { "type": "string" },
++    "should_request_roundpack": { "type": "boolean" },
++    "should_pause_until_archive_receipt": { "type": "boolean" },
++    "reason": { "type": "string" },
++    "required_marker": { "type": "string" },
++    "preferred_file_name": { "type": "string" },
++    "prompt_hint": { "type": "string" },
++    "next_agent_action": { "type": "string" },
++    "created_at": { "type": "string" }
++  },
++  "additionalProperties": true
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/schemas/openpatch.bridge_queue.v2.schema.json /mnt/data/openpatch_agent_gateway_v6_candidate/schemas/openpatch.bridge_queue.v2.schema.json
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/schemas/openpatch.bridge_queue.v2.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/schemas/openpatch.bridge_queue.v2.schema.json	2026-05-05 23:42:24.466166690 +0000
+@@ -0,0 +1,30 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "openpatch.bridge_queue.v2.schema.json",
++  "type": "object",
++  "required": ["schema_version", "items"],
++  "properties": {
++    "schema_version": { "const": "openpatch.bridge_queue.v2" },
++    "items": {
++      "type": "array",
++      "items": {
++        "type": "object",
++        "required": ["project", "round_id", "status", "action"],
++        "properties": {
++          "idempotency_key": { "type": "string" },
++          "project": { "type": "string" },
++          "round_id": { "type": "string" },
++          "file_sha256": { "type": "string" },
++          "status": { "type": "string" },
++          "action": { "type": "string" },
++          "retry_count": { "type": "number" },
++          "claimed_by": { "type": "string" },
++          "updated_at": { "type": "string" }
++        },
++        "additionalProperties": true
++      }
++    },
++    "updated_at": { "type": "string" }
++  },
++  "additionalProperties": true
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/task_cards/FOR_AUTO_CONTINUE_V6.md /mnt/data/openpatch_agent_gateway_v6_candidate/task_cards/FOR_AUTO_CONTINUE_V6.md
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/task_cards/FOR_AUTO_CONTINUE_V6.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/task_cards/FOR_AUTO_CONTINUE_V6.md	2026-05-05 23:42:12.082370268 +0000
+@@ -0,0 +1,14 @@
++# FOR_AUTO_CONTINUE_V6
++
++目标：把 Auto Continue 与 OPENPATCH v6 通过事件 API 轻量联动。
++
++新增行为：
++
++✅ 每 N 轮调用 `openpatch:api:get-roundpack-prompt`。  
++✅ 发送返回的 RoundPack prompt。  
++✅ 等待 `[ROUND_PACK_READY]` 和附件按钮。  
++✅ 调用 `openpatch:api:get-buttons` 找到 fresh + roundpack_archive 按钮。  
++✅ 调用 `openpatch:api:trigger-upload`。  
++✅ 监听 `openpatch:agent-status`，成功后继续，失败后重试或暂停。  
++
++不要把 GitHub token 放进 Auto Continue。Auto Continue 只做对话节奏和事件触发。
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/task_cards/FOR_CODEX_MINIMAL_V6.md /mnt/data/openpatch_agent_gateway_v6_candidate/task_cards/FOR_CODEX_MINIMAL_V6.md
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/task_cards/FOR_CODEX_MINIMAL_V6.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/task_cards/FOR_CODEX_MINIMAL_V6.md	2026-05-05 23:42:12.071400857 +0000
+@@ -0,0 +1,21 @@
++# FOR_CODEX_MINIMAL_V6
++
++任务：只读评估 v6 候选包的 agent gateway 能力，不接真实 token，不碰真实仓库。
++
++建议命令：
++
++```text
++cd <候选包>/openpatch-main
++npm test
++npm run check
++
++cd <候选包>/local-bridge
++OPENPATCH_BRIDGE_ROOT=<项目内临时目录> OPENPATCH_BRIDGE_PORT=17873 node openpatch-local-bridge.mjs
++node openpatch-ledger-cli.mjs health
++node openpatch-ledger-cli.mjs agent-summary --project webai-transfer
++node openpatch-ledger-cli.mjs auto-continue-plan --project webai-transfer --message-count 5 --interval 5
++node openpatch-ledger-cli.mjs archive-base64 --project webai-transfer --round smoke-v6 --file webai-roundpack.zip --dry-run
++node openpatch-ledger-cli.mjs receipt --project webai-transfer --round smoke-v6
++```
++
++输出：简短结论 + 命令结果摘要 + 失败项 + 生成的 evidence 路径。
+diff -ruN /mnt/data/openpatch_agent_gateway_v5_candidate/task_cards/FOR_REVIEWER_V6.md /mnt/data/openpatch_agent_gateway_v6_candidate/task_cards/FOR_REVIEWER_V6.md
+--- /mnt/data/openpatch_agent_gateway_v5_candidate/task_cards/FOR_REVIEWER_V6.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v6_candidate/task_cards/FOR_REVIEWER_V6.md	2026-05-05 23:42:12.092994537 +0000
+@@ -0,0 +1,10 @@
++# FOR_REVIEWER_V6
++
++请作为外部审查者 fast-track 审查 v6 候选包：
++
++P0：是否引入真实 token 泄露、远程任意控制、本地越权、路径越界。  
++P1：页面事件 API、bridge API、Codex CLI 是否足够清晰且可测试。  
++P1：多页面 queue/receipt/latest/sha-index 是否有明显并发与误判风险。  
++P2：文档、schema、task card 是否足够让下一轮 Codex 小步验证。  
++
++输出：go/no-go、P0/P1/P2、最小修复建议、是否建议进入真实 Chrome Dev profile smoke test。

@@ -1,0 +1,13 @@
+{
+  "schema_version": "openpatch.v17_regression_fixtures.v1",
+  "fixtures": [
+    { "name": "generic_candidate_zip", "file_name": "openpatch_agent_gateway_v17_candidate.zip", "expected_asset_kind": "candidate_or_evidence_archive", "expected_route_decision": "archive_allowed" },
+    { "name": "review_result_zip", "file_name": "openpatch_review_round_1_result.zip", "expected_asset_kind": "review_evidence", "expected_route_decision": "archive_allowed" },
+    { "name": "exact_changed_files_zip", "file_name": "changed-files.zip", "expected_asset_kind": "changed_files_zip", "expected_route_decision": "patch_upload_allowed" },
+    { "name": "webai_roundpack_zip", "file_name": "webai-roundpack.zip", "expected_asset_kind": "roundpack_archive", "expected_route_decision": "archive_allowed" },
+    { "name": "unknown_zip", "file_name": "random.zip", "expected_asset_kind": "unknown_zip", "expected_route_decision": "unknown_blocked" },
+    { "name": "ambiguous_routes", "input": "two close route scores", "expected_gate": "blocked" },
+    { "name": "missing_aliases", "input": "route profile references missing repo/key", "expected_config_lint_errors": true },
+    { "name": "bad_config_preflight", "input": "config_lint.errors present", "expected_preflight_result": "no_go" }
+  ]
+}

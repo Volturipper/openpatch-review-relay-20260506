@@ -1,0 +1,196 @@
+{
+  "schema_version": "openpatch.re.button_marker_counter_self_test.v1",
+  "status": "pass",
+  "assertions": [
+    {
+      "name": "DOM dataset contains openpatchReButtonId",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "DOM dataset contains openpatchReButtonIndex",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "DOM dataset contains openpatchReVisibleCount",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "DOM dataset contains openpatchReMessageId",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "DOM dataset contains openpatchReAssetKind",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "DOM dataset contains openpatchReRouteDecision",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "DOM dataset contains openpatchReAllowedAction",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "DOM dataset contains openpatchReNotApproval",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "agent marker carries button_index",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "agent marker carries visible_count",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "agent marker carries message_id",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "agent marker carries message_button_index",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "agent marker carries message_visible_count",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "agent marker carries asset_kind",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "agent marker carries route_decision",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "agent marker carries allowed_action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "agent marker carries not_approval",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "has message scope resolver",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "has compact message hash",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "has local counter computation",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "refreshes counters after insertion",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "getCurrentAgentMarkers refreshes visible counters",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "schema requires/properties include buttonId",
+      "passed": {
+        "type": "string"
+      },
+      "detail": ""
+    },
+    {
+      "name": "schema requires/properties include button_index",
+      "passed": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "detail": ""
+    },
+    {
+      "name": "schema requires/properties include visible_count",
+      "passed": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "detail": ""
+    },
+    {
+      "name": "schema requires/properties include message_id",
+      "passed": {
+        "type": "string"
+      },
+      "detail": ""
+    },
+    {
+      "name": "schema requires/properties include message_button_index",
+      "passed": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "detail": ""
+    },
+    {
+      "name": "schema requires/properties include message_visible_count",
+      "passed": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "detail": ""
+    },
+    {
+      "name": "schema requires/properties include counter_scope",
+      "passed": {
+        "type": "string"
+      },
+      "detail": ""
+    }
+  ],
+  "acceptance_mapping": {
+    "DOM marker data exists": [
+      "openpatchReButtonId",
+      "openpatchReButtonIndex",
+      "openpatchReVisibleCount",
+      "openpatchReMessageId",
+      "openpatchReAssetKind",
+      "openpatchReRouteDecision",
+      "openpatchReAllowedAction",
+      "openpatchReNotApproval"
+    ],
+    "Loaded message can be inspected locally": [
+      "message_id",
+      "message_button_index",
+      "message_visible_count"
+    ],
+    "Lazy-loaded history not required": [
+      "counter_scope=loaded_dom_and_current_message",
+      "counter_note"
+    ],
+    "Regression evidence included": [
+      "this self-test",
+      "schema update",
+      "content-script marker update"
+    ]
+  },
+  "generated_at": "2026-05-06T11:08:04.349Z"
+}

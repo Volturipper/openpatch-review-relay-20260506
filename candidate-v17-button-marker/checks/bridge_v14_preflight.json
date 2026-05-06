@@ -1,0 +1,426 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.preflight_bundle.v14",
+  "project": "openpatch-smoke",
+  "target": "bridge-only",
+  "result": "go",
+  "blockers": [],
+  "recommended_agent_action": "run_codex_handoff_or_single_smoke",
+  "codex_short_command": "node local-bridge/openpatch-ledger-cli.mjs preflight --project openpatch-smoke --target bridge-only",
+  "default_next_commands": [
+    "node local-bridge/openpatch-ledger-cli.mjs readiness --project openpatch-smoke --target bridge-only",
+    "node local-bridge/openpatch-ledger-cli.mjs github-upload-gate --project openpatch-smoke",
+    "node local-bridge/openpatch-ledger-cli.mjs evidence-template --project openpatch-smoke --target bridge-only"
+  ],
+  "readiness": {
+    "ok": true,
+    "schema_version": "openpatch.readiness_report.v12",
+    "project": "openpatch-smoke",
+    "target": "bridge-only",
+    "go_no_go": "go_with_warnings",
+    "blocking": [],
+    "warnings": [
+      {
+        "code": "no_browser_instances_registered",
+        "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
+      }
+    ],
+    "compact": {
+      "latest_round": "",
+      "latest_status": "missing",
+      "queue_counts": {},
+      "instance_count": 0,
+      "github_rate_last_status": 0
+    },
+    "recommended_agent_action": "run_bridge_only_smoke_and_collect_evidence",
+    "codex_commands": [
+      "node local-bridge/openpatch-ledger-cli.mjs readiness --project openpatch-smoke --target bridge-only",
+      "node local-bridge/openpatch-ledger-cli.mjs smoke-plan --project openpatch-smoke --target bridge",
+      "node local-bridge/openpatch-ledger-cli.mjs evidence-template --project openpatch-smoke --target bridge-only"
+    ],
+    "checked_at": "2026-05-06T02:57:05.282Z"
+  },
+  "codex_handoff": {
+    "ok": true,
+    "schema_version": "openpatch.codex_handoff.v12",
+    "project": "openpatch-smoke",
+    "target": "bridge-only",
+    "go_no_go": "go_with_warnings",
+    "one_line_task": "Run bridge-only smoke for openpatch-smoke, collect JSON evidence, and stop at the next real blocker.",
+    "default_commands": [
+      "node local-bridge/openpatch-ledger-cli.mjs health",
+      "node local-bridge/openpatch-ledger-cli.mjs config-lint",
+      "node local-bridge/openpatch-ledger-cli.mjs archive-base64 --project openpatch-smoke --round smoke-001 --file webai-roundpack.zip --content-base64 ZHVtbXk= --dry-run"
+    ],
+    "evidence_required": [
+      "health.json",
+      "config_lint.json",
+      "readiness.json",
+      "smoke_plan.json",
+      "archive_or_receipt.json when applicable",
+      "go_no_go_summary.json"
+    ],
+    "stop_at": [
+      "config-lint errors",
+      "route conflict marked blocking",
+      "unexpected secret/token printed",
+      "real GitHub upload requested without the matching one-run approval",
+      "browser profile is not the intended isolated profile"
+    ],
+    "readiness": {
+      "ok": true,
+      "schema_version": "openpatch.readiness_report.v12",
+      "project": "openpatch-smoke",
+      "target": "bridge-only",
+      "go_no_go": "go_with_warnings",
+      "blocking": [],
+      "warnings": [
+        {
+          "code": "no_browser_instances_registered",
+          "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
+        }
+      ],
+      "compact": {
+        "latest_round": "",
+        "latest_status": "missing",
+        "queue_counts": {},
+        "instance_count": 0,
+        "github_rate_last_status": 0
+      },
+      "recommended_agent_action": "run_bridge_only_smoke_and_collect_evidence",
+      "codex_commands": [
+        "node local-bridge/openpatch-ledger-cli.mjs readiness --project openpatch-smoke --target bridge-only",
+        "node local-bridge/openpatch-ledger-cli.mjs smoke-plan --project openpatch-smoke --target bridge",
+        "node local-bridge/openpatch-ledger-cli.mjs evidence-template --project openpatch-smoke --target bridge-only"
+      ],
+      "checked_at": "2026-05-06T02:57:05.281Z"
+    },
+    "created_at": "2026-05-06T02:57:05.288Z"
+  },
+  "evidence_template": {
+    "ok": true,
+    "schema_version": "openpatch.evidence_template.v12",
+    "project": "openpatch-smoke",
+    "target": "bridge-only",
+    "status": "pending",
+    "required_files": [
+      "health.json",
+      "config_lint.json",
+      "readiness.json",
+      "smoke_plan.json",
+      "latest_or_receipt.json",
+      "SELF_TEST_NOTES.md"
+    ],
+    "evidence_json_template": {
+      "schema_version": "openpatch.smoke_evidence.v12",
+      "project": "openpatch-smoke",
+      "target": "bridge-only",
+      "actor": "codex_or_local_agent",
+      "started_at": "",
+      "finished_at": "",
+      "commands_run": [],
+      "files_created": [],
+      "pass": false,
+      "blockers": [],
+      "warnings": [],
+      "next_recommended_action": ""
+    },
+    "created_at": "2026-05-06T02:57:05.198Z"
+  },
+  "config_lint": {
+    "ok": true,
+    "schema_version": "openpatch.config_lint.v13",
+    "errors": [],
+    "warnings": [],
+    "summary": {
+      "repo_count": 2,
+      "key_alias_count": 1,
+      "route_profile_count": 2,
+      "project_count": 2,
+      "binding_count": 2,
+      "error_count": 0,
+      "warning_count": 0
+    },
+    "binding_summary": [
+      {
+        "profile_id": "webai-transfer-designer-chat",
+        "project": "webai-transfer",
+        "repo_alias": "webai-round-ledger",
+        "key_alias": "gh-webai-ledger",
+        "repo_known": true,
+        "key_known": true,
+        "allowed_by_repo": true,
+        "allowed_by_key": true,
+        "repo_dry_run": false
+      },
+      {
+        "profile_id": "default-archive",
+        "project": "default",
+        "repo_alias": "dry-run-archive",
+        "key_alias": "gh-webai-ledger",
+        "repo_known": true,
+        "key_known": true,
+        "allowed_by_repo": true,
+        "allowed_by_key": true,
+        "repo_dry_run": true
+      }
+    ],
+    "recommended_agent_action": "continue",
+    "checked_at": "2026-05-06T02:57:05.277Z"
+  },
+  "config_snapshot": {
+    "ok": true,
+    "schema_version": "openpatch.config_snapshot.v13",
+    "files": {
+      "routes_file": "/mnt/data/openpatch_v14_bridge_test/route_profiles.json",
+      "repos_file": "/mnt/data/openpatch_v14_bridge_test/repo_aliases.json",
+      "keys_file": "/mnt/data/openpatch_v14_bridge_test/keys.local.json"
+    },
+    "counts": {
+      "route_profiles": 2,
+      "repo_aliases": 2,
+      "key_aliases": 1,
+      "projects": 2
+    },
+    "projects": [
+      "default",
+      "webai-transfer"
+    ],
+    "bindings": [
+      {
+        "profile_id": "webai-transfer-designer-chat",
+        "project": "webai-transfer",
+        "repo_alias": "webai-round-ledger",
+        "key_alias": "gh-webai-ledger",
+        "repo_known": true,
+        "key_known": true,
+        "repo_dry_run": false,
+        "branch": "webai-archive",
+        "archive_root": "rounds",
+        "index_root": "index",
+        "key_has_token": false,
+        "allowed_by_repo": true,
+        "allowed_by_key": true,
+        "mode": "roundpack_archive",
+        "default": false
+      },
+      {
+        "profile_id": "default-archive",
+        "project": "default",
+        "repo_alias": "dry-run-archive",
+        "key_alias": "gh-webai-ledger",
+        "repo_known": true,
+        "key_known": true,
+        "repo_dry_run": true,
+        "branch": "webai-archive",
+        "archive_root": "rounds",
+        "index_root": "index",
+        "key_has_token": false,
+        "allowed_by_repo": true,
+        "allowed_by_key": true,
+        "mode": "roundpack_archive",
+        "default": true
+      }
+    ],
+    "repos": [
+      {
+        "repo_alias": "webai-round-ledger",
+        "provider": "github",
+        "owner": "YOUR_GITHUB_OWNER",
+        "repo": "webai-round-ledger",
+        "branch": "webai-archive",
+        "archive_root": "rounds",
+        "index_root": "index",
+        "dry_run": false,
+        "allowed_projects": [
+          "webai-transfer",
+          "ai-chat-file-relay",
+          "openpatch-smoke"
+        ]
+      },
+      {
+        "repo_alias": "dry-run-archive",
+        "provider": "github",
+        "owner": "example-owner",
+        "repo": "example-archive-repo",
+        "branch": "webai-archive",
+        "archive_root": "rounds",
+        "index_root": "index",
+        "dry_run": true,
+        "allowed_projects": [
+          ""
+        ]
+      }
+    ],
+    "keys": [
+      {
+        "key_alias": "gh-webai-ledger",
+        "provider": "github",
+        "token_env": "GITHUB_TOKEN_FOR_WEBAI_LEDGER",
+        "token_file_set": false,
+        "has_inline_token": false,
+        "dry_run": false,
+        "allowed_repo_aliases": [
+          "webai-round-ledger",
+          "dry-run-archive"
+        ]
+      }
+    ],
+    "generated_at": "2026-05-06T02:57:05.271Z"
+  },
+  "projects": {
+    "ok": true,
+    "schema_version": "openpatch.project_list.v13",
+    "projects": [
+      {
+        "project": "default",
+        "latest_round": "",
+        "latest_status": "missing",
+        "bindings": [
+          {
+            "profile_id": "default-archive",
+            "project": "default",
+            "repo_alias": "dry-run-archive",
+            "key_alias": "gh-webai-ledger",
+            "repo_known": true,
+            "key_known": true,
+            "repo_dry_run": true,
+            "branch": "webai-archive",
+            "archive_root": "rounds",
+            "index_root": "index",
+            "key_has_token": false,
+            "allowed_by_repo": true,
+            "allowed_by_key": true,
+            "mode": "roundpack_archive",
+            "default": true
+          }
+        ]
+      },
+      {
+        "project": "webai-transfer",
+        "latest_round": "",
+        "latest_status": "missing",
+        "bindings": [
+          {
+            "profile_id": "webai-transfer-designer-chat",
+            "project": "webai-transfer",
+            "repo_alias": "webai-round-ledger",
+            "key_alias": "gh-webai-ledger",
+            "repo_known": true,
+            "key_known": true,
+            "repo_dry_run": false,
+            "branch": "webai-archive",
+            "archive_root": "rounds",
+            "index_root": "index",
+            "key_has_token": false,
+            "allowed_by_repo": true,
+            "allowed_by_key": true,
+            "mode": "roundpack_archive",
+            "default": false
+          }
+        ]
+      }
+    ],
+    "generated_at": "2026-05-06T02:57:05.272Z"
+  },
+  "compact_summary": {
+    "ok": true,
+    "schema_version": "openpatch.compact_summary.v1",
+    "project": "openpatch-smoke",
+    "latest_round": "",
+    "status": "missing",
+    "archive_only": true,
+    "allow_execution": false,
+    "file_sha256": "",
+    "queue_counts": {},
+    "recommended_agent_action": "request_or_archive_roundpack",
+    "codex_next": "node local-bridge/openpatch-ledger-cli.mjs auto-continue-plan --project openpatch-smoke --message-count 0 --force",
+    "updated_at": "2026-05-06T02:57:05.266Z"
+  },
+  "instances_compact": {
+    "ok": true,
+    "schema_version": "openpatch.instances_compact.v14",
+    "total_instances": 0,
+    "active_count": 0,
+    "stale_count": 0,
+    "by_project": {},
+    "by_route_profile": {},
+    "duplicate_route_groups": [],
+    "active_sample": [],
+    "stale_sample": [],
+    "recommended_agent_action": "instances_ok",
+    "checked_at": "2026-05-06T02:57:05.200Z"
+  },
+  "github_upload_gate": {
+    "ok": true,
+    "schema_version": "openpatch.github_upload_gate.v14",
+    "project": "openpatch-smoke",
+    "gate": "blocked",
+    "can_upload": false,
+    "route_profile": "",
+    "repo_alias": "",
+    "key_alias": "",
+    "repo_summary": null,
+    "key_summary": null,
+    "blockers": [
+      "repo_alias_missing",
+      "key_alias_missing",
+      "repo_alias_not_found",
+      "key_alias_not_found"
+    ],
+    "warnings": [],
+    "recommended_agent_action": "fix_gate_blockers_before_real_upload",
+    "checked_at": "2026-05-06T02:57:05.285Z"
+  },
+  "next_action": {
+    "ok": true,
+    "schema_version": "openpatch.agent_next_action.v13",
+    "project": "openpatch-smoke",
+    "target": "bridge-only",
+    "go_no_go": "go_with_warnings",
+    "recommended_agent_action": "request_roundpack_then_archive",
+    "actions": [
+      {
+        "priority": 10,
+        "action": "request_roundpack_then_archive",
+        "command": "node local-bridge/openpatch-ledger-cli.mjs auto-continue-plan --project openpatch-smoke --message-count 7 --force",
+        "reason": "no latest round for this project"
+      },
+      {
+        "priority": 20,
+        "action": "check_readiness",
+        "command": "node local-bridge/openpatch-ledger-cli.mjs readiness --project openpatch-smoke --target bridge-only",
+        "reason": "current go/no-go is go_with_warnings"
+      },
+      {
+        "priority": 30,
+        "action": "inspect_queue",
+        "command": "node local-bridge/openpatch-ledger-cli.mjs queue-stats --project openpatch-smoke",
+        "reason": "claim/retry/release tasks if needed"
+      }
+    ],
+    "compact": {
+      "ok": true,
+      "schema_version": "openpatch.compact_summary.v1",
+      "project": "openpatch-smoke",
+      "latest_round": "",
+      "status": "missing",
+      "archive_only": true,
+      "allow_execution": false,
+      "file_sha256": "",
+      "queue_counts": {},
+      "recommended_agent_action": "request_or_archive_roundpack",
+      "codex_next": "node local-bridge/openpatch-ledger-cli.mjs auto-continue-plan --project openpatch-smoke --message-count 0 --force",
+      "updated_at": "2026-05-06T02:57:05.284Z"
+    },
+    "readiness_compact": {
+      "latest_round": "",
+      "latest_status": "missing",
+      "queue_counts": {},
+      "instance_count": 0,
+      "github_rate_last_status": 0
+    },
+    "generated_at": "2026-05-06T02:57:05.288Z"
+  },
+  "checked_at": "2026-05-06T02:57:05.288Z"
+}

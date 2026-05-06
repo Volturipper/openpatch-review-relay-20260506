@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.queue_stats.v1",
+  "project": "webai-transfer",
+  "total": 1,
+  "counts": {
+    "claimed": 1
+  },
+  "updated_at": "2026-05-06T00:13:28.279Z"
+}

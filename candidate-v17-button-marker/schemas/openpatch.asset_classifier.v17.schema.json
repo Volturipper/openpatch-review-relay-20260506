@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.asset_classifier.v17.schema.json",
+  "title": "OpenPatch RE v17 Asset Classifier Result",
+  "type": "object",
+  "required": ["schema_version", "asset_kind", "route_decision", "route_decision_reason", "allowed_action", "can_upload", "not_approval"],
+  "properties": {
+    "schema_version": { "const": "openpatch.asset_classifier.v17" },
+    "file_name": { "type": "string" },
+    "extension": { "type": "string" },
+    "asset_kind": {
+      "enum": ["changed_files_zip", "patch_diff", "roundpack_archive", "review_evidence", "candidate_or_evidence_archive", "forced_archive", "unknown_zip", "unknown"]
+    },
+    "route_decision": { "enum": ["patch_upload_allowed", "archive_allowed", "unknown_blocked"] },
+    "route_decision_reason": { "type": "string" },
+    "allowed_action": { "enum": ["upload_openpatch_content", "archive_roundpack_content", "none"] },
+    "mode": { "enum": ["patch_upload", "roundpack_archive", "blocked"] },
+    "can_upload": { "type": "boolean" },
+    "not_approval": { "type": "boolean" }
+  },
+  "additionalProperties": true
+}

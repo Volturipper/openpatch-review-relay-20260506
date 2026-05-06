@@ -1,0 +1,42 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.config_snapshot.v13",
+  "files": {
+    "routes_file": "/mnt/data/openpatch_v13_bridge_test/route_profiles.json",
+    "repos_file": "/mnt/data/openpatch_v13_bridge_test/repo_aliases.json",
+    "keys_file": "/mnt/data/openpatch_v13_bridge_test/keys.local.json"
+  },
+  "counts": {
+    "route_profiles": 0,
+    "repo_aliases": 1,
+    "key_aliases": 1,
+    "projects": 0
+  },
+  "projects": [],
+  "bindings": [],
+  "repos": [
+    {
+      "repo_alias": "example-dry-run-archive",
+      "provider": "github",
+      "owner": "example-owner",
+      "repo": "example-archive-repo",
+      "branch": "webai-archive",
+      "archive_root": "rounds",
+      "index_root": "index",
+      "dry_run": true,
+      "allowed_projects": []
+    }
+  ],
+  "keys": [
+    {
+      "key_alias": "example-gh-token-env",
+      "provider": "github",
+      "token_env": "GITHUB_TOKEN_FOR_OPENPATCH_ARCHIVE",
+      "token_file_set": false,
+      "has_inline_token": false,
+      "dry_run": false,
+      "allowed_repo_aliases": []
+    }
+  ],
+  "generated_at": "2026-05-06T02:44:07.803Z"
+}

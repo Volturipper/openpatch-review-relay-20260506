@@ -1,0 +1,54 @@
+{
+  "ok": true,
+  "runs": 12,
+  "duration_ms": 787,
+  "duplicate_count": 9,
+  "unique_sha_count": 3,
+  "latest_round": "parallel-11",
+  "queue_stats": {
+    "ok": true,
+    "schema_version": "openpatch.queue_stats.v1",
+    "project": "webai-transfer",
+    "total": 0,
+    "counts": {},
+    "updated_at": "2026-05-06T00:13:54.824Z"
+  },
+  "receipt_count": 12,
+  "sample": [
+    {
+      "ok": true,
+      "status": "dry_run_planned",
+      "round_id": "parallel-01",
+      "duplicate": false,
+      "sha": "4f8ebb01affad2a109318aa332c943a851e290c2008fd25da64c2c97f823b7b7"
+    },
+    {
+      "ok": true,
+      "status": "dry_run_planned",
+      "round_id": "parallel-02",
+      "duplicate": false,
+      "sha": "37a8de0b0cf70366f0f253944a1bf6deb660cb98489b034416d5c615de6cca09"
+    },
+    {
+      "ok": true,
+      "status": "dry_run_planned",
+      "round_id": "parallel-03",
+      "duplicate": false,
+      "sha": "2196cab317799d9c78eb3cf344a90e732f4314fab87594c5bbc8fca1d5f1653b"
+    },
+    {
+      "ok": true,
+      "status": "dry_run_planned",
+      "round_id": "parallel-04",
+      "duplicate": true,
+      "sha": "4f8ebb01affad2a109318aa332c943a851e290c2008fd25da64c2c97f823b7b7"
+    },
+    {
+      "ok": true,
+      "status": "dry_run_planned",
+      "round_id": "parallel-05",
+      "duplicate": true,
+      "sha": "37a8de0b0cf70366f0f253944a1bf6deb660cb98489b034416d5c615de6cca09"
+    }
+  ]
+}

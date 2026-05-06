@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "status": "claimed",
+  "task": {
+    "schema_version": "openpatch.bridge_queue_item.v1",
+    "idempotency_key": "webai-transfer-round-v6-002-abc",
+    "project": "webai-transfer",
+    "round_id": "round-v6-002",
+    "file_sha256": "abc",
+    "status": "claimed",
+    "action": "archive_roundpack",
+    "route_context": {},
+    "created_at": "2026-05-05T23:41:28.792Z",
+    "updated_at": "2026-05-05T23:41:28.881Z",
+    "claimed_by": "codex"
+  }
+}

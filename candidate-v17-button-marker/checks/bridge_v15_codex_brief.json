@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.codex_brief.v15",
+  "project": "openpatch-smoke",
+  "target": "bridge-only",
+  "result": "go",
+  "latest_round": "",
+  "latest_status": "missing",
+  "queue_counts": {},
+  "action_now": "run_bridge_smoke_or_request_roundpack",
+  "next_command": "node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project openpatch-smoke",
+  "stop_if": [],
+  "warnings": [
+    {
+      "code": "no_browser_instances_registered",
+      "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
+    }
+  ],
+  "codex_should_read": [
+    "codex_brief",
+    "latest_or_receipt",
+    "bridge_smoke_evidence_when_requested"
+  ],
+  "checked_at": "2026-05-06T09:15:39.338Z"
+}

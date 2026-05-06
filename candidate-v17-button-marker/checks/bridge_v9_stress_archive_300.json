@@ -1,0 +1,35 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.stress_archive.v9",
+  "project": "v9-stress",
+  "count": 300,
+  "parallel": 20,
+  "results_count": 300,
+  "sample": [
+    {
+      "round_id": "stress-0000",
+      "status": "dry_run_planned",
+      "sha256": "15a73480559884143373ed360080942071a126809c2d3658b61c38baa33fbd36"
+    },
+    {
+      "round_id": "stress-0001",
+      "status": "dry_run_planned",
+      "sha256": "497a9346f6327e6c2bf6227329a5d86a8d3a88160e117b288ffa515f0bfeeb31"
+    },
+    {
+      "round_id": "stress-0002",
+      "status": "dry_run_planned",
+      "sha256": "34aad7c83e63d0a90d1a224e78d9fc321a0a871ca8bbd2e1e988a670c1f041ca"
+    },
+    {
+      "round_id": "stress-0003",
+      "status": "dry_run_planned",
+      "sha256": "67b01c81c3d8cab80c3d04eb586d0902d085b49a5f9ac87d95883b672e755b05"
+    },
+    {
+      "round_id": "stress-0004",
+      "status": "dry_run_planned",
+      "sha256": "0723600f0b09cb84e2679ea6aac585ac045b9276d4ac6d9e0127af1b7c19bfa7"
+    }
+  ]
+}

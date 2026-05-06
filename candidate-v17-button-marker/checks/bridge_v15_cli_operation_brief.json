@@ -1,0 +1,51 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.operation_brief.v15",
+  "project": "openpatch-smoke",
+  "intent": "continue",
+  "recommended_agent_action": "read_latest_receipt_or_fetch_roundpack",
+  "one_line": "openpatch-smoke: go; read_latest_receipt_or_fetch_roundpack",
+  "command_to_run": "node local-bridge/openpatch-ledger-cli.mjs receipt --project openpatch-smoke --round v15-smoke-001",
+  "can_continue_auto": true,
+  "should_pause_auto": false,
+  "queue_counts": {},
+  "active_instances": 0,
+  "stale_instances": 0,
+  "brief": {
+    "ok": true,
+    "schema_version": "openpatch.codex_brief.v15",
+    "project": "openpatch-smoke",
+    "target": "bridge-only",
+    "result": "go",
+    "latest_round": "v15-smoke-001",
+    "latest_status": "dry_run_planned",
+    "queue_counts": {},
+    "action_now": "read_latest_receipt_or_fetch_roundpack",
+    "next_command": "node local-bridge/openpatch-ledger-cli.mjs receipt --project openpatch-smoke --round v15-smoke-001",
+    "stop_if": [],
+    "warnings": [
+      {
+        "code": "no_browser_instances_registered",
+        "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
+      }
+    ],
+    "codex_should_read": [
+      "codex_brief",
+      "latest_or_receipt",
+      "bridge_smoke_evidence_when_requested"
+    ],
+    "checked_at": "2026-05-06T09:15:41.538Z"
+  },
+  "next_action": {
+    "priority": 10,
+    "action": "read_latest_receipt",
+    "command": "node local-bridge/openpatch-ledger-cli.mjs receipt --project openpatch-smoke --round v15-smoke-001",
+    "reason": "latest archived round exists"
+  },
+  "auto_continue": {
+    "should_pause": false,
+    "should_request_roundpack": false,
+    "action": "continue_auto_flow"
+  },
+  "generated_at": "2026-05-06T09:15:41.539Z"
+}

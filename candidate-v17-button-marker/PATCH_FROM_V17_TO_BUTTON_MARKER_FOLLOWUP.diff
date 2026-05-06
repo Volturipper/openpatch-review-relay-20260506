@@ -1,0 +1,394 @@
+Only in openpatch_agent_gateway_v17_button_marker_candidate: PATCH_FROM_V17_TO_BUTTON_MARKER_FOLLOWUP.diff
+diff -ru openpatch_agent_gateway_v17_candidate/audit_decision.json openpatch_agent_gateway_v17_button_marker_candidate/audit_decision.json
+--- openpatch_agent_gateway_v17_candidate/audit_decision.json	2026-05-06 11:01:42.048691517 +0000
++++ openpatch_agent_gateway_v17_button_marker_candidate/audit_decision.json	2026-05-06 11:07:48.229476922 +0000
+@@ -1,8 +1,8 @@
+ {
+   "schema_version": "openpatch.re_candidate_decision.v17",
+-  "artifact": "openpatch_agent_gateway_v17_candidate.zip",
++  "artifact": "openpatch_agent_gateway_v17_button_marker_candidate.zip",
+   "terminology": "OpenPatch RE",
+-  "candidate_generation": "v17",
++  "candidate_generation": "v17-followup-button-marker-counter",
+   "source_baseline": "v16 candidate reviewed in round 1",
+   "decision": "ready_for_repo_or_relay_reviewer_audit",
+   "allowed_next_scope_after_reviewer_acceptance": [
+@@ -36,8 +36,16 @@
+     "bridge_smoke": "pass_bridge_only_dry_run",
+     "real_github_upload": "not_run",
+     "chrome_dev_profile_smoke": "not_run",
+-    "live_auto_continue_install": "not_run"
++    "live_auto_continue_install": "not_run",
++    "button_marker_counter_self_test": "pass"
+   },
+-  "recommended_next_action": "repo_or_relay_reviewer_audit",
+-  "created_at": "2026-05-06T00:00:00Z"
++  "recommended_next_action": "repo_or_relay_reviewer_audit_then_controlled_bridge_or_chrome_observe_only_smoke",
++  "created_at": "2026-05-06T00:00:00Z",
++  "additional_v17_followup_requirement": {
++    "stable_per_button_marker_counter_metadata": "implemented",
++    "dom_required_fields": "implemented",
++    "lazy_loaded_history_not_required": "implemented_via_loaded_message_hash_and_message_local_index",
++    "self_test_evidence": "checks/V17_BUTTON_MARKER_COUNTER_RESULTS.json"
++  },
++  "updated_at": "2026-05-06T00:00:00Z"
+ }
+diff -ru openpatch_agent_gateway_v17_candidate/checks/SELF_TEST_REPORT_V17.md openpatch_agent_gateway_v17_button_marker_candidate/checks/SELF_TEST_REPORT_V17.md
+--- openpatch_agent_gateway_v17_candidate/checks/SELF_TEST_REPORT_V17.md	2026-05-06 11:01:27.640297412 +0000
++++ openpatch_agent_gateway_v17_button_marker_candidate/checks/SELF_TEST_REPORT_V17.md	2026-05-06 11:07:48.229662266 +0000
+@@ -47,3 +47,21 @@
+ ✅ Candidate can go to repo/relay reviewer audit.
+ ⚠️ Only bridge-only dry-run and Chrome/CDP observe-only controlled smoke are in scope after review acceptance.
+ ❌ Do not claim real upload/apply/install success without separate receipt evidence.
++
++
++## Follow-up self-test: per-button marker/counter metadata
++
++| Check | Result | Evidence |
++|---|---:|---|
++| DOM `data-openpatch-re-*` marker fields | ✅ pass | `checks/V17_BUTTON_MARKER_COUNTER_RESULTS.json` |
++| Marker JSON counter fields | ✅ pass | `checks/V17_BUTTON_MARKER_COUNTER_RESULTS.json` |
++| Loaded-message compact hash/message id logic | ✅ pass | `checks/V17_BUTTON_MARKER_COUNTER_RESULTS.json` |
++| Counter refresh after button insertion | ✅ pass | `checks/V17_BUTTON_MARKER_COUNTER_RESULTS.json` |
++| Agent button schema updated with counter fields | ✅ pass | `schemas/openpatch.agent_button.v17.schema.json` |
++
++Acceptance mapping:
++
++✅ Marker data is in DOM, not only docs.
++✅ Codex can inspect a loaded message and read button index, visible count, message id, asset kind, route decision, allowed action, and not-approval state.
++✅ Lazy-loaded page history is not required; agents should prefer `message_id + message_button_index` or `button_id` over whole-page count.
++✅ Regression/self-test evidence is included.
+Only in openpatch_agent_gateway_v17_button_marker_candidate/checks: SENSITIVE_SCAN_V17_BUTTON_MARKER.json
+Only in openpatch_agent_gateway_v17_button_marker_candidate/checks: V17_BUTTON_MARKER_COUNTER_RESULTS.json
+Only in openpatch_agent_gateway_v17_button_marker_candidate/checks: V17_BUTTON_MARKER_COUNTER_SELF_TEST.mjs
+Only in openpatch_agent_gateway_v17_button_marker_candidate/checks: content_script_node_check_v17_followup.log
+Only in openpatch_agent_gateway_v17_button_marker_candidate/checks: local_bridge_node_check_v17_followup.log
+Only in openpatch_agent_gateway_v17_button_marker_candidate/checks: npm_run_check_v17_followup.log
+Only in openpatch_agent_gateway_v17_button_marker_candidate/checks: npm_test_v17_followup.log
+Only in openpatch_agent_gateway_v17_button_marker_candidate/docs: 51_V17_BUTTON_MARKER_COUNTER_FOLLOWUP.md
+diff -ru openpatch_agent_gateway_v17_candidate/docs/openpatch-agent-gateway-contract-v17.md openpatch_agent_gateway_v17_button_marker_candidate/docs/openpatch-agent-gateway-contract-v17.md
+--- openpatch_agent_gateway_v17_candidate/docs/openpatch-agent-gateway-contract-v17.md	2026-05-06 10:58:08.743364959 +0000
++++ openpatch_agent_gateway_v17_button_marker_candidate/docs/openpatch-agent-gateway-contract-v17.md	2026-05-06 11:07:19.860933798 +0000
+@@ -52,3 +52,42 @@
+ ## Hosted evidence is not approval
+ 
+ GitHub-hosted RoundPacks, review zips, receipts, latest JSON, workflow logs, and validation outputs are hosted evidence only. They are not merge approval, install approval, production release, browser profile approval, GitHub upload approval, or Auto Continue live-adapter approval.
++
++## Follow-up: per-button DOM marker/counter contract
++
++Each OpenPatch RE button MUST expose local, machine-readable DOM attributes so Codex and other agents do not depend on whole-page button counts under ChatGPT lazy loading.
++
++Required DOM attributes on `.openpatch-inline-button`:
++
++```text
++data-openpatch-re-button-id
++data-openpatch-re-button-index
++data-openpatch-re-visible-count
++data-openpatch-re-message-id
++data-openpatch-re-asset-kind
++data-openpatch-re-route-decision
++data-openpatch-re-allowed-action
++data-openpatch-re-not-approval
++```
++
++Implemented additional local disambiguators:
++
++```text
++data-openpatch-re-message-button-index
++data-openpatch-re-message-visible-count
++data-openpatch-re-counter-scope
++```
++
++Agent interpretation:
++
++- `data-openpatch-re-visible-count` is a count of currently loaded visible OpenPatch RE buttons, not a full history count.
++- `data-openpatch-re-message-id` is the compact loaded-message locator.
++- `data-openpatch-re-message-button-index` is the preferred local index when multiple assets/buttons appear in one message.
++- `data-openpatch-re-not-approval=true` means archive/review/evidence presence is not owner approval, not merge approval, and not install approval.
++- Agents should prefer `button_id` or `message_id + message_button_index` over whole-page count.
++
++Failure states:
++
++- Missing `data-openpatch-re-message-id`: treat marker as incomplete and request refresh.
++- `data-openpatch-re-route-decision=unknown_blocked`: do not upload; request explicit file naming/classification.
++- `data-openpatch-re-not-approval=true`: do not infer execution/install/merge approval.
+diff -ru openpatch_agent_gateway_v17_candidate/openpatch-main/pages/options.html openpatch_agent_gateway_v17_button_marker_candidate/openpatch-main/pages/options.html
+--- openpatch_agent_gateway_v17_candidate/openpatch-main/pages/options.html	2026-05-05 23:35:35.000000000 +0000
++++ openpatch_agent_gateway_v17_button_marker_candidate/openpatch-main/pages/options.html	2026-05-06 11:09:09.452616886 +0000
+@@ -22,7 +22,7 @@
+       <form id="options-form" class="panel">
+         <label>
+           GitHub Token
+-          <input id="github-token" type="password" autocomplete="off" placeholder="<redacted-token-placeholder>">
++          <input id="github-token" type="password" autocomplete="off" placeholder="fine-grained-token-or-key-alias">
+         </label>
+ 
+         <label>
+diff -ru openpatch_agent_gateway_v17_candidate/openpatch-main/src/content-script.js openpatch_agent_gateway_v17_button_marker_candidate/openpatch-main/src/content-script.js
+--- openpatch_agent_gateway_v17_candidate/openpatch-main/src/content-script.js	2026-05-06 10:59:19.264834173 +0000
++++ openpatch_agent_gateway_v17_button_marker_candidate/openpatch-main/src/content-script.js	2026-05-06 11:06:11.535960177 +0000
+@@ -324,6 +324,13 @@
+       extension: classified.extension || getFileExtension(suggestedName),
+       buttonId: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`,
+       pageSessionId: PAGE_SESSION_ID,
++      button_index: 0,
++      visible_count: 0,
++      message_id: "pending",
++      message_button_index: 0,
++      message_visible_count: 0,
++      counter_scope: "pending_dom_insert",
++      counter_note: "populated_after_button_is_inserted; lazy_loaded_history_not_required",
+       sourceText: String(label || "").trim().slice(0, 180),
+       sourceTag: sourceButton.tagName?.toLowerCase?.() || "",
+       sourceRole: sourceButton.getAttribute("role") || "",
+@@ -390,10 +397,84 @@
+     return Date.now() - createdAt > BUTTON_STALE_AFTER_MS ? "stale" : "fresh";
+   }
+ 
++  function getLoadedOpenPatchButtons() {
++    return Array.from(document.querySelectorAll(`.${BUTTON_CLASS}`))
++      .filter((button) => button.isConnected && button.offsetParent !== null);
++  }
++
++  function getClosestMessageScope(element) {
++    return element?.closest?.([
++      "[data-message-id]",
++      "[data-testid^='conversation-turn']",
++      "[data-message-author-role='assistant']",
++      "article",
++      ".markdown-new-styling",
++      ".markdown.prose",
++      ".markdown",
++      ".prose"
++    ].join(",")) || element?.parentElement || document.body;
++  }
++
++  function hashString(input) {
++    const value = String(input || "");
++    let hash = 2166136261;
++    for (let index = 0; index < value.length; index += 1) {
++      hash ^= value.charCodeAt(index);
++      hash = Math.imul(hash, 16777619);
++    }
++    return (hash >>> 0).toString(16).padStart(8, "0");
++  }
++
++  function getMessageIdForElement(element) {
++    const scope = getClosestMessageScope(element);
++    const explicit = scope?.getAttribute?.("data-message-id")
++      || scope?.getAttribute?.("data-testid")
++      || scope?.id
++      || "";
++    if (explicit) return `msg-${hashString(explicit)}`;
++
++    const linkAndButtonHints = Array.from(scope?.querySelectorAll?.("a,button") || [])
++      .slice(0, 20)
++      .map((node) => `${node.tagName || ""}:${node.getAttribute?.("aria-label") || ""}:${node.textContent || ""}`.slice(0, 120))
++      .join("|");
++    const textHint = String(scope?.textContent || "").replace(/\s+/g, " ").trim().slice(0, 600);
++    return `msg-${hashString(`${textHint}|${linkAndButtonHints}`)}`;
++  }
++
++  function computeButtonCounterMetadata(button) {
++    const visibleButtons = getLoadedOpenPatchButtons();
++    const buttonIndex = visibleButtons.indexOf(button);
++    const messageScope = getClosestMessageScope(button);
++    const messageButtons = visibleButtons.filter((candidate) => getClosestMessageScope(candidate) === messageScope);
++    const messageButtonIndex = messageButtons.indexOf(button);
++    return {
++      button_index: buttonIndex >= 0 ? buttonIndex + 1 : 0,
++      visible_count: visibleButtons.length,
++      message_id: getMessageIdForElement(button),
++      message_button_index: messageButtonIndex >= 0 ? messageButtonIndex + 1 : 0,
++      message_visible_count: messageButtons.length,
++      counter_scope: "loaded_dom_and_current_message",
++      counter_note: "Per-button DOM marker is local to loaded ChatGPT messages; full lazy-loaded page history is not required."
++    };
++  }
++
++  function refreshButtonCounterMetadata(button, options = { quiet: true }) {
++    const counters = computeButtonCounterMetadata(button);
++    setButtonMarker(button, counters, options);
++    return button.__openpatchAgentMarker || parseMarkerDataset(button);
++  }
++
++  function refreshVisibleButtonCounters(options = { quiet: true }) {
++    for (const button of getLoadedOpenPatchButtons()) {
++      refreshButtonCounterMetadata(button, options);
++    }
++  }
++
+   function refreshMarkerForAgent(button) {
+     const previous = button.__openpatchAgentMarker || parseMarkerDataset(button);
+     const stalenessStatus = getStalenessStatus(previous);
+     setButtonMarker(button, {
++      ...computeButtonCounterMetadata(button),
+       stalenessStatus,
+       routeContext: sanitizeRouteContext(routeContext)
+     }, { quiet: true });
+@@ -491,6 +572,17 @@
+     button.dataset.openpatchFileName = String(next.fileName || "");
+     button.dataset.openpatchButtonId = String(next.buttonId || "");
+     button.dataset.openpatchPageSessionId = String(next.pageSessionId || PAGE_SESSION_ID);
++    button.dataset.openpatchReButtonId = String(next.buttonId || "");
++    button.dataset.openpatchReButtonIndex = String(next.button_index || 0);
++    button.dataset.openpatchReVisibleCount = String(next.visible_count || 0);
++    button.dataset.openpatchReMessageId = String(next.message_id || "");
++    button.dataset.openpatchReMessageButtonIndex = String(next.message_button_index || 0);
++    button.dataset.openpatchReMessageVisibleCount = String(next.message_visible_count || 0);
++    button.dataset.openpatchReCounterScope = String(next.counter_scope || "unknown");
++    button.dataset.openpatchReAssetKind = String(next.asset_kind || "unknown");
++    button.dataset.openpatchReRouteDecision = String(next.route_decision || "unknown");
++    button.dataset.openpatchReAllowedAction = String(next.allowed_action || next.action || "");
++    button.dataset.openpatchReNotApproval = String(next.not_approval === true);
+     button.dataset.openpatchRouteId = String(next.routeContext?.routeId || "");
+     button.dataset.openpatchRouteProfile = String(next.routeContext?.routeProfile || "");
+     button.dataset.openpatchRepoAlias = String(next.routeContext?.repoAlias || "");
+@@ -530,13 +622,16 @@
+     marker.type = "application/json";
+     marker.className = AGENT_MARKER_CLASS;
+     marker.dataset.openpatchFor = button.dataset.openpatchFileName || "";
++    marker.dataset.openpatchReButtonId = button.dataset.openpatchReButtonId || "";
++    marker.dataset.openpatchReMessageId = button.dataset.openpatchReMessageId || "";
+     marker.textContent = JSON.stringify(button.__openpatchAgentMarker || {}, null, 2);
+     button.__openpatchMarkerNode = marker;
+     return marker;
+   }
+ 
+   function getCurrentAgentMarkers() {
+-    return Array.from(document.querySelectorAll(`.${BUTTON_CLASS}`))
++    refreshVisibleButtonCounters({ quiet: true });
++    return getLoadedOpenPatchButtons()
+       .map((button, index) => ({
+         index,
+         ...refreshMarkerForAgent(button)
+@@ -700,7 +795,16 @@
+         buttonCount: document.querySelectorAll(`.${BUTTON_CLASS}`).length,
+         buttons: getCurrentAgentMarkers().slice(0, 20).map((marker) => ({
+           buttonId: marker.buttonId,
++          buttonIndex: marker.button_index,
++          visibleCount: marker.visible_count,
++          messageId: marker.message_id,
++          messageButtonIndex: marker.message_button_index,
++          messageVisibleCount: marker.message_visible_count,
+           fileName: marker.fileName,
++          assetKind: marker.asset_kind,
++          routeDecision: marker.route_decision,
++          allowedAction: marker.allowed_action,
++          notApproval: marker.not_approval === true,
+           status: marker.status,
+           mode: marker.mode,
+           stalenessStatus: marker.stalenessStatus,
+@@ -989,8 +1093,10 @@
+ 
+       const uploadButton = createInlineButton(candidate);
+       candidate.insertAdjacentElement("afterend", uploadButton);
++      refreshButtonCounterMetadata(uploadButton, { quiet: true });
+       uploadButton.insertAdjacentElement("afterend", createAgentMarkerNode(uploadButton));
+     }
++    refreshVisibleButtonCounters({ quiet: true });
+   }
+ 
+   function installToolbar() {
+diff -ru openpatch_agent_gateway_v17_candidate/schemas/openpatch.agent_button.v17.schema.json openpatch_agent_gateway_v17_button_marker_candidate/schemas/openpatch.agent_button.v17.schema.json
+--- openpatch_agent_gateway_v17_candidate/schemas/openpatch.agent_button.v17.schema.json	2026-05-06 10:58:27.157922887 +0000
++++ openpatch_agent_gateway_v17_button_marker_candidate/schemas/openpatch.agent_button.v17.schema.json	2026-05-06 11:06:28.662093148 +0000
+@@ -3,19 +3,86 @@
+   "$id": "openpatch.agent_button.v17.schema.json",
+   "title": "OpenPatch RE v17 Agent Button Marker",
+   "type": "object",
+-  "required": ["schemaVersion", "status", "asset_kind", "route_decision", "route_decision_reason", "allowed_action", "not_approval", "fileName", "routeContext"],
++  "required": [
++    "schemaVersion",
++    "status",
++    "asset_kind",
++    "route_decision",
++    "route_decision_reason",
++    "allowed_action",
++    "not_approval",
++    "fileName",
++    "routeContext",
++    "buttonId",
++    "button_index",
++    "visible_count",
++    "message_id",
++    "message_button_index",
++    "message_visible_count",
++    "counter_scope"
++  ],
+   "properties": {
+-    "schemaVersion": { "const": "openpatch.agent_button.v17" },
+-    "status": { "type": "string" },
+-    "asset_kind": { "type": "string" },
+-    "route_decision": { "type": "string" },
+-    "route_decision_reason": { "type": "string" },
+-    "allowed_action": { "type": "string" },
+-    "not_approval": { "type": "boolean" },
+-    "fileName": { "type": "string" },
+-    "routeContext": { "type": "object" },
+-    "recommendedAgentAction": { "type": "string" },
+-    "decisionHint": { "type": "string" }
++    "schemaVersion": {
++      "const": "openpatch.agent_button.v17"
++    },
++    "status": {
++      "type": "string"
++    },
++    "asset_kind": {
++      "type": "string"
++    },
++    "route_decision": {
++      "type": "string"
++    },
++    "route_decision_reason": {
++      "type": "string"
++    },
++    "allowed_action": {
++      "type": "string"
++    },
++    "not_approval": {
++      "type": "boolean"
++    },
++    "fileName": {
++      "type": "string"
++    },
++    "routeContext": {
++      "type": "object"
++    },
++    "recommendedAgentAction": {
++      "type": "string"
++    },
++    "decisionHint": {
++      "type": "string"
++    },
++    "buttonId": {
++      "type": "string"
++    },
++    "button_index": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "visible_count": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "message_id": {
++      "type": "string"
++    },
++    "message_button_index": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "message_visible_count": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "counter_scope": {
++      "type": "string"
++    },
++    "counter_note": {
++      "type": "string"
++    }
+   },
+   "additionalProperties": true
+ }

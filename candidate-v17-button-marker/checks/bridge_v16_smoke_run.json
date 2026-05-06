@@ -1,0 +1,158 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.bridge_smoke_evidence.v16",
+  "project": "openpatch-smoke",
+  "round_id": "bridge-smoke-1778059337055",
+  "target": "bridge-only",
+  "status": "pass",
+  "pass": true,
+  "started_at": "2026-05-06T09:22:17.055Z",
+  "finished_at": "2026-05-06T09:22:17.163Z",
+  "checks": [
+    {
+      "id": "health",
+      "ok": true,
+      "status": "ok",
+      "at": "2026-05-06T09:22:17.055Z",
+      "error": ""
+    },
+    {
+      "id": "config_lint",
+      "ok": true,
+      "status": "ok",
+      "at": "2026-05-06T09:22:17.055Z",
+      "error": ""
+    },
+    {
+      "id": "readiness",
+      "ok": true,
+      "status": "ok",
+      "at": "2026-05-06T09:22:17.138Z",
+      "error": ""
+    },
+    {
+      "id": "dry_run_archive",
+      "ok": true,
+      "status": "dry_run_planned",
+      "at": "2026-05-06T09:22:17.154Z",
+      "error": ""
+    },
+    {
+      "id": "latest",
+      "ok": true,
+      "status": "dry_run_planned",
+      "at": "2026-05-06T09:22:17.161Z",
+      "error": ""
+    },
+    {
+      "id": "events_recent",
+      "ok": true,
+      "status": "ok",
+      "at": "2026-05-06T09:22:17.163Z",
+      "error": ""
+    }
+  ],
+  "blockers": [],
+  "warnings": [
+    {
+      "code": "no_browser_instances_registered",
+      "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
+    }
+  ],
+  "latest_round": "bridge-smoke-1778059337055",
+  "dry_run_receipt": {
+    "ok": true,
+    "status": "dry_run_planned",
+    "mode": "bridge_archive_base64",
+    "project": "openpatch-smoke",
+    "round_id": "bridge-smoke-1778059337055",
+    "file_sha256": "a247d2ef2e22da4c83038fad59ff315e27eaea3b20ef2d1cd7f117f2f9cb5544",
+    "repo_alias": "",
+    "key_alias": "",
+    "paths": {
+      "archive_path": "rounds/openpatch-smoke/2026/05/06/bridge-smoke-1778059337055/webai-roundpack-bridge-smoke.zip",
+      "manifest_path": "rounds/openpatch-smoke/2026/05/06/bridge-smoke-1778059337055/archive_manifest.json",
+      "receipt_path": "rounds/openpatch-smoke/2026/05/06/bridge-smoke-1778059337055/upload_receipt.json",
+      "latest_path": "index/latest/openpatch-smoke.json"
+    },
+    "github": {
+      "owner": "",
+      "repo": "",
+      "branch": "webai-archive",
+      "archive_path": "rounds/openpatch-smoke/2026/05/06/bridge-smoke-1778059337055/webai-roundpack-bridge-smoke.zip",
+      "manifest_path": "rounds/openpatch-smoke/2026/05/06/bridge-smoke-1778059337055/archive_manifest.json",
+      "receipt_path": "rounds/openpatch-smoke/2026/05/06/bridge-smoke-1778059337055/upload_receipt.json",
+      "latest_path": "index/latest/openpatch-smoke.json",
+      "dry_run": true
+    },
+    "commit_sha": "",
+    "receipt": {
+      "schema_version": "openpatch.upload_receipt.v7",
+      "status": "dry_run_planned",
+      "archive_only": true,
+      "allow_execution": false,
+      "project": "openpatch-smoke",
+      "round_id": "bridge-smoke-1778059337055",
+      "file_name": "webai-roundpack-bridge-smoke.zip",
+      "file_sha256": "a247d2ef2e22da4c83038fad59ff315e27eaea3b20ef2d1cd7f117f2f9cb5544",
+      "size_bytes": 80,
+      "route_context": {
+        "project": "openpatch-smoke",
+        "repo_alias": "",
+        "key_alias": "",
+        "archive_root": "rounds",
+        "index_root": "index",
+        "route_profile": "manual"
+      },
+      "github": {
+        "owner": "",
+        "repo": "",
+        "branch": "webai-archive",
+        "archive_path": "rounds/openpatch-smoke/2026/05/06/bridge-smoke-1778059337055/webai-roundpack-bridge-smoke.zip",
+        "manifest_path": "rounds/openpatch-smoke/2026/05/06/bridge-smoke-1778059337055/archive_manifest.json",
+        "receipt_path": "rounds/openpatch-smoke/2026/05/06/bridge-smoke-1778059337055/upload_receipt.json",
+        "latest_path": "index/latest/openpatch-smoke.json",
+        "dry_run": true
+      },
+      "created_at": "2026-05-06T09:22:17.157Z",
+      "next_actions": [
+        "read_latest",
+        "fetch_roundpack",
+        "read_receipt",
+        "continue_agent_workflow"
+      ]
+    },
+    "latest": {
+      "schema_version": "openpatch.latest.v7",
+      "project": "openpatch-smoke",
+      "latest_round": "bridge-smoke-1778059337055",
+      "status": "dry_run_planned",
+      "archive_only": true,
+      "allow_execution": false,
+      "latest": {
+        "round_id": "bridge-smoke-1778059337055",
+        "project": "openpatch-smoke",
+        "status": "dry_run_planned",
+        "file_name": "webai-roundpack-bridge-smoke.zip",
+        "file_sha256": "a247d2ef2e22da4c83038fad59ff315e27eaea3b20ef2d1cd7f117f2f9cb5544",
+        "size_bytes": 80,
+        "archive_path": "rounds/openpatch-smoke/2026/05/06/bridge-smoke-1778059337055/webai-roundpack-bridge-smoke.zip",
+        "receipt_path": "rounds/openpatch-smoke/2026/05/06/bridge-smoke-1778059337055/upload_receipt.json",
+        "created_at": "2026-05-06T09:22:17.157Z"
+      },
+      "recent_rounds": [],
+      "codex_should_read": [
+        "upload_receipt.json",
+        "archive_manifest.json",
+        "NEXT_FOR_CODEX.md",
+        "ROUND_SUMMARY.md"
+      ],
+      "next_actor": "codex_or_reviewer",
+      "updated_at": "2026-05-06T09:22:17.157Z"
+    },
+    "duplicate": null
+  },
+  "next_recommended_action": "proceed_to_chrome_dev_profile_smoke_or_github_test_upload_gate",
+  "codex_next_command": "node local-bridge/openpatch-ledger-cli.mjs codex-brief --project openpatch-smoke",
+  "evidence_path": "/mnt/data/op_v16_bridge_data/evidence/openpatch-smoke/bridge-smoke-1778059337055.json"
+}

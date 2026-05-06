@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.readiness_report.v12",
+  "project": "openpatch-smoke",
+  "target": "bridge-only",
+  "go_no_go": "go",
+  "blocking": [],
+  "warnings": [],
+  "compact": {
+    "latest_round": "",
+    "latest_status": "missing",
+    "queue_counts": {},
+    "instance_count": 1,
+    "github_rate_last_status": 0
+  },
+  "recommended_agent_action": "run_bridge_only_smoke_and_collect_evidence",
+  "codex_commands": [
+    "node local-bridge/openpatch-ledger-cli.mjs readiness --project openpatch-smoke --target bridge-only",
+    "node local-bridge/openpatch-ledger-cli.mjs smoke-plan --project openpatch-smoke --target bridge",
+    "node local-bridge/openpatch-ledger-cli.mjs evidence-template --project openpatch-smoke --target bridge-only"
+  ],
+  "checked_at": "2026-05-06T02:14:36.735Z"
+}

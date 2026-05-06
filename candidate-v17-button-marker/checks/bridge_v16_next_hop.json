@@ -1,0 +1,47 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.smoke_next_hop.v16",
+  "project": "openpatch-smoke",
+  "target": "all",
+  "action_now": "read_latest_receipt_or_fetch_roundpack",
+  "one_line": "openpatch-smoke: run bridge-only smoke first, then Chrome Dev profile smoke, then single test-repo upload, then Auto Continue adapter smoke.",
+  "sequence": [
+    {
+      "id": "bridge_only",
+      "status": "go",
+      "command": "node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project openpatch-smoke",
+      "evidence": "bridge_smoke_evidence.json"
+    },
+    {
+      "id": "chrome_dev_profile",
+      "status": "ready_when_bridge_passes",
+      "command": "node local-bridge/openpatch-ledger-cli.mjs chrome-smoke-handoff --project openpatch-smoke",
+      "evidence": "chrome_dev_profile_smoke_evidence.json"
+    },
+    {
+      "id": "github_test_upload",
+      "status": "needs_config_or_token",
+      "command": "node local-bridge/openpatch-ledger-cli.mjs github-test-upload-handoff --project openpatch-smoke",
+      "evidence": "github_test_upload_evidence.json"
+    },
+    {
+      "id": "auto_continue_live_adapter",
+      "status": "ready_after_page_marker_and_bridge_receipt",
+      "command": "node local-bridge/openpatch-ledger-cli.mjs auto-continue-live-handoff --project openpatch-smoke",
+      "evidence": "auto_continue_live_adapter_evidence.json"
+    }
+  ],
+  "compact": {
+    "preflight_result": "go",
+    "latest_round": "bridge-smoke-1778059337055",
+    "latest_status": "dry_run_planned",
+    "queue_counts": {}
+  },
+  "handoff_refs": {
+    "chrome": "openpatch.chrome_smoke_handoff.v16",
+    "github": "openpatch.github_test_upload_handoff.v16",
+    "auto_continue": "openpatch.auto_continue_live_handoff.v16"
+  },
+  "recommended_agent_action": "run_bridge_smoke_then_follow_sequence",
+  "generated_at": "2026-05-06T09:22:17.751Z"
+}

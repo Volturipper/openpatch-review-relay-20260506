@@ -1,0 +1,19 @@
+{
+  "schema_version": "openpatch.codex_brief.v15",
+  "project": "example",
+  "target": "bridge-only",
+  "result": "go|go_with_warnings|no_go",
+  "latest_round": "",
+  "latest_status": "missing|received|validated",
+  "queue_counts": {},
+  "action_now": "run_bridge_smoke_or_request_roundpack",
+  "next_command": "node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project example",
+  "stop_if": [],
+  "warnings": [],
+  "codex_should_read": [
+    "codex_brief",
+    "latest_or_receipt",
+    "bridge_smoke_evidence_when_requested"
+  ],
+  "checked_at": "ISO-8601"
+}

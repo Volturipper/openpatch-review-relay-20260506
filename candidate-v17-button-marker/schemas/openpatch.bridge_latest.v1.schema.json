@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.bridge_latest.v1",
+  "type": "object",
+  "required": ["schema_version", "project", "latest_round", "status", "updated_at"],
+  "properties": {
+    "schema_version": { "const": "openpatch.bridge_latest.v1" },
+    "project": { "type": "string" },
+    "latest_round": { "type": "string" },
+    "status": { "type": "string" },
+    "latest": { "type": "object" },
+    "recent_rounds": { "type": "array", "items": { "type": "object" } },
+    "codex_next_query": { "type": "string" },
+    "updated_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}

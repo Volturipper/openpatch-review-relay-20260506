@@ -1,0 +1,2030 @@
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/audit_decision.json /mnt/data/openpatch_agent_gateway_v17_candidate/audit_decision.json
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/audit_decision.json	2026-05-06 09:22:39.338543412 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/audit_decision.json	2026-05-06 11:01:42.048691517 +0000
+@@ -1,25 +1,43 @@
+ {
+-  "schema_version": "openpatch.agent_gateway.audit_decision.v16",
+-  "version": "v16-candidate",
+-  "decision": "candidate_for_review_and_bridge_only_smoke",
+-  "go_no_go": "go_for_bridge_only_smoke",
+-  "production_release": false,
+-  "real_github_upload_approved": false,
+-  "real_chrome_profile_approved": false,
+-  "auto_continue_live_patch_approved": false,
+-  "completed": [
+-    "v16 next-hop API",
+-    "Chrome smoke handoff API",
+-    "GitHub test upload handoff API",
+-    "Auto Continue live handoff API",
+-    "evidence-pack API",
+-    "npm tests and bridge-only smoke checks"
++  "schema_version": "openpatch.re_candidate_decision.v17",
++  "artifact": "openpatch_agent_gateway_v17_candidate.zip",
++  "terminology": "OpenPatch RE",
++  "candidate_generation": "v17",
++  "source_baseline": "v16 candidate reviewed in round 1",
++  "decision": "ready_for_repo_or_relay_reviewer_audit",
++  "allowed_next_scope_after_reviewer_acceptance": [
++    "bridge-only dry-run controlled smoke",
++    "Chrome/CDP observe-only controlled smoke"
+   ],
+-  "remaining": [
+-    "real Chrome Dev profile unpacked extension smoke",
+-    "single test-repo fine-grained PAT archive-only upload",
+-    "live Auto Continue adapter integration smoke",
+-    "multi-browser long-run validation"
++  "still_blocked": [
++    "real GitHub upload/apply",
++    "production install",
++    "live Auto Continue adapter install",
++    "claiming hosted evidence as approval",
++    "printing or requesting secrets/PATs/cookies/browser profile internals/.env"
+   ],
+-  "recommended_next_action": "Codex should run task_cards/FOR_CODEX_MINIMAL_V16.md bridge-only smoke and return JSON evidence."
++  "round_1_reviewer_required_fixes": {
++    "hard_route_classifier_and_asset_kind_schema": "implemented",
++    "ui_marker_required_fields": "implemented",
++    "preflight_bundle_blocker_logic": "implemented",
++    "github_upload_gate_route_alias_and_ambiguity": "implemented",
++    "smoke_plan_stale_refs": "implemented",
++    "codex_brief_next_command_alignment": "implemented",
++    "regression_fixtures": "implemented",
++    "compact_contract": "implemented",
++    "auto_continue_heartbeat_and_receipt_missing_stop": "implemented",
++    "hosted_assets_evidence_only_doc": "implemented"
++  },
++  "self_check_summary": {
++    "npm_test": "pass_15_of_15",
++    "npm_run_check": "pass",
++    "node_check": "pass",
++    "classifier_fixtures": "pass",
++    "bridge_smoke": "pass_bridge_only_dry_run",
++    "real_github_upload": "not_run",
++    "chrome_dev_profile_smoke": "not_run",
++    "live_auto_continue_install": "not_run"
++  },
++  "recommended_next_action": "repo_or_relay_reviewer_audit",
++  "created_at": "2026-05-06T00:00:00Z"
+ }
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V17.md /mnt/data/openpatch_agent_gateway_v17_candidate/auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V17.md
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V17.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V17.md	2026-05-06 10:57:57.156369987 +0000
+@@ -0,0 +1,21 @@
++# AUTO_CONTINUE_LIVE_ADAPTER_V17
++
++Status: design/live-adapter handoff only; not installed by this candidate.
++
++Auto Continue should use OpenPatch RE v17 as a nearby control/feedback layer:
++
++1. Before continuing, query `openpatch:api:get-buttons` and bridge `/auto-continue/preflight`.
++2. If the round interval is reached, request a RoundPack and wait for `[ROUND_PACK_READY]`.
++3. If a candidate/review/evidence archive appears, require marker fields:
++   - `asset_kind`
++   - `route_decision`
++   - `allowed_action`
++   - `not_approval=true`
++4. Stop if a required upload receipt is missing after an archive action.
++5. Continue only after receipt/latest/status is visible or explicitly skipped by owner.
++
++Receipt-missing stop condition:
++
++```text
++If marker status is uploaded but no upload_receipt/latest can be read from bridge or ledger within the configured wait window, pause Auto Continue and report receipt_missing.
++```
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V17.md /mnt/data/openpatch_agent_gateway_v17_candidate/browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V17.md
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V17.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V17.md	2026-05-06 10:57:57.136827369 +0000
+@@ -0,0 +1,28 @@
++# Chrome Dev Profile Smoke Test V17
++
++Purpose: observe-only controlled smoke for OpenPatch RE v17. This checks extension loading, DOM marker fields, page events, and bridge visibility. It does not perform real GitHub upload/apply.
++
++Allowed now:
++- Load unpacked extension in an isolated Chrome Dev profile.
++- Observe ChatGPT page DOM and OpenPatch RE markers.
++- Trigger page event queries such as `openpatch:api:get-buttons`.
++- Query local bridge health/preflight if bridge is running.
++
++Still blocked unless separately approved:
++- Real GitHub upload.
++- Auto Continue live adapter install.
++- Production profile install.
++- Patch/apply workflow execution.
++
++Expected v17 marker fields:
++- `schemaVersion = openpatch.agent_button.v17`
++- `asset_kind`
++- `route_decision`
++- `route_decision_reason`
++- `allowed_action`
++- `not_approval = true` for archive/review/candidate/evidence assets
++
++Stop if:
++- A generic unknown `.zip` marker reports upload allowed.
++- A review/evidence archive marker implies owner approval.
++- The page or bridge prints secrets, PATs, cookies, `.env`, or browser profile internals.
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/SELF_TEST_REPORT_V17.md /mnt/data/openpatch_agent_gateway_v17_candidate/checks/SELF_TEST_REPORT_V17.md
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/SELF_TEST_REPORT_V17.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/SELF_TEST_REPORT_V17.md	2026-05-06 11:01:27.640297412 +0000
+@@ -0,0 +1,49 @@
++# SELF_TEST_REPORT_V17
++
++Date: 2026-05-06
++Role: OpenPatch RE designer/source maintainer candidate self-check.
++
++## Scope
++
++Local sandbox checks only. No real GitHub upload, no production install, no live Auto Continue install, no secrets/PAT/cookie/.env access.
++
++## Commands and results
++
++| Check | Result | Evidence |
++|---|---:|---|
++| `npm test` | ✅ pass, 15/15 | `checks/npm_test_v17.log` |
++| `npm run check` | ✅ pass | `checks/npm_run_check_v17.log` |
++| `node --check src/content-script.js` | ✅ pass | `checks/content_script_node_check_v17.log` |
++| `node --check src/utils.js` | ✅ pass | `checks/utils_node_check_v17.log` |
++| `node --check local-bridge/openpatch-local-bridge.mjs` | ✅ pass | `checks/local_bridge_node_check_v17.log` |
++| `node --check local-bridge/openpatch-ledger-cli.mjs` | ✅ pass | `checks/ledger_cli_node_check_v17.log` |
++| Classifier regression fixtures | ✅ pass | `checks/V17_CLASSIFIER_FIXTURE_RESULTS.json` |
++| Bridge health | ✅ pass | `checks/bridge_v17_health.json` |
++| Bridge preflight bridge-only | ✅ pass; go_with_warnings, no blockers | `checks/bridge_v17_preflight.json` |
++| GitHub upload gate without route aliases | ✅ blocked as expected | `checks/bridge_v17_github_upload_gate.json` |
++| Codex brief | ✅ next_command aligned to bridge smoke when no blockers | `checks/bridge_v17_codex_brief.json` |
++| Smoke plan | ✅ V17 refs | `checks/bridge_v17_smoke_plan.json` |
++| Chrome handoff | ✅ V17 marker expectation | `checks/bridge_v17_chrome_handoff.json` |
++
++## Regression fixtures covered
++
++✅ generic candidate zip
++✅ review result zip
++✅ exact `changed-files.zip`
++✅ `webai-roundpack.zip`
++✅ unknown zip blocked
++✅ ambiguous routes represented as gate/preflight fixture requirement
++✅ missing aliases represented by upload-gate blocker fixture
++✅ bad config preflight represented by fixed preflight logic using `config_lint.errors`
++
++## Known gaps
++
++⬜ Real Chrome Dev profile load not run in this sandbox.
++⬜ Real GitHub fine-grained PAT upload not run.
++⬜ Live Auto Continue adapter not installed.
++
++## Decision
++
++✅ Candidate can go to repo/relay reviewer audit.
++⚠️ Only bridge-only dry-run and Chrome/CDP observe-only controlled smoke are in scope after review acceptance.
++❌ Do not claim real upload/apply/install success without separate receipt evidence.
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/V17_CLASSIFIER_FIXTURE_RESULTS.json /mnt/data/openpatch_agent_gateway_v17_candidate/checks/V17_CLASSIFIER_FIXTURE_RESULTS.json
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/V17_CLASSIFIER_FIXTURE_RESULTS.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/V17_CLASSIFIER_FIXTURE_RESULTS.json	2026-05-06 10:59:23.737392167 +0000
+@@ -0,0 +1,51 @@
++{
++  "schema_version": "openpatch.v17_classifier_fixture_results.v1",
++  "pass": true,
++  "results": [
++    {
++      "fixture": "generic_candidate_zip",
++      "file_name": "openpatch_agent_gateway_v17_candidate.zip",
++      "expected_asset_kind": "candidate_or_evidence_archive",
++      "actual_asset_kind": "candidate_or_evidence_archive",
++      "expected_route_decision": "archive_allowed",
++      "actual_route_decision": "archive_allowed",
++      "pass": true
++    },
++    {
++      "fixture": "review_result_zip",
++      "file_name": "openpatch_review_round_1_result.zip",
++      "expected_asset_kind": "review_evidence",
++      "actual_asset_kind": "review_evidence",
++      "expected_route_decision": "archive_allowed",
++      "actual_route_decision": "archive_allowed",
++      "pass": true
++    },
++    {
++      "fixture": "exact_changed_files_zip",
++      "file_name": "changed-files.zip",
++      "expected_asset_kind": "changed_files_zip",
++      "actual_asset_kind": "changed_files_zip",
++      "expected_route_decision": "patch_upload_allowed",
++      "actual_route_decision": "patch_upload_allowed",
++      "pass": true
++    },
++    {
++      "fixture": "webai_roundpack_zip",
++      "file_name": "webai-roundpack.zip",
++      "expected_asset_kind": "roundpack_archive",
++      "actual_asset_kind": "roundpack_archive",
++      "expected_route_decision": "archive_allowed",
++      "actual_route_decision": "archive_allowed",
++      "pass": true
++    },
++    {
++      "fixture": "unknown_zip",
++      "file_name": "random.zip",
++      "expected_asset_kind": "unknown_zip",
++      "actual_asset_kind": "unknown_zip",
++      "expected_route_decision": "unknown_blocked",
++      "actual_route_decision": "unknown_blocked",
++      "pass": true
++    }
++  ]
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/V17_REGRESSION_FIXTURES.json /mnt/data/openpatch_agent_gateway_v17_candidate/checks/V17_REGRESSION_FIXTURES.json
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/V17_REGRESSION_FIXTURES.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/V17_REGRESSION_FIXTURES.json	2026-05-06 10:58:55.734442909 +0000
+@@ -0,0 +1,13 @@
++{
++  "schema_version": "openpatch.v17_regression_fixtures.v1",
++  "fixtures": [
++    { "name": "generic_candidate_zip", "file_name": "openpatch_agent_gateway_v17_candidate.zip", "expected_asset_kind": "candidate_or_evidence_archive", "expected_route_decision": "archive_allowed" },
++    { "name": "review_result_zip", "file_name": "openpatch_review_round_1_result.zip", "expected_asset_kind": "review_evidence", "expected_route_decision": "archive_allowed" },
++    { "name": "exact_changed_files_zip", "file_name": "changed-files.zip", "expected_asset_kind": "changed_files_zip", "expected_route_decision": "patch_upload_allowed" },
++    { "name": "webai_roundpack_zip", "file_name": "webai-roundpack.zip", "expected_asset_kind": "roundpack_archive", "expected_route_decision": "archive_allowed" },
++    { "name": "unknown_zip", "file_name": "random.zip", "expected_asset_kind": "unknown_zip", "expected_route_decision": "unknown_blocked" },
++    { "name": "ambiguous_routes", "input": "two close route scores", "expected_gate": "blocked" },
++    { "name": "missing_aliases", "input": "route profile references missing repo/key", "expected_config_lint_errors": true },
++    { "name": "bad_config_preflight", "input": "config_lint.errors present", "expected_preflight_result": "no_go" }
++  ]
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_chrome_handoff.json /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_chrome_handoff.json
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_chrome_handoff.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_chrome_handoff.json	2026-05-06 11:02:13.357636681 +0000
+@@ -0,0 +1,40 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.chrome_smoke_handoff.v17",
++  "project": "openpatch-smoke",
++  "purpose": "load the unpacked extension in an isolated Chrome Dev profile and verify marker/API/bridge status without touching real accounts beyond the test chat page selected by owner",
++  "default_commands": [
++    "node local-bridge/openpatch-ledger-cli.mjs health",
++    "node local-bridge/openpatch-ledger-cli.mjs preflight --project openpatch-smoke --target chrome",
++    "node local-bridge/openpatch-ledger-cli.mjs instances-register --instance chrome-dev-openpatch-smoke-1778065333349 --project openpatch-smoke --browser-profile chrome-dev-openpatch-smoke",
++    "node local-bridge/openpatch-ledger-cli.mjs instances-compact",
++    "node local-bridge/openpatch-ledger-cli.mjs operation-brief --project openpatch-smoke --intent smoke"
++  ],
++  "browser_expectations": [
++    "extension loads without manifest/runtime errors",
++    "OpenPatch buttons expose data-openpatch-marker=openpatch.agent_button.v17",
++    "page event API answers get-buttons/get-agent-summary/get-route-visual",
++    "bridge status badge is visible or marker reports bridgeStatusHint",
++    "no token value is printed in page DOM or console summaries"
++  ],
++  "evidence_required": [
++    "chrome_extension_load_status.json",
++    "button_marker_sample.json",
++    "page_api_get_buttons.json",
++    "bridge_health.json",
++    "instances_compact.json",
++    "console_error_summary.txt"
++  ],
++  "codex_output_template": {
++    "schema_version": "openpatch.chrome_smoke_evidence.v17",
++    "project": "openpatch-smoke",
++    "instance_id": "chrome-dev-openpatch-smoke-1778065333349",
++    "pass": false,
++    "files_created": [],
++    "console_errors": [],
++    "marker_sample": null,
++    "next_recommended_action": ""
++  },
++  "recommended_agent_action": "run_chrome_dev_profile_smoke_and_return_evidence_json",
++  "generated_at": "2026-05-06T11:02:13.349Z"
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_codex_brief.json /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_codex_brief.json
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_codex_brief.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_codex_brief.json	2026-05-06 11:02:12.334307349 +0000
+@@ -0,0 +1,25 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.codex_brief.v17",
++  "project": "openpatch-smoke",
++  "target": "bridge-only",
++  "result": "go_with_warnings",
++  "latest_round": "",
++  "latest_status": "missing",
++  "queue_counts": {},
++  "action_now": "run_bridge_smoke_or_request_roundpack",
++  "next_command": "node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project openpatch-smoke",
++  "stop_if": [],
++  "warnings": [
++    {
++      "code": "no_browser_instances_registered",
++      "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
++    }
++  ],
++  "codex_should_read": [
++    "codex_brief",
++    "latest_or_receipt",
++    "bridge_smoke_evidence_when_requested"
++  ],
++  "checked_at": "2026-05-06T11:02:12.261Z"
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_github_upload_gate.json /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_github_upload_gate.json
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_github_upload_gate.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_github_upload_gate.json	2026-05-06 11:02:11.440991609 +0000
+@@ -0,0 +1,26 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.github_upload_gate.v17",
++  "project": "openpatch-smoke",
++  "gate": "blocked",
++  "can_upload": false,
++  "route_context": {},
++  "route_profile": "",
++  "route_ambiguity": {
++    "status": "clear"
++  },
++  "repo_alias": "",
++  "key_alias": "",
++  "repo_summary": null,
++  "key_summary": null,
++  "blockers": [
++    "route_unresolved",
++    "repo_alias_missing",
++    "key_alias_missing",
++    "repo_alias_not_found",
++    "key_alias_not_found"
++  ],
++  "warnings": [],
++  "recommended_agent_action": "fix_gate_blockers_before_real_upload",
++  "checked_at": "2026-05-06T11:02:11.336Z"
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_health.json /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_health.json
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_health.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_health.json	2026-05-06 11:02:10.346160749 +0000
+@@ -0,0 +1,65 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_health.v17",
++  "service": "openpatch-local-bridge",
++  "root": "/mnt/data/op_v17_bridge_data",
++  "capabilities": [
++    "routes",
++    "resolve_route",
++    "receipts",
++    "latest",
++    "sha_index",
++    "queue",
++    "config_status",
++    "archive_base64",
++    "bridge_side_github_upload",
++    "agent_summary",
++    "receipt_query",
++    "queue_claim",
++    "queue_retry",
++    "auto_continue_plan",
++    "events",
++    "compact_summary",
++    "recent_receipts",
++    "queue_stats",
++    "queue_claim_batch",
++    "queue_release",
++    "lease_reclaim",
++    "github_rate_backoff",
++    "events_compact",
++    "archive_size_guard",
++    "stress_test_ready",
++    "route_conflict_detector",
++    "queue_reclaim_expired",
++    "route_ambiguity_report",
++    "route_visual_map",
++    "route_fix_suggestions",
++    "route_resolution_stress",
++    "multi_browser_planning",
++    "config_lint",
++    "smoke_plan",
++    "browser_instance_registry",
++    "real_smoke_handoff",
++    "readiness_report",
++    "codex_handoff",
++    "evidence_template",
++    "instances_prune_stale",
++    "config_snapshot",
++    "projects",
++    "agent_next_action",
++    "alias_binding_lint",
++    "preflight_bundle",
++    "github_upload_gate",
++    "auto_continue_preflight",
++    "instances_compact",
++    "codex_brief",
++    "bridge_smoke_run",
++    "operation_brief",
++    "smoke_next_hop",
++    "chrome_smoke_handoff",
++    "github_test_upload_handoff",
++    "auto_continue_live_handoff",
++    "evidence_pack"
++  ],
++  "time": "2026-05-06T11:02:10.344Z"
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_preflight.json /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_preflight.json
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_preflight.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_preflight.json	2026-05-06 11:02:10.658092614 +0000
+@@ -0,0 +1,301 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.preflight_bundle.v17",
++  "project": "openpatch-smoke",
++  "target": "bridge-only",
++  "result": "go_with_warnings",
++  "blockers": [],
++  "recommended_agent_action": "run_codex_handoff_or_single_smoke",
++  "codex_short_command": "node local-bridge/openpatch-ledger-cli.mjs preflight --project openpatch-smoke --target bridge-only",
++  "default_next_commands": [
++    "node local-bridge/openpatch-ledger-cli.mjs readiness --project openpatch-smoke --target bridge-only",
++    "node local-bridge/openpatch-ledger-cli.mjs github-upload-gate --project openpatch-smoke",
++    "node local-bridge/openpatch-ledger-cli.mjs evidence-template --project openpatch-smoke --target bridge-only"
++  ],
++  "readiness": {
++    "ok": true,
++    "schema_version": "openpatch.readiness_report.v12",
++    "project": "openpatch-smoke",
++    "target": "bridge-only",
++    "go_no_go": "go_with_warnings",
++    "blocking": [],
++    "warnings": [
++      {
++        "code": "no_browser_instances_registered",
++        "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
++      }
++    ],
++    "compact": {
++      "latest_round": "",
++      "latest_status": "missing",
++      "queue_counts": {},
++      "instance_count": 0,
++      "github_rate_last_status": 0
++    },
++    "recommended_agent_action": "run_bridge_only_smoke_and_collect_evidence",
++    "codex_commands": [
++      "node local-bridge/openpatch-ledger-cli.mjs readiness --project openpatch-smoke --target bridge-only",
++      "node local-bridge/openpatch-ledger-cli.mjs smoke-plan --project openpatch-smoke --target bridge",
++      "node local-bridge/openpatch-ledger-cli.mjs evidence-template --project openpatch-smoke --target bridge-only"
++    ],
++    "checked_at": "2026-05-06T11:02:10.644Z"
++  },
++  "codex_handoff": {
++    "ok": true,
++    "schema_version": "openpatch.codex_handoff.v12",
++    "project": "openpatch-smoke",
++    "target": "bridge-only",
++    "go_no_go": "go_with_warnings",
++    "one_line_task": "Run bridge-only smoke for openpatch-smoke, collect JSON evidence, and stop at the next real blocker.",
++    "default_commands": [
++      "node local-bridge/openpatch-ledger-cli.mjs health",
++      "node local-bridge/openpatch-ledger-cli.mjs config-lint",
++      "node local-bridge/openpatch-ledger-cli.mjs archive-base64 --project openpatch-smoke --round smoke-001 --file webai-roundpack.zip --content-base64 ZHVtbXk= --dry-run"
++    ],
++    "evidence_required": [
++      "health.json",
++      "config_lint.json",
++      "readiness.json",
++      "smoke_plan.json",
++      "archive_or_receipt.json when applicable",
++      "go_no_go_summary.json"
++    ],
++    "stop_at": [
++      "config-lint errors",
++      "route conflict marked blocking",
++      "unexpected secret/token printed",
++      "real GitHub upload requested without the matching one-run approval",
++      "browser profile is not the intended isolated profile"
++    ],
++    "readiness": {
++      "ok": true,
++      "schema_version": "openpatch.readiness_report.v12",
++      "project": "openpatch-smoke",
++      "target": "bridge-only",
++      "go_no_go": "go_with_warnings",
++      "blocking": [],
++      "warnings": [
++        {
++          "code": "no_browser_instances_registered",
++          "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
++        }
++      ],
++      "compact": {
++        "latest_round": "",
++        "latest_status": "missing",
++        "queue_counts": {},
++        "instance_count": 0,
++        "github_rate_last_status": 0
++      },
++      "recommended_agent_action": "run_bridge_only_smoke_and_collect_evidence",
++      "codex_commands": [
++        "node local-bridge/openpatch-ledger-cli.mjs readiness --project openpatch-smoke --target bridge-only",
++        "node local-bridge/openpatch-ledger-cli.mjs smoke-plan --project openpatch-smoke --target bridge",
++        "node local-bridge/openpatch-ledger-cli.mjs evidence-template --project openpatch-smoke --target bridge-only"
++      ],
++      "checked_at": "2026-05-06T11:02:10.644Z"
++    },
++    "created_at": "2026-05-06T11:02:10.649Z"
++  },
++  "evidence_template": {
++    "ok": true,
++    "schema_version": "openpatch.evidence_template.v12",
++    "project": "openpatch-smoke",
++    "target": "bridge-only",
++    "status": "pending",
++    "required_files": [
++      "health.json",
++      "config_lint.json",
++      "readiness.json",
++      "smoke_plan.json",
++      "latest_or_receipt.json",
++      "SELF_TEST_NOTES.md"
++    ],
++    "evidence_json_template": {
++      "schema_version": "openpatch.smoke_evidence.v12",
++      "project": "openpatch-smoke",
++      "target": "bridge-only",
++      "actor": "codex_or_local_agent",
++      "started_at": "",
++      "finished_at": "",
++      "commands_run": [],
++      "files_created": [],
++      "pass": false,
++      "blockers": [],
++      "warnings": [],
++      "next_recommended_action": ""
++    },
++    "created_at": "2026-05-06T11:02:10.567Z"
++  },
++  "config_lint": {
++    "ok": true,
++    "schema_version": "openpatch.config_lint.v13",
++    "errors": [],
++    "warnings": [],
++    "summary": {
++      "repo_count": 1,
++      "key_alias_count": 1,
++      "route_profile_count": 0,
++      "project_count": 0,
++      "binding_count": 0,
++      "error_count": 0,
++      "warning_count": 0
++    },
++    "binding_summary": [],
++    "recommended_agent_action": "continue",
++    "checked_at": "2026-05-06T11:02:10.641Z"
++  },
++  "config_snapshot": {
++    "ok": true,
++    "schema_version": "openpatch.config_snapshot.v13",
++    "files": {
++      "routes_file": "/mnt/data/op_v17_bridge_data/route_profiles.json",
++      "repos_file": "/mnt/data/op_v17_bridge_data/repo_aliases.json",
++      "keys_file": "/mnt/data/op_v17_bridge_data/keys.local.json"
++    },
++    "counts": {
++      "route_profiles": 0,
++      "repo_aliases": 1,
++      "key_aliases": 1,
++      "projects": 0
++    },
++    "projects": [],
++    "bindings": [],
++    "repos": [
++      {
++        "repo_alias": "example-dry-run-archive",
++        "provider": "github",
++        "owner": "example-owner",
++        "repo": "example-archive-repo",
++        "branch": "webai-archive",
++        "archive_root": "rounds",
++        "index_root": "index",
++        "dry_run": true,
++        "allowed_projects": []
++      }
++    ],
++    "keys": [
++      {
++        "key_alias": "example-gh-token-env",
++        "provider": "github",
++        "token_env": "GITHUB_TOKEN_FOR_OPENPATCH_ARCHIVE",
++        "token_file_set": false,
++        "has_inline_token": false,
++        "dry_run": false,
++        "allowed_repo_aliases": []
++      }
++    ],
++    "generated_at": "2026-05-06T11:02:10.637Z"
++  },
++  "projects": {
++    "ok": true,
++    "schema_version": "openpatch.project_list.v13",
++    "projects": [],
++    "generated_at": "2026-05-06T11:02:10.637Z"
++  },
++  "compact_summary": {
++    "ok": true,
++    "schema_version": "openpatch.compact_summary.v1",
++    "project": "openpatch-smoke",
++    "latest_round": "",
++    "status": "missing",
++    "archive_only": true,
++    "allow_execution": false,
++    "file_sha256": "",
++    "queue_counts": {},
++    "recommended_agent_action": "request_or_archive_roundpack",
++    "codex_next": "node local-bridge/openpatch-ledger-cli.mjs auto-continue-plan --project openpatch-smoke --message-count 0 --force",
++    "updated_at": "2026-05-06T11:02:10.571Z"
++  },
++  "instances_compact": {
++    "ok": true,
++    "schema_version": "openpatch.instances_compact.v14",
++    "total_instances": 0,
++    "active_count": 0,
++    "stale_count": 0,
++    "by_project": {},
++    "by_route_profile": {},
++    "duplicate_route_groups": [],
++    "active_sample": [],
++    "stale_sample": [],
++    "recommended_agent_action": "instances_ok",
++    "checked_at": "2026-05-06T11:02:10.569Z"
++  },
++  "github_upload_gate": {
++    "ok": true,
++    "schema_version": "openpatch.github_upload_gate.v17",
++    "project": "openpatch-smoke",
++    "gate": "blocked",
++    "can_upload": false,
++    "route_context": {},
++    "route_profile": "",
++    "route_ambiguity": {
++      "status": "clear"
++    },
++    "repo_alias": "",
++    "key_alias": "",
++    "repo_summary": null,
++    "key_summary": null,
++    "blockers": [
++      "route_unresolved",
++      "repo_alias_missing",
++      "key_alias_missing",
++      "repo_alias_not_found",
++      "key_alias_not_found"
++    ],
++    "warnings": [],
++    "recommended_agent_action": "fix_gate_blockers_before_real_upload",
++    "checked_at": "2026-05-06T11:02:10.645Z"
++  },
++  "next_action": {
++    "ok": true,
++    "schema_version": "openpatch.agent_next_action.v13",
++    "project": "openpatch-smoke",
++    "target": "bridge-only",
++    "go_no_go": "go_with_warnings",
++    "recommended_agent_action": "request_roundpack_then_archive",
++    "actions": [
++      {
++        "priority": 10,
++        "action": "request_roundpack_then_archive",
++        "command": "node local-bridge/openpatch-ledger-cli.mjs auto-continue-plan --project openpatch-smoke --message-count 0 --force",
++        "reason": "no latest round for this project"
++      },
++      {
++        "priority": 20,
++        "action": "check_readiness",
++        "command": "node local-bridge/openpatch-ledger-cli.mjs readiness --project openpatch-smoke --target bridge-only",
++        "reason": "current go/no-go is go_with_warnings"
++      },
++      {
++        "priority": 30,
++        "action": "inspect_queue",
++        "command": "node local-bridge/openpatch-ledger-cli.mjs queue-stats --project openpatch-smoke",
++        "reason": "claim/retry/release tasks if needed"
++      }
++    ],
++    "compact": {
++      "ok": true,
++      "schema_version": "openpatch.compact_summary.v1",
++      "project": "openpatch-smoke",
++      "latest_round": "",
++      "status": "missing",
++      "archive_only": true,
++      "allow_execution": false,
++      "file_sha256": "",
++      "queue_counts": {},
++      "recommended_agent_action": "request_or_archive_roundpack",
++      "codex_next": "node local-bridge/openpatch-ledger-cli.mjs auto-continue-plan --project openpatch-smoke --message-count 0 --force",
++      "updated_at": "2026-05-06T11:02:10.645Z"
++    },
++    "readiness_compact": {
++      "latest_round": "",
++      "latest_status": "missing",
++      "queue_counts": {},
++      "instance_count": 0,
++      "github_rate_last_status": 0
++    },
++    "generated_at": "2026-05-06T11:02:10.650Z"
++  },
++  "checked_at": "2026-05-06T11:02:10.650Z"
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_server.log /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_server.log
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_server.log	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_server.log	2026-05-06 11:02:09.367933678 +0000
+@@ -0,0 +1 @@
++{"ok":true,"service":"openpatch-local-bridge","port":17877,"root":"/mnt/data/op_v17_bridge_data"}
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_server.pid /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_server.pid
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_server.pid	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_server.pid	2026-05-06 11:02:09.245877427 +0000
+@@ -0,0 +1 @@
++31956
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_smoke_plan.json /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_smoke_plan.json
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_smoke_plan.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_smoke_plan.json	2026-05-06 11:02:12.653069639 +0000
+@@ -0,0 +1,77 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.smoke_plan.v17",
++  "project": "openpatch-smoke",
++  "target": "all",
++  "config_lint": {
++    "ok": true,
++    "errors": 0,
++    "warnings": 0
++  },
++  "steps": [
++    {
++      "id": "bridge-health",
++      "title": "Confirm local bridge is alive",
++      "actor": "codex",
++      "command": "node local-bridge/openpatch-ledger-cli.mjs health",
++      "expected": "ok=true",
++      "level": "safe"
++    },
++    {
++      "id": "bridge-config-lint",
++      "title": "Lint repo/key/route aliases without printing secrets",
++      "actor": "codex",
++      "command": "node local-bridge/openpatch-ledger-cli.mjs config-lint",
++      "expected": "errors=[]",
++      "level": "safe"
++    },
++    {
++      "id": "bridge-dry-run-archive",
++      "title": "Dry-run archive a tiny fixture through the bridge",
++      "actor": "codex",
++      "command": "node local-bridge/openpatch-ledger-cli.mjs archive-base64 --project openpatch-smoke --round smoke-001 --file webai-roundpack.zip --content-base64 ZHVtbXk= --dry-run",
++      "expected": "status=dry_run_planned",
++      "level": "safe"
++    },
++    {
++      "id": "chrome-load-unpacked",
++      "title": "Load unpacked extension in dedicated Chrome Dev profile",
++      "actor": "owner_or_codex_with_approval",
++      "command": "open browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V17.md",
++      "expected": "extension loads; no real upload required",
++      "level": "controlled"
++    },
++    {
++      "id": "chrome-marker-check",
++      "title": "Open a ChatGPT page with a test attachment and verify v11 marker/status badge",
++      "actor": "codex_or_owner",
++      "command": "use page event openpatch:api:get-buttons",
++      "expected": "schemaVersion=openpatch.agent_button.v17",
++      "level": "controlled"
++    },
++    {
++      "id": "github-test-upload",
++      "title": "Archive-only upload to a single fine-grained PAT test repo",
++      "actor": "codex_with_owner_approval",
++      "command": "open task_cards/FOR_GITHUB_TEST_UPLOAD_V17.md",
++      "expected": "receipt/latest/result created in archive repo",
++      "level": "approval_required"
++    },
++    {
++      "id": "auto-continue-adapter",
++      "title": "Install adapter into the current Auto Continue script as a module, not a hard merge",
++      "actor": "codex_or_ai_author",
++      "command": "open auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V17.md",
++      "expected": "adapter can request roundpack and wait for archive receipt",
++      "level": "controlled"
++    }
++  ],
++  "stop_conditions": [
++    "bridge health fails",
++    "config-lint has errors before real upload",
++    "route conflict is ambiguous",
++    "GitHub upload is not archive-only",
++    "unexpected token/key value appears in output"
++  ],
++  "created_at": "2026-05-06T11:02:12.645Z"
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_smoke_run.json /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_smoke_run.json
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/bridge_v17_smoke_run.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/bridge_v17_smoke_run.json	2026-05-06 11:02:13.043180389 +0000
+@@ -0,0 +1,158 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_smoke_evidence.v17",
++  "project": "openpatch-smoke",
++  "round_id": "v17-smoke",
++  "target": "bridge-only",
++  "status": "pass",
++  "pass": true,
++  "started_at": "2026-05-06T11:02:12.951Z",
++  "finished_at": "2026-05-06T11:02:12.971Z",
++  "checks": [
++    {
++      "id": "health",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T11:02:12.951Z",
++      "error": ""
++    },
++    {
++      "id": "config_lint",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T11:02:12.951Z",
++      "error": ""
++    },
++    {
++      "id": "readiness",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T11:02:12.955Z",
++      "error": ""
++    },
++    {
++      "id": "dry_run_archive",
++      "ok": true,
++      "status": "dry_run_planned",
++      "at": "2026-05-06T11:02:12.960Z",
++      "error": ""
++    },
++    {
++      "id": "latest",
++      "ok": true,
++      "status": "dry_run_planned",
++      "at": "2026-05-06T11:02:12.969Z",
++      "error": ""
++    },
++    {
++      "id": "events_recent",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T11:02:12.971Z",
++      "error": ""
++    }
++  ],
++  "blockers": [],
++  "warnings": [
++    {
++      "code": "no_browser_instances_registered",
++      "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
++    }
++  ],
++  "latest_round": "v17-smoke",
++  "dry_run_receipt": {
++    "ok": true,
++    "status": "dry_run_planned",
++    "mode": "bridge_archive_base64",
++    "project": "openpatch-smoke",
++    "round_id": "v17-smoke",
++    "file_sha256": "4daa23af3a1b6ace65819390744d864356ac3d340d732ac6e88a04429c3c2d97",
++    "repo_alias": "",
++    "key_alias": "",
++    "paths": {
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v17-smoke/webai-roundpack-bridge-smoke.zip",
++      "manifest_path": "rounds/openpatch-smoke/2026/05/06/v17-smoke/archive_manifest.json",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v17-smoke/upload_receipt.json",
++      "latest_path": "index/latest/openpatch-smoke.json"
++    },
++    "github": {
++      "owner": "",
++      "repo": "",
++      "branch": "webai-archive",
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v17-smoke/webai-roundpack-bridge-smoke.zip",
++      "manifest_path": "rounds/openpatch-smoke/2026/05/06/v17-smoke/archive_manifest.json",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v17-smoke/upload_receipt.json",
++      "latest_path": "index/latest/openpatch-smoke.json",
++      "dry_run": true
++    },
++    "commit_sha": "",
++    "receipt": {
++      "schema_version": "openpatch.upload_receipt.v7",
++      "status": "dry_run_planned",
++      "archive_only": true,
++      "allow_execution": false,
++      "project": "openpatch-smoke",
++      "round_id": "v17-smoke",
++      "file_name": "webai-roundpack-bridge-smoke.zip",
++      "file_sha256": "4daa23af3a1b6ace65819390744d864356ac3d340d732ac6e88a04429c3c2d97",
++      "size_bytes": 63,
++      "route_context": {
++        "project": "openpatch-smoke",
++        "repo_alias": "",
++        "key_alias": "",
++        "archive_root": "rounds",
++        "index_root": "index",
++        "route_profile": "manual"
++      },
++      "github": {
++        "owner": "",
++        "repo": "",
++        "branch": "webai-archive",
++        "archive_path": "rounds/openpatch-smoke/2026/05/06/v17-smoke/webai-roundpack-bridge-smoke.zip",
++        "manifest_path": "rounds/openpatch-smoke/2026/05/06/v17-smoke/archive_manifest.json",
++        "receipt_path": "rounds/openpatch-smoke/2026/05/06/v17-smoke/upload_receipt.json",
++        "latest_path": "index/latest/openpatch-smoke.json",
++        "dry_run": true
++      },
++      "created_at": "2026-05-06T11:02:12.963Z",
++      "next_actions": [
++        "read_latest",
++        "fetch_roundpack",
++        "read_receipt",
++        "continue_agent_workflow"
++      ]
++    },
++    "latest": {
++      "schema_version": "openpatch.latest.v7",
++      "project": "openpatch-smoke",
++      "latest_round": "v17-smoke",
++      "status": "dry_run_planned",
++      "archive_only": true,
++      "allow_execution": false,
++      "latest": {
++        "round_id": "v17-smoke",
++        "project": "openpatch-smoke",
++        "status": "dry_run_planned",
++        "file_name": "webai-roundpack-bridge-smoke.zip",
++        "file_sha256": "4daa23af3a1b6ace65819390744d864356ac3d340d732ac6e88a04429c3c2d97",
++        "size_bytes": 63,
++        "archive_path": "rounds/openpatch-smoke/2026/05/06/v17-smoke/webai-roundpack-bridge-smoke.zip",
++        "receipt_path": "rounds/openpatch-smoke/2026/05/06/v17-smoke/upload_receipt.json",
++        "created_at": "2026-05-06T11:02:12.963Z"
++      },
++      "recent_rounds": [],
++      "codex_should_read": [
++        "upload_receipt.json",
++        "archive_manifest.json",
++        "NEXT_FOR_CODEX.md",
++        "ROUND_SUMMARY.md"
++      ],
++      "next_actor": "codex_or_reviewer",
++      "updated_at": "2026-05-06T11:02:12.963Z"
++    },
++    "duplicate": null
++  },
++  "next_recommended_action": "proceed_to_chrome_dev_profile_smoke_or_github_test_upload_gate",
++  "codex_next_command": "node local-bridge/openpatch-ledger-cli.mjs codex-brief --project openpatch-smoke",
++  "evidence_path": "/mnt/data/op_v17_bridge_data/evidence/openpatch-smoke/v17-smoke.json"
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/npm_run_check_v17.log /mnt/data/openpatch_agent_gateway_v17_candidate/checks/npm_run_check_v17.log
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/npm_run_check_v17.log	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/npm_run_check_v17.log	2026-05-06 11:02:29.141756588 +0000
+@@ -0,0 +1,105 @@
++
++> openpatch@0.2.0 check
++> node --test && node --check src/*.js && node -e "JSON.parse(require('fs').readFileSync('manifest.json','utf8')); console.log('manifest ok')"
++
++TAP version 13
++# Subtest: encodeGitHubPath preserves path separators and escapes segments
++ok 1 - encodeGitHubPath preserves path separators and escapes segments
++  ---
++  duration_ms: 0.967829
++  type: 'test'
++  ...
++# Subtest: buildContentsApiUrl encodes repository and path
++ok 2 - buildContentsApiUrl encodes repository and path
++  ---
++  duration_ms: 0.196578
++  type: 'test'
++  ...
++# Subtest: uploadPatchText uploads metadata first then patch to target branch
++ok 3 - uploadPatchText uploads metadata first then patch to target branch
++  ---
++  duration_ms: 87.153809
++  type: 'test'
++  ...
++# Subtest: uploadPatchText resolves missing owner from GitHub token user
++ok 4 - uploadPatchText resolves missing owner from GitHub token user
++  ---
++  duration_ms: 0.628811
++  type: 'test'
++  ...
++# Subtest: uploadPatchFile uploads zip as binary content
++ok 5 - uploadPatchFile uploads zip as binary content
++  ---
++  duration_ms: 0.47667
++  type: 'test'
++  ...
++# Subtest: uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++ok 6 - uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++  ---
++  duration_ms: 10.18704
++  type: 'test'
++  ...
++# Subtest: parseRepositoryInput accepts owner/repo and GitHub URLs
++ok 7 - parseRepositoryInput accepts owner/repo and GitHub URLs
++  ---
++  duration_ms: 85.485311
++  type: 'test'
++  ...
++# Subtest: looksLikePatchDownloadText detects loose Chinese diff labels
++ok 8 - looksLikePatchDownloadText detects loose Chinese diff labels
++  ---
++  duration_ms: 0.676604
++  type: 'test'
++  ...
++# Subtest: buildPatchUploadPath creates safe unique paths
++ok 9 - buildPatchUploadPath creates safe unique paths
++  ---
++  duration_ms: 1.224103
++  type: 'test'
++  ...
++# Subtest: zip upload paths and metadata paths are supported
++ok 10 - zip upload paths and metadata paths are supported
++  ---
++  duration_ms: 0.492204
++  type: 'test'
++  ...
++# Subtest: buildDefaultCommitTitle distinguishes zip packages
++ok 11 - buildDefaultCommitTitle distinguishes zip packages
++  ---
++  duration_ms: 0.247705
++  type: 'test'
++  ...
++# Subtest: encodeBase64Bytes encodes binary data
++ok 12 - encodeBase64Bytes encodes binary data
++  ---
++  duration_ms: 0.185763
++  type: 'test'
++  ...
++# Subtest: sanitizePatchName keeps fallback usable
++ok 13 - sanitizePatchName keeps fallback usable
++  ---
++  duration_ms: 0.126406
++  type: 'test'
++  ...
++# Subtest: roundpack helpers detect archive artifacts and build safe paths
++ok 14 - roundpack helpers detect archive artifacts and build safe paths
++  ---
++  duration_ms: 1.06356
++  type: 'test'
++  ...
++# Subtest: v17 hard asset classifier blocks unknown zip and classifies known assets
++ok 15 - v17 hard asset classifier blocks unknown zip and classifies known assets
++  ---
++  duration_ms: 0.572161
++  type: 'test'
++  ...
++1..15
++# tests 15
++# suites 0
++# pass 15
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 1408.633459
++manifest ok
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/npm_test_v17.log /mnt/data/openpatch_agent_gateway_v17_candidate/checks/npm_test_v17.log
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/npm_test_v17.log	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/npm_test_v17.log	2026-05-06 10:59:19.939668247 +0000
+@@ -0,0 +1,104 @@
++
++> openpatch@0.2.0 test
++> node --test
++
++TAP version 13
++# Subtest: encodeGitHubPath preserves path separators and escapes segments
++ok 1 - encodeGitHubPath preserves path separators and escapes segments
++  ---
++  duration_ms: 0.586059
++  type: 'test'
++  ...
++# Subtest: buildContentsApiUrl encodes repository and path
++ok 2 - buildContentsApiUrl encodes repository and path
++  ---
++  duration_ms: 0.163072
++  type: 'test'
++  ...
++# Subtest: uploadPatchText uploads metadata first then patch to target branch
++ok 3 - uploadPatchText uploads metadata first then patch to target branch
++  ---
++  duration_ms: 4.475045
++  type: 'test'
++  ...
++# Subtest: uploadPatchText resolves missing owner from GitHub token user
++ok 4 - uploadPatchText resolves missing owner from GitHub token user
++  ---
++  duration_ms: 0.598004
++  type: 'test'
++  ...
++# Subtest: uploadPatchFile uploads zip as binary content
++ok 5 - uploadPatchFile uploads zip as binary content
++  ---
++  duration_ms: 0.463425
++  type: 'test'
++  ...
++# Subtest: uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++ok 6 - uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++  ---
++  duration_ms: 6.166056
++  type: 'test'
++  ...
++# Subtest: parseRepositoryInput accepts owner/repo and GitHub URLs
++ok 7 - parseRepositoryInput accepts owner/repo and GitHub URLs
++  ---
++  duration_ms: 2.902722
++  type: 'test'
++  ...
++# Subtest: looksLikePatchDownloadText detects loose Chinese diff labels
++ok 8 - looksLikePatchDownloadText detects loose Chinese diff labels
++  ---
++  duration_ms: 0.515624
++  type: 'test'
++  ...
++# Subtest: buildPatchUploadPath creates safe unique paths
++ok 9 - buildPatchUploadPath creates safe unique paths
++  ---
++  duration_ms: 1.066336
++  type: 'test'
++  ...
++# Subtest: zip upload paths and metadata paths are supported
++ok 10 - zip upload paths and metadata paths are supported
++  ---
++  duration_ms: 0.44785
++  type: 'test'
++  ...
++# Subtest: buildDefaultCommitTitle distinguishes zip packages
++ok 11 - buildDefaultCommitTitle distinguishes zip packages
++  ---
++  duration_ms: 0.196606
++  type: 'test'
++  ...
++# Subtest: encodeBase64Bytes encodes binary data
++ok 12 - encodeBase64Bytes encodes binary data
++  ---
++  duration_ms: 0.158521
++  type: 'test'
++  ...
++# Subtest: sanitizePatchName keeps fallback usable
++ok 13 - sanitizePatchName keeps fallback usable
++  ---
++  duration_ms: 0.090392
++  type: 'test'
++  ...
++# Subtest: roundpack helpers detect archive artifacts and build safe paths
++ok 14 - roundpack helpers detect archive artifacts and build safe paths
++  ---
++  duration_ms: 0.893397
++  type: 'test'
++  ...
++# Subtest: v17 hard asset classifier blocks unknown zip and classifies known assets
++ok 15 - v17 hard asset classifier blocks unknown zip and classifies known assets
++  ---
++  duration_ms: 0.542836
++  type: 'test'
++  ...
++1..15
++# tests 15
++# suites 0
++# pass 15
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 205.38436
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/checks/run_v17_classifier_fixtures.mjs /mnt/data/openpatch_agent_gateway_v17_candidate/checks/run_v17_classifier_fixtures.mjs
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/checks/run_v17_classifier_fixtures.mjs	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/checks/run_v17_classifier_fixtures.mjs	2026-05-06 10:58:55.744148290 +0000
+@@ -0,0 +1,18 @@
++import fs from 'node:fs';
++import { classifyOpenPatchAsset } from '../openpatch-main/src/utils.js';
++const fixtures = JSON.parse(fs.readFileSync(new URL('./V17_REGRESSION_FIXTURES.json', import.meta.url), 'utf8')).fixtures.filter((x) => x.file_name);
++const results = fixtures.map((fixture) => {
++  const result = classifyOpenPatchAsset({ fileName: fixture.file_name });
++  return {
++    fixture: fixture.name,
++    file_name: fixture.file_name,
++    expected_asset_kind: fixture.expected_asset_kind,
++    actual_asset_kind: result.asset_kind,
++    expected_route_decision: fixture.expected_route_decision,
++    actual_route_decision: result.route_decision,
++    pass: result.asset_kind === fixture.expected_asset_kind && result.route_decision === fixture.expected_route_decision
++  };
++});
++const out = { schema_version: 'openpatch.v17_classifier_fixture_results.v1', pass: results.every((x) => x.pass), results };
++console.log(JSON.stringify(out, null, 2));
++if (!out.pass) process.exit(1);
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/docs/48_V17_IMPLEMENTATION_REPORT.md /mnt/data/openpatch_agent_gateway_v17_candidate/docs/48_V17_IMPLEMENTATION_REPORT.md
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/docs/48_V17_IMPLEMENTATION_REPORT.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/docs/48_V17_IMPLEMENTATION_REPORT.md	2026-05-06 11:01:09.352219468 +0000
+@@ -0,0 +1,67 @@
++# OpenPatch RE v17 Implementation Report
++
++## Scope
++
++OpenPatch RE v17 is the next candidate after round-1 review. It targets bridge-only dry-run and Chrome/CDP observe-only controlled smoke readiness. It does not claim real GitHub upload/apply, production install, or live Auto Continue install success.
++
++## Required reviewer fixes addressed
++
++✅ Hard route/asset classifier added in `openpatch-main/src/utils.js` and mirrored in `openpatch-main/src/content-script.js`.
++
++✅ Unknown `.zip` defaults to `asset_kind=unknown_zip`, `route_decision=unknown_blocked`, `allowed_action=none`, `can_upload=false`.
++
++✅ UI marker now exposes `asset_kind`, `route_decision`, `route_decision_reason`, `allowed_action`, and `not_approval`.
++
++✅ Archive/review/candidate/evidence assets set `not_approval=true`.
++
++✅ `preflightBundle` blocker logic now checks `readiness.go_no_go` and `config_lint.errors`.
++
++✅ `githubUploadGate` now uses `route.route_context.repo_alias/key_alias` and rejects ambiguous route context.
++
++✅ `resolveArchiveTarget` rejects ambiguous route context before archive.
++
++✅ Smoke plan stale V11/V15 references updated to V17 files and `openpatch.agent_button.v17`.
++
++✅ `codexBrief.next_command` now points back to preflight when blockers exist.
++
++✅ Regression fixtures added for candidate zip, review result zip, `changed-files.zip`, `webai-roundpack.zip`, unknown zip, ambiguous routes, missing aliases, and bad config preflight.
++
++✅ Compact contract added: `docs/openpatch-agent-gateway-contract-v17.md`.
++
++✅ Auto Continue heartbeat contract added in schema and adapter handoff: `schemas/openpatch.auto_continue_heartbeat.v17.schema.json` and `auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V17.md`.
++
++✅ GitHub-hosted assets are documented as hosted evidence only, not approval/install/merge/release.
++
++## Exact files changed from v16
++
++- `openpatch-main/src/utils.js`
++- `openpatch-main/src/content-script.js`
++- `openpatch-main/test/utils.test.js`
++- `local-bridge/openpatch-local-bridge.mjs`
++- `schemas/openpatch.asset_classifier.v17.schema.json`
++- `schemas/openpatch.agent_button.v17.schema.json`
++- `schemas/openpatch.auto_continue_heartbeat.v17.schema.json`
++- `docs/openpatch-agent-gateway-contract-v17.md`
++- `docs/48_V17_IMPLEMENTATION_REPORT.md`
++- `docs/49_V17_AGENT_API_QUICK_REFERENCE.md`
++- `docs/50_V17_REVIEWER_FIX_CLOSURE.md`
++- `checks/V17_REGRESSION_FIXTURES.json`
++- `checks/V17_CLASSIFIER_FIXTURE_RESULTS.json`
++- `checks/SELF_TEST_REPORT_V17.md`
++- `task_cards/FOR_CODEX_MINIMAL_V17.md`
++- `task_cards/FOR_GITHUB_TEST_UPLOAD_V17.md`
++- `browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V17.md`
++- `auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V17.md`
++- `audit_decision.json`
++- `SHA256SUMS.txt`
++
++## Known gaps
++
++- No real GitHub upload was performed in this candidate generation.
++- No production install was performed.
++- No live Auto Continue adapter install was performed.
++- Chrome Dev profile smoke remains a next controlled observe-only action.
++
++## Recommended next action
++
++Repo/relay reviewer audit of v17 first, then Codex bridge-only dry-run + Chrome/CDP observe-only if reviewer accepts the v17 fixes.
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/docs/49_V17_AGENT_API_QUICK_REFERENCE.md /mnt/data/openpatch_agent_gateway_v17_candidate/docs/49_V17_AGENT_API_QUICK_REFERENCE.md
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/docs/49_V17_AGENT_API_QUICK_REFERENCE.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/docs/49_V17_AGENT_API_QUICK_REFERENCE.md	2026-05-06 11:01:09.361603052 +0000
+@@ -0,0 +1,39 @@
++# OpenPatch RE v17 Agent API Quick Reference
++
++## Page marker
++
++Agent-visible marker version: `openpatch.agent_button.v17`.
++
++Required high-signal fields:
++
++```text
++asset_kind
++route_decision
++route_decision_reason
++allowed_action
++not_approval
++status
++recommendedAgentAction
++routeContext.project / repoAlias / keyAlias / routeProfile
++```
++
++## Local bridge checks
++
++```text
++node local-bridge/openpatch-ledger-cli.mjs health
++node local-bridge/openpatch-ledger-cli.mjs preflight --project <project> --target bridge-only
++node local-bridge/openpatch-ledger-cli.mjs codex-brief --project <project> --target bridge-only
++node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project <project>
++node local-bridge/openpatch-ledger-cli.mjs github-upload-gate --project <project> --url <page_url> --title <title>
++```
++
++## Expected blocker behavior
++
++- `unknown_zip` -> blocked, no upload.
++- ambiguous route context -> blocked for real upload/archive.
++- config lint errors -> preflight `no_go`.
++- receipt missing after archive marker -> Auto Continue must pause.
++
++## Evidence only
++
++GitHub-hosted receipts, latest JSON, workflow logs, or review zips are evidence only. They do not approve merge/install/upload/apply.
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/docs/50_V17_REVIEWER_FIX_CLOSURE.md /mnt/data/openpatch_agent_gateway_v17_candidate/docs/50_V17_REVIEWER_FIX_CLOSURE.md
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/docs/50_V17_REVIEWER_FIX_CLOSURE.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/docs/50_V17_REVIEWER_FIX_CLOSURE.md	2026-05-06 11:01:09.435039498 +0000
+@@ -0,0 +1,15 @@
++# V17 Reviewer Fix Closure Matrix
++
++| Reviewer requirement | V17 closure |
++|---|---|
++| Hard classifier and asset_kind schema | Added `classifyOpenPatchAsset` and `openpatch.asset_classifier.v17.schema.json` |
++| Unknown .zip blocked | `random.zip` fixture expects and receives `unknown_blocked` |
++| UI marker fields | Added marker/data fields for asset_kind, route_decision, reason, allowed_action, not_approval |
++| Preflight logic | Uses `readiness.go_no_go` and `config_lint.errors` |
++| githubUploadGate aliases and ambiguity | Uses `route_context` aliases; blocks ambiguous route context |
++| Smoke plan stale refs | V17 smoke plan references V17 files and agent marker |
++| codexBrief next_command | Blockers route to preflight, not bridge smoke |
++| Regression fixtures | Added fixture file and classifier results; bridge smoke captures gate/preflight evidence |
++| Compact contract | Added `openpatch-agent-gateway-contract-v17.md` |
++| Auto Continue heartbeat | Added schema and V17 live adapter contract |
++| Hosted assets as evidence | Documented in contract and GitHub upload task card |
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/docs/openpatch-agent-gateway-contract-v17.md /mnt/data/openpatch_agent_gateway_v17_candidate/docs/openpatch-agent-gateway-contract-v17.md
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/docs/openpatch-agent-gateway-contract-v17.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/docs/openpatch-agent-gateway-contract-v17.md	2026-05-06 10:58:08.743364959 +0000
+@@ -0,0 +1,54 @@
++# OpenPatch RE Agent Gateway Contract v17
++
++This is the compact control contract for OpenPatch RE v17. It distinguishes hosted evidence from approval or install state.
++
++## DOM marker
++
++Each OpenPatch RE button should expose these machine-readable fields through `data-*` and `data-openpatch-context`:
++
++- `schemaVersion`: `openpatch.agent_button.v17`
++- `status`: `ready | blocked | capturing | uploading | uploaded | failed | stale`
++- `fileName`
++- `asset_kind`: `changed_files_zip | patch_diff | roundpack_archive | review_evidence | candidate_or_evidence_archive | forced_archive | unknown_zip | unknown`
++- `route_decision`: `patch_upload_allowed | archive_allowed | unknown_blocked`
++- `route_decision_reason`
++- `allowed_action`: `upload_openpatch_content | archive_roundpack_content | none`
++- `not_approval`: `true` for archive/review/candidate/evidence assets
++- `routeContext.project`
++- `routeContext.routeProfile`
++- `routeContext.repoAlias`
++- `routeContext.keyAlias`
++- `recommendedAgentAction`
++- `decisionHint`
++- `stalenessStatus`
++
++Unknown `.zip` files must be `asset_kind=unknown_zip`, `route_decision=unknown_blocked`, `allowed_action=none`, `canUpload=false`.
++
++## Page events
++
++- `openpatch:api:get-buttons` -> `openpatch:api:buttons`
++- `openpatch:api:get-runtime-status` -> `openpatch:api:runtime-status`
++- `openpatch:api:set-route-context` -> `openpatch:agent-status`
++- `openpatch:api:trigger-upload` -> `openpatch:api:trigger-upload-result`
++- `openpatch:api:get-roundpack-prompt` -> `openpatch:api:roundpack-prompt`
++- `openpatch:api:get-compact-summary` -> `openpatch:api:compact-summary`
++
++## Bridge status fields
++
++Queue, latest and receipt APIs must return compact machine-readable fields:
++
++- queue item: `idempotency_key`, `project`, `round_id`, `status`, `action`, `claimed_by`, `lease_until`
++- latest: `project`, `latest_round`, `status`, `latest.file_sha256`, `updated_at`
++- receipt: `project`, `round_id`, `file_sha256`, `status`, `payload`, `received_at`
++
++## Failure states
++
++- `unknown_blocked`: hard classifier blocked an asset.
++- `route_context_ambiguous`: route resolution is ambiguous; no real upload.
++- `config_lint_errors`: key/repo/route aliases are invalid.
++- `receipt_missing`: uploaded marker exists but no receipt/latest was observed.
++- `github_upload_gate_blocked`: real upload is blocked by policy/gate.
++
++## Hosted evidence is not approval
++
++GitHub-hosted RoundPacks, review zips, receipts, latest JSON, workflow logs, and validation outputs are hosted evidence only. They are not merge approval, install approval, production release, browser profile approval, GitHub upload approval, or Auto Continue live-adapter approval.
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/local-bridge/openpatch-local-bridge.mjs /mnt/data/openpatch_agent_gateway_v17_candidate/local-bridge/openpatch-local-bridge.mjs
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-06 09:21:55.445509109 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-06 11:01:54.151490810 +0000
+@@ -567,6 +567,9 @@
+   let route = inputRoute.project ? { ok: true, route_context: inputRoute } : await resolveRoute(body);
+   if (!route.ok) route = { ok: true, route_context: { project: body.project || "default", repo_alias: body.repo_alias || "", key_alias: body.key_alias || "", archive_root: body.archive_root || "rounds", index_root: body.index_root || "index", route_profile: body.route_profile || "manual" } };
+   const routeContext = route.route_context || {};
++  if (routeContext?.ambiguity?.status === 'ambiguous' || route?.ambiguous === true) {
++    throw new Error('route_context_ambiguous_before_archive');
++  }
+   const repoAliasName = body.repo_alias || routeContext.repo_alias;
+   const keyAliasName = body.key_alias || routeContext.key_alias;
+   const repo = await getRepoAlias(repoAliasName);
+@@ -1307,18 +1310,18 @@
+     steps.push(smokeStep('bridge-dry-run-archive', 'Dry-run archive a tiny fixture through the bridge', 'codex', `node local-bridge/openpatch-ledger-cli.mjs archive-base64 --project ${project} --round smoke-001 --file webai-roundpack.zip --content-base64 ZHVtbXk= --dry-run`, 'status=dry_run_planned'));
+   }
+   if (target === 'all' || target === 'chrome') {
+-    steps.push(smokeStep('chrome-load-unpacked', 'Load unpacked extension in dedicated Chrome Dev profile', 'owner_or_codex_with_approval', 'open browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V11.md', 'extension loads; no real upload required', 'controlled'));
+-    steps.push(smokeStep('chrome-marker-check', 'Open a ChatGPT page with a test attachment and verify v11 marker/status badge', 'codex_or_owner', 'use page event openpatch:api:get-buttons', 'schemaVersion=openpatch.agent_button.v15', 'controlled'));
++    steps.push(smokeStep('chrome-load-unpacked', 'Load unpacked extension in dedicated Chrome Dev profile', 'owner_or_codex_with_approval', 'open browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V17.md', 'extension loads; no real upload required', 'controlled'));
++    steps.push(smokeStep('chrome-marker-check', 'Open a ChatGPT page with a test attachment and verify v11 marker/status badge', 'codex_or_owner', 'use page event openpatch:api:get-buttons', 'schemaVersion=openpatch.agent_button.v17', 'controlled'));
+   }
+   if (target === 'all' || target === 'github') {
+-    steps.push(smokeStep('github-test-upload', 'Archive-only upload to a single fine-grained PAT test repo', 'codex_with_owner_approval', 'open task_cards/FOR_GITHUB_TEST_UPLOAD_V11.md', 'receipt/latest/result created in archive repo', 'approval_required'));
++    steps.push(smokeStep('github-test-upload', 'Archive-only upload to a single fine-grained PAT test repo', 'codex_with_owner_approval', 'open task_cards/FOR_GITHUB_TEST_UPLOAD_V17.md', 'receipt/latest/result created in archive repo', 'approval_required'));
+   }
+   if (target === 'all' || target === 'auto-continue') {
+-    steps.push(smokeStep('auto-continue-adapter', 'Install adapter into the current Auto Continue script as a module, not a hard merge', 'codex_or_ai_author', 'open auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V11.md', 'adapter can request roundpack and wait for archive receipt', 'controlled'));
++    steps.push(smokeStep('auto-continue-adapter', 'Install adapter into the current Auto Continue script as a module, not a hard merge', 'codex_or_ai_author', 'open auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V17.md', 'adapter can request roundpack and wait for archive receipt', 'controlled'));
+   }
+   return {
+     ok: true,
+-    schema_version: 'openpatch.smoke_plan.v11',
++    schema_version: 'openpatch.smoke_plan.v17',
+     project,
+     target,
+     config_lint: { ok: config.ok, errors: config.errors.length, warnings: config.warnings.length },
+@@ -1406,41 +1409,49 @@
+ 
+ async function githubUploadGate(body = {}) {
+   const project = safeId(body.project || body.project_hint || 'default', 'default');
+-  const route = await resolveRoute({ project_hint: project, page_url: body.page_url || '', title: body.title || '', route_profile: body.route_profile || '' });
++  const suppliedRouteContext = body.route_context || body.routeContext || null;
++  const route = suppliedRouteContext
++    ? { ok: true, route_context: suppliedRouteContext, candidates: [], recommended_agent_action: 'use_supplied_route_context' }
++    : await resolveRoute({ project_hint: project, page_url: body.page_url || '', title: body.title || '', route_profile: body.route_profile || '' });
++  const routeContext = route.route_context || {};
+   const repos = await readJson(REPOS_FILE, { repos: [] });
+   const keys = await readJson(KEYS_FILE, { keys: [] });
+-  const repoAlias = safeString(body.repo_alias || route.selected?.repo_alias || '', 120);
+-  const keyAlias = safeString(body.key_alias || route.selected?.key_alias || '', 120);
+-  const repo = (repos.repos || []).find((r) => r.repo_alias === repoAlias) || null;
+-  const key = (keys.keys || []).find((k) => k.key_alias === keyAlias) || null;
++  const repoAlias = safeString(body.repo_alias || routeContext.repo_alias || '', 120);
++  const keyAlias = safeString(body.key_alias || routeContext.key_alias || '', 120);
++  const repo = (repos.repos || []).find((r) => safeId(r.repo_alias || r.alias || '', '') === safeId(repoAlias, '')) || null;
++  const key = (keys.keys || []).find((k) => safeId(k.key_alias || k.alias || '', '') === safeId(keyAlias, '')) || null;
+   const lint = await configLint();
+   const conflicts = await detectRouteConflicts({ project_hint: project, page_url: body.page_url || '', title: body.title || '' });
+   const blockers = [];
+   const warnings = [];
++  const routeAmbiguous = routeContext?.ambiguity?.status === 'ambiguous' || Boolean(route.ambiguous);
++  if (!route.ok) blockers.push('route_unresolved');
++  if (routeAmbiguous) blockers.push('route_context_ambiguous');
+   if (!repoAlias) blockers.push('repo_alias_missing');
+   if (!keyAlias) blockers.push('key_alias_missing');
+   if (!repo) blockers.push('repo_alias_not_found');
+   if (!key) blockers.push('key_alias_not_found');
+   if (conflicts.has_blocking_conflict) blockers.push('route_profile_blocking_conflict');
+-  if (route.ambiguous) blockers.push('route_resolution_ambiguous');
+-  if (lint.blockers?.length) blockers.push('config_lint_blockers_present');
++  if ((lint.errors || []).length) blockers.push('config_lint_errors_present');
+   if (repo && Array.isArray(repo.allowed_projects) && repo.allowed_projects.length && !repo.allowed_projects.map((x) => safeId(x, '')).includes(project)) blockers.push('project_not_allowed_for_repo_alias');
+-  if (key && Array.isArray(key.allowed_repo_aliases) && key.allowed_repo_aliases.length && !key.allowed_repo_aliases.includes(repoAlias)) blockers.push('repo_alias_not_allowed_for_key_alias');
++  if (key && Array.isArray(key.allowed_repo_aliases) && key.allowed_repo_aliases.length && !key.allowed_repo_aliases.map((x) => safeId(x, '')).includes(safeId(repoAlias, ''))) blockers.push('repo_alias_not_allowed_for_key_alias');
+   if (repo?.dry_run) warnings.push('repo_alias_is_dry_run');
+-  if (key && !key.token && !key.token_env) blockers.push('key_has_no_token_or_token_env');
++  if (key && !key.token && !key.token_env && !key.token_file && !key.dry_run) blockers.push('key_has_no_token_or_token_env_or_token_file');
+   if (key?.token_env && !process.env[key.token_env]) warnings.push('token_env_not_set_in_current_process');
+   const gate = blockers.length ? 'blocked' : (warnings.length ? 'go_with_warnings' : 'go');
+   return {
+     ok: true,
+-    schema_version: 'openpatch.github_upload_gate.v14',
++    schema_version: 'openpatch.github_upload_gate.v17',
+     project,
+     gate,
+     can_upload: blockers.length === 0,
+-    route_profile: route.selected?.profile_id || '',
++    route_context: routeContext,
++    route_profile: routeContext.route_profile || '',
++    route_ambiguity: routeContext.ambiguity || { status: routeAmbiguous ? 'ambiguous' : 'clear' },
+     repo_alias: repoAlias,
+     key_alias: keyAlias,
+     repo_summary: repo ? { owner: repo.owner || '', repo: repo.repo || '', branch: repo.branch || '', archive_root: repo.archive_root || 'rounds', index_root: repo.index_root || 'index', dry_run: Boolean(repo.dry_run), allowed_projects: repo.allowed_projects || [] } : null,
+-    key_summary: key ? { key_alias: key.key_alias, provider: key.provider || 'github', token_env: key.token_env || '', has_inline_token: Boolean(key.token), allowed_repo_aliases: key.allowed_repo_aliases || [] } : null,
++    key_summary: key ? { key_alias: key.key_alias || key.alias || keyAlias, provider: key.provider || 'github', token_env: key.token_env || '', token_file_set: Boolean(key.token_file), has_inline_token: Boolean(key.token), allowed_repo_aliases: key.allowed_repo_aliases || [] } : null,
+     blockers,
+     warnings,
+     recommended_agent_action: blockers.length ? 'fix_gate_blockers_before_real_upload' : 'archive_or_run_single_test_upload',
+@@ -1458,7 +1469,7 @@
+   const shouldPause = Boolean(plan.should_pause || plan.should_request_roundpack || conflicts.has_blocking_conflict || instances.stale_count > 0);
+   return {
+     ok: true,
+-    schema_version: 'openpatch.auto_continue_preflight.v14',
++    schema_version: 'openpatch.auto_continue_preflight.v17',
+     project,
+     should_pause: shouldPause,
+     should_request_roundpack: Boolean(plan.should_request_roundpack),
+@@ -1487,14 +1498,14 @@
+     agentNextAction({ project, target, message_count: Number(body.message_count || 0) })
+   ]);
+   const blockers = [];
+-  if (readiness.status === 'no_go') blockers.push('readiness_no_go');
+-  if (config.blockers?.length) blockers.push('config_lint_blockers');
++  if (readiness.go_no_go === 'no_go') blockers.push('readiness_no_go');
++  if ((config.errors || []).length) blockers.push('config_lint_errors');
+   if (['github', 'all', 'real-upload'].includes(target) && gate.gate === 'blocked') blockers.push('github_upload_gate_blocked');
+   if (instances.stale_count > 20) blockers.push('too_many_stale_instances');
+-  const result = blockers.length ? 'no_go' : ((readiness.status === 'go_with_warnings' || gate.gate === 'go_with_warnings' || config.warnings?.length) ? 'go_with_warnings' : 'go');
++  const result = blockers.length ? 'no_go' : ((readiness.go_no_go === 'go_with_warnings' || gate.gate === 'go_with_warnings' || (config.warnings || []).length) ? 'go_with_warnings' : 'go');
+   return {
+     ok: true,
+-    schema_version: 'openpatch.preflight_bundle.v14',
++    schema_version: 'openpatch.preflight_bundle.v17',
+     project,
+     target,
+     result,
+@@ -1529,7 +1540,7 @@
+   const queue = await queueStats(project);
+   const brief = {
+     ok: true,
+-    schema_version: 'openpatch.codex_brief.v16',
++    schema_version: 'openpatch.codex_brief.v17',
+     project,
+     target,
+     result: preflight.result,
+@@ -1537,9 +1548,11 @@
+     latest_status: latest.status || 'missing',
+     queue_counts: queue.counts || {},
+     action_now: preflight.blockers?.length ? 'fix_preflight_blockers' : (latest.latest_round ? 'read_latest_receipt_or_fetch_roundpack' : 'run_bridge_smoke_or_request_roundpack'),
+-    next_command: latest.latest_round
+-      ? `node local-bridge/openpatch-ledger-cli.mjs receipt --project ${project} --round ${latest.latest_round}`
+-      : `node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project ${project}`,
++    next_command: preflight.blockers?.length
++      ? `node local-bridge/openpatch-ledger-cli.mjs preflight --project ${project} --target ${target}`
++      : (latest.latest_round
++        ? `node local-bridge/openpatch-ledger-cli.mjs receipt --project ${project} --round ${latest.latest_round}`
++        : `node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project ${project}`),
+     stop_if: preflight.blockers || [],
+     warnings: [
+       ...(preflight.readiness?.warnings || []),
+@@ -1587,7 +1600,7 @@
+   const blockers = checks.filter((item) => !item.ok).map((item) => ({ id: item.id, status: item.status, error: item.error || '' }));
+   const evidence = {
+     ok: true,
+-    schema_version: 'openpatch.bridge_smoke_evidence.v16',
++    schema_version: 'openpatch.bridge_smoke_evidence.v17',
+     project,
+     round_id: roundId,
+     target: 'bridge-only',
+@@ -1629,7 +1642,7 @@
+     : (brief.action_now || next.recommended_agent_action);
+   return {
+     ok: true,
+-    schema_version: 'openpatch.operation_brief.v16',
++    schema_version: 'openpatch.operation_brief.v17',
+     project,
+     intent,
+     recommended_agent_action: recommended,
+@@ -1664,7 +1677,7 @@
+   ];
+   return {
+     ok: true,
+-    schema_version: 'openpatch.smoke_next_hop.v16',
++    schema_version: 'openpatch.smoke_next_hop.v17',
+     project,
+     target,
+     action_now: brief.action_now || preflight.recommended_agent_action,
+@@ -1691,7 +1704,7 @@
+   const instanceId = safeId(body.instance_id || `chrome-dev-${project}-${Date.now()}`, 'chrome-dev-instance');
+   return {
+     ok: true,
+-    schema_version: 'openpatch.chrome_smoke_handoff.v16',
++    schema_version: 'openpatch.chrome_smoke_handoff.v17',
+     project,
+     purpose: 'load the unpacked extension in an isolated Chrome Dev profile and verify marker/API/bridge status without touching real accounts beyond the test chat page selected by owner',
+     default_commands: [
+@@ -1703,7 +1716,7 @@
+     ],
+     browser_expectations: [
+       'extension loads without manifest/runtime errors',
+-      'OpenPatch buttons expose data-openpatch-marker=openpatch.agent_button.v16',
++      'OpenPatch buttons expose data-openpatch-marker=openpatch.agent_button.v17',
+       'page event API answers get-buttons/get-agent-summary/get-route-visual',
+       'bridge status badge is visible or marker reports bridgeStatusHint',
+       'no token value is printed in page DOM or console summaries'
+@@ -1717,7 +1730,7 @@
+       'console_error_summary.txt'
+     ],
+     codex_output_template: {
+-      schema_version: 'openpatch.chrome_smoke_evidence.v16',
++      schema_version: 'openpatch.chrome_smoke_evidence.v17',
+       project,
+       instance_id: instanceId,
+       pass: false,
+@@ -1739,7 +1752,7 @@
+   const payload = Buffer.from(`openpatch-github-test:${project}:${roundId}:${nowIso()}`, 'utf8').toString('base64');
+   return {
+     ok: true,
+-    schema_version: 'openpatch.github_test_upload_handoff.v16',
++    schema_version: 'openpatch.github_test_upload_handoff.v17',
+     project,
+     gate: gate.gate || 'unknown',
+     can_upload: Boolean(gate.can_upload),
+@@ -1771,7 +1784,7 @@
+   const plan = await autoContinuePlan({ ...body, project, roundpack_interval: interval, message_count: Number(body.message_count || 0) });
+   return {
+     ok: true,
+-    schema_version: 'openpatch.auto_continue_live_handoff.v16',
++    schema_version: 'openpatch.auto_continue_live_handoff.v17',
+     project,
+     roundpack_interval: interval,
+     adapter_contract: {
+@@ -1805,7 +1818,7 @@
+   const payload = body.payload || body.evidence || body;
+   const pack = {
+     ok: true,
+-    schema_version: 'openpatch.evidence_pack.v16',
++    schema_version: 'openpatch.evidence_pack.v17',
+     project,
+     target,
+     round_id: roundId,
+@@ -1846,7 +1859,7 @@
+   if (req.method === "POST" && url.pathname === "/auto-continue/preflight") return jsonResponse(res, 200, await autoContinuePreflight(await collectBody(req)));
+   if (req.method === "GET" && url.pathname === "/instances/compact") return jsonResponse(res, 200, await instancesCompact({}));
+   if (req.method === "POST" && url.pathname === "/instances/compact") return jsonResponse(res, 200, await instancesCompact(await collectBody(req)));
+-  if (req.method === "GET" && url.pathname === "/health") return jsonResponse(res, 200, { ok: true, schema_version: "openpatch.bridge_health.v16", service: "openpatch-local-bridge", root: ROOT, capabilities: ["routes", "resolve_route", "receipts", "latest", "sha_index", "queue", "config_status", "archive_base64", "bridge_side_github_upload", "agent_summary", "receipt_query", "queue_claim", "queue_retry", "auto_continue_plan", "events", "compact_summary", "recent_receipts", "queue_stats", "queue_claim_batch", "queue_release", "lease_reclaim", "github_rate_backoff", "events_compact", "archive_size_guard", "stress_test_ready", "route_conflict_detector", "queue_reclaim_expired", "route_ambiguity_report", "route_visual_map", "route_fix_suggestions", "route_resolution_stress", "multi_browser_planning", "config_lint", "smoke_plan", "browser_instance_registry", "real_smoke_handoff", "readiness_report", "codex_handoff", "evidence_template", "instances_prune_stale", "config_snapshot", "projects", "agent_next_action", "alias_binding_lint", "preflight_bundle", "github_upload_gate", "auto_continue_preflight", "instances_compact", "codex_brief", "bridge_smoke_run", "operation_brief", "smoke_next_hop", "chrome_smoke_handoff", "github_test_upload_handoff", "auto_continue_live_handoff", "evidence_pack"], time: nowIso() });
++  if (req.method === "GET" && url.pathname === "/health") return jsonResponse(res, 200, { ok: true, schema_version: "openpatch.bridge_health.v17", service: "openpatch-local-bridge", root: ROOT, capabilities: ["routes", "resolve_route", "receipts", "latest", "sha_index", "queue", "config_status", "archive_base64", "bridge_side_github_upload", "agent_summary", "receipt_query", "queue_claim", "queue_retry", "auto_continue_plan", "events", "compact_summary", "recent_receipts", "queue_stats", "queue_claim_batch", "queue_release", "lease_reclaim", "github_rate_backoff", "events_compact", "archive_size_guard", "stress_test_ready", "route_conflict_detector", "queue_reclaim_expired", "route_ambiguity_report", "route_visual_map", "route_fix_suggestions", "route_resolution_stress", "multi_browser_planning", "config_lint", "smoke_plan", "browser_instance_registry", "real_smoke_handoff", "readiness_report", "codex_handoff", "evidence_template", "instances_prune_stale", "config_snapshot", "projects", "agent_next_action", "alias_binding_lint", "preflight_bundle", "github_upload_gate", "auto_continue_preflight", "instances_compact", "codex_brief", "bridge_smoke_run", "operation_brief", "smoke_next_hop", "chrome_smoke_handoff", "github_test_upload_handoff", "auto_continue_live_handoff", "evidence_pack"], time: nowIso() });
+   if (req.method === "GET" && url.pathname === "/config-status") return jsonResponse(res, 200, await sanitizedConfigStatus());
+   if (req.method === "GET" && url.pathname === "/config/snapshot") return jsonResponse(res, 200, await configSnapshot());
+   if (req.method === "GET" && url.pathname === "/projects") return jsonResponse(res, 200, await projectList());
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/openpatch-main/src/content-script.js /mnt/data/openpatch_agent_gateway_v17_candidate/openpatch-main/src/content-script.js
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/openpatch-main/src/content-script.js	2026-05-06 09:21:55.447025317 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/openpatch-main/src/content-script.js	2026-05-06 10:59:19.264834173 +0000
+@@ -120,11 +120,51 @@
+     return /round\s*pack|roundpack|webai-roundpack|review-pack|audit-pack|handoff|evidence|receipt|归档|回合包|交接包|审核包|证据包/i.test(value);
+   }
+ 
+-  function shouldUseArchiveMode({ fileName, label }) {
++  function classifyOpenPatchAsset({ fileName = "", label = "" } = {}) {
++    const name = String(fileName || "").trim();
++    const lower = name.toLowerCase();
++    const text = `${name} ${label || ""}`.toLowerCase();
+     const configured = String(routeContext.mode || "auto").toLowerCase();
+-    if (configured === "archive_only" || configured === "roundpack_archive") return true;
+-    if (configured === "patch_upload") return false;
+-    return looksLikeRoundPackDownloadText(`${fileName || ""} ${label || ""}`);
++    const extension = getFileExtension(name);
++    const base = {
++      assetKind: "unknown",
++      routeDecision: "unknown_blocked",
++      routeDecisionReason: "unknown_asset_kind_requires_explicit_route",
++      allowedAction: "none",
++      mode: "blocked",
++      canUpload: false,
++      notApproval: true,
++      extension
++    };
++    if (configured === "archive_only" || configured === "roundpack_archive") {
++      return { ...base, assetKind: "forced_archive", routeDecision: "archive_allowed", routeDecisionReason: "configured_archive_mode", allowedAction: "archive_roundpack_content", mode: "roundpack_archive", canUpload: true, notApproval: true };
++    }
++    if (configured === "patch_upload" && /\.(diff|patch)$/i.test(lower)) {
++      return { ...base, assetKind: "patch_diff", routeDecision: "patch_upload_allowed", routeDecisionReason: "configured_patch_upload_diff_or_patch", allowedAction: "upload_openpatch_content", mode: "patch_upload", canUpload: true, notApproval: false };
++    }
++    if (lower === "changed-files.zip") {
++      return { ...base, assetKind: "changed_files_zip", routeDecision: "patch_upload_allowed", routeDecisionReason: "exact_changed_files_zip", allowedAction: "upload_openpatch_content", mode: "patch_upload", canUpload: true, notApproval: false };
++    }
++    if (lower === "openpatch.diff" || lower === "openpatch.patch" || /\.(diff|patch)$/i.test(lower)) {
++      return { ...base, assetKind: "patch_diff", routeDecision: "patch_upload_allowed", routeDecisionReason: "diff_or_patch_extension", allowedAction: "upload_openpatch_content", mode: "patch_upload", canUpload: true, notApproval: false };
++    }
++    if (/webai[-_]?roundpack|round[-_ ]?pack|roundpack/.test(text)) {
++      return { ...base, assetKind: "roundpack_archive", routeDecision: "archive_allowed", routeDecisionReason: "roundpack_name_or_label", allowedAction: "archive_roundpack_content", mode: "roundpack_archive", canUpload: true, notApproval: true };
++    }
++    if (/review.*result|review[-_ ]?pack|audit[-_ ]?pack|external[-_ ]?audit|审核包|审查包/.test(text)) {
++      return { ...base, assetKind: "review_evidence", routeDecision: "archive_allowed", routeDecisionReason: "review_or_audit_evidence_name", allowedAction: "archive_roundpack_content", mode: "roundpack_archive", canUpload: true, notApproval: true };
++    }
++    if (/candidate|handoff|evidence|receipt|deliverable|候选|交接|证据/.test(text)) {
++      return { ...base, assetKind: "candidate_or_evidence_archive", routeDecision: "archive_allowed", routeDecisionReason: "candidate_handoff_evidence_name", allowedAction: "archive_roundpack_content", mode: "roundpack_archive", canUpload: true, notApproval: true };
++    }
++    if (extension === "zip") {
++      return { ...base, assetKind: "unknown_zip", routeDecision: "unknown_blocked", routeDecisionReason: "unknown_zip_requires_explicit_changed_files_or_roundpack_or_review_name", allowedAction: "none", mode: "blocked", canUpload: false, notApproval: true };
++    }
++    return base;
++  }
++
++  function shouldUseArchiveMode({ fileName, label }) {
++    return classifyOpenPatchAsset({ fileName, label }).mode === "roundpack_archive";
+   }
+ 
+   function inferPatchName(text) {
+@@ -142,16 +182,17 @@
+   function createInlineButton(sourceButton) {
+     const label = sourceButton.textContent || sourceButton.getAttribute("aria-label") || "";
+     const suggestedName = inferPatchName(label);
+-    const archiveMode = shouldUseArchiveMode({ fileName: suggestedName, label });
+-    const marker = buildAgentMarker({ sourceButton, suggestedName, label, archiveMode });
++    const classifier = classifyOpenPatchAsset({ fileName: suggestedName, label });
++    const archiveMode = classifier.mode === "roundpack_archive";
++    const marker = buildAgentMarker({ sourceButton, suggestedName, label, archiveMode, classifier });
+ 
+     const button = document.createElement("button");
+     button.type = "button";
+     button.className = BUTTON_CLASS;
+-    setButtonText(button, archiveMode ? "Archive RoundPack" : "Upload to GitHub");
++    setButtonText(button, classifier.canUpload ? (archiveMode ? "Archive RoundPack" : "Upload to GitHub") : "OpenPatch blocked");
+     button.appendChild(createStatusBadge(marker));
+-    button.title = archiveMode ? "Archive this attachment as a RoundPack/artifact" : "Read this attachment and upload it to GitHub";
+-    button.setAttribute("aria-label", archiveMode ? `OpenPatch archive ${suggestedName}` : `OpenPatch upload ${suggestedName}`);
++    button.title = classifier.canUpload ? (archiveMode ? "Archive this attachment as a RoundPack/artifact" : "Read this attachment and upload it to GitHub") : `Blocked by OpenPatch RE hard classifier: ${classifier.routeDecisionReason}`;
++    button.setAttribute("aria-label", classifier.canUpload ? (archiveMode ? `OpenPatch archive ${suggestedName}` : `OpenPatch upload ${suggestedName}`) : `OpenPatch blocked ${suggestedName}`);
+     setButtonMarker(button, marker);
+ 
+     button.addEventListener("click", async (event) => {
+@@ -159,6 +200,11 @@
+       event.stopPropagation();
+ 
+       const currentMarker = button.__openpatchAgentMarker || marker;
++      if (currentMarker.route_decision === "unknown_blocked" || currentMarker.allowed_action === "none" || currentMarker.canUpload === "false") {
++        setButtonMarker(button, { status: "blocked", decisionHint: currentMarker.route_decision_reason || "blocked_by_hard_classifier", recommendedAgentAction: "inspect_asset_kind_or_request_explicit_roundpack_name" });
++        showToast("OpenPatch RE blocked this unknown artifact. Rename or classify it explicitly.");
++        return;
++      }
+       const archiveMode = currentMarker.mode === "roundpack_archive";
+       const title = archiveMode
+         ? `archive: ${suggestedName}`
+@@ -260,16 +306,22 @@
+     }
+   }
+ 
+-  function buildAgentMarker({ sourceButton, suggestedName, label, archiveMode = false }) {
++  function buildAgentMarker({ sourceButton, suggestedName, label, archiveMode = false, classifier = null }) {
+     const href = sourceButton.getAttribute("href") || "";
++    const classified = classifier || classifyOpenPatchAsset({ fileName: suggestedName, label });
+     return {
+-      schemaVersion: "openpatch.agent_button.v16",
++      schemaVersion: "openpatch.agent_button.v17",
+       marker: "openpatch-inline-upload",
+-      status: "ready",
+-      mode: archiveMode ? "roundpack_archive" : "patch_upload",
+-      action: archiveMode ? "archive_roundpack_content" : "upload_openpatch_content",
++      status: classified.canUpload ? "ready" : "blocked",
++      mode: classified.mode,
++      action: classified.allowedAction,
++      asset_kind: classified.assetKind,
++      route_decision: classified.routeDecision,
++      route_decision_reason: classified.routeDecisionReason,
++      allowed_action: classified.allowedAction,
++      not_approval: classified.notApproval === true,
+       fileName: suggestedName,
+-      extension: getFileExtension(suggestedName),
++      extension: classified.extension || getFileExtension(suggestedName),
+       buttonId: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`,
+       pageSessionId: PAGE_SESSION_ID,
+       sourceText: String(label || "").trim().slice(0, 180),
+@@ -277,10 +329,10 @@
+       sourceRole: sourceButton.getAttribute("role") || "",
+       sourceUrlKind: getUrlKind(href),
+       sourceHost: getUrlHost(href),
+-      canUpload: "true",
++      canUpload: classified.canUpload ? "true" : "false",
+       canRetry: "false",
+-      decisionHint: archiveMode ? "ready_to_archive_attachment" : "ready_to_capture_attachment",
+-      recommendedAgentAction: archiveMode ? "trigger_archive_or_query_compact_summary" : "trigger_upload_or_collect_patch",
++      decisionHint: classified.routeDecisionReason,
++      recommendedAgentAction: classified.canUpload ? (archiveMode ? "trigger_archive_or_query_compact_summary" : "trigger_upload_or_collect_patch") : "do_not_upload_unknown_asset",
+       targetSummary: buildTargetSummary(sanitizeRouteContext(routeContext)),
+       bridgeStatusHint: "unknown",
+       queueStatusHint: "not_enqueued",
+@@ -427,10 +479,15 @@
+     };
+     button.__openpatchAgentMarker = next;
+ 
+-    button.dataset.openpatchMarker = next.schemaVersion || "openpatch.agent_button.v16";
++    button.dataset.openpatchMarker = next.schemaVersion || "openpatch.agent_button.v17";
+     button.dataset.openpatchStatus = String(next.status || "unknown");
+     button.dataset.openpatchMode = String(next.mode || "patch_upload");
+-    button.dataset.openpatchAction = String(next.action || "upload_openpatch_content");
++    button.dataset.openpatchAction = String(next.action || next.allowed_action || "upload_openpatch_content");
++    button.dataset.openpatchAssetKind = String(next.asset_kind || "unknown");
++    button.dataset.openpatchRouteDecision = String(next.route_decision || "unknown");
++    button.dataset.openpatchRouteDecisionReason = String(next.route_decision_reason || "");
++    button.dataset.openpatchAllowedAction = String(next.allowed_action || next.action || "");
++    button.dataset.openpatchNotApproval = String(next.not_approval === true);
+     button.dataset.openpatchFileName = String(next.fileName || "");
+     button.dataset.openpatchButtonId = String(next.buttonId || "");
+     button.dataset.openpatchPageSessionId = String(next.pageSessionId || PAGE_SESSION_ID);
+@@ -491,7 +548,7 @@
+       return JSON.parse(button.dataset.openpatchContext || "{}");
+     } catch {
+       return {
+-        schemaVersion: button.dataset.openpatchMarker || "openpatch.agent_button.v16",
++        schemaVersion: button.dataset.openpatchMarker || "openpatch.agent_button.v17",
+         status: button.dataset.openpatchStatus || "unknown",
+         fileName: button.dataset.openpatchFileName || ""
+       };
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/openpatch-main/src/utils.js /mnt/data/openpatch_agent_gateway_v17_candidate/openpatch-main/src/utils.js
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/openpatch-main/src/utils.js	2026-05-05 23:35:35.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/openpatch-main/src/utils.js	2026-05-06 10:59:19.264206131 +0000
+@@ -230,6 +230,54 @@
+   return `${buildRepositoryUrl({ owner, repo })}/tree/${encodeURIComponent(branch)}`;
+ }
+ 
++export function classifyOpenPatchAsset({ fileName = "", label = "", configuredMode = "auto" } = {}) {
++  const name = String(fileName || "").trim();
++  const lower = name.toLowerCase();
++  const text = `${name} ${label || ""}`.toLowerCase();
++  const mode = String(configuredMode || "auto").toLowerCase();
++  const ext = getUploadFileExtension(name) || (lower.match(/\.([a-z0-9]+)$/)?.[1] || "");
++
++  const base = {
++    schema_version: "openpatch.asset_classifier.v17",
++    file_name: name,
++    extension: ext,
++    asset_kind: "unknown",
++    route_decision: "unknown_blocked",
++    route_decision_reason: "unknown_asset_kind_requires_explicit_route",
++    allowed_action: "none",
++    mode: "blocked",
++    can_upload: false,
++    not_approval: true
++  };
++
++  if (mode === "archive_only" || mode === "roundpack_archive") {
++    return { ...base, asset_kind: "forced_archive", route_decision: "archive_allowed", route_decision_reason: "configured_archive_mode", allowed_action: "archive_roundpack_content", mode: "roundpack_archive", can_upload: true, not_approval: true };
++  }
++  if (mode === "patch_upload" && /\.(diff|patch)$/i.test(lower)) {
++    return { ...base, asset_kind: "patch_diff", route_decision: "patch_upload_allowed", route_decision_reason: "configured_patch_upload_diff_or_patch", allowed_action: "upload_openpatch_content", mode: "patch_upload", can_upload: true, not_approval: false };
++  }
++
++  if (lower === "changed-files.zip") {
++    return { ...base, asset_kind: "changed_files_zip", route_decision: "patch_upload_allowed", route_decision_reason: "exact_changed_files_zip", allowed_action: "upload_openpatch_content", mode: "patch_upload", can_upload: true, not_approval: false };
++  }
++  if (lower === "openpatch.diff" || lower === "openpatch.patch" || /\.(diff|patch)$/i.test(lower)) {
++    return { ...base, asset_kind: "patch_diff", route_decision: "patch_upload_allowed", route_decision_reason: "diff_or_patch_extension", allowed_action: "upload_openpatch_content", mode: "patch_upload", can_upload: true, not_approval: false };
++  }
++  if (/webai[-_]?roundpack|round[-_ ]?pack|roundpack/.test(text)) {
++    return { ...base, asset_kind: "roundpack_archive", route_decision: "archive_allowed", route_decision_reason: "roundpack_name_or_label", allowed_action: "archive_roundpack_content", mode: "roundpack_archive", can_upload: true, not_approval: true };
++  }
++  if (/review.*result|review[-_ ]?pack|audit[-_ ]?pack|external[-_ ]?audit|审核包|审查包/.test(text)) {
++    return { ...base, asset_kind: "review_evidence", route_decision: "archive_allowed", route_decision_reason: "review_or_audit_evidence_name", allowed_action: "archive_roundpack_content", mode: "roundpack_archive", can_upload: true, not_approval: true };
++  }
++  if (/candidate|handoff|evidence|receipt|deliverable|候选|交接|证据/.test(text)) {
++    return { ...base, asset_kind: "candidate_or_evidence_archive", route_decision: "archive_allowed", route_decision_reason: "candidate_handoff_evidence_name", allowed_action: "archive_roundpack_content", mode: "roundpack_archive", can_upload: true, not_approval: true };
++  }
++  if (ext === "zip") {
++    return { ...base, asset_kind: "unknown_zip", route_decision: "unknown_blocked", route_decision_reason: "unknown_zip_requires_explicit_changed_files_or_roundpack_or_review_name", allowed_action: "none", mode: "blocked", can_upload: false, not_approval: true };
++  }
++  return base;
++}
++
+ 
+ export function looksLikeRoundPackDownloadText(text) {
+   const value = String(text || "").trim().toLowerCase();
+@@ -242,10 +290,7 @@
+ }
+ 
+ export function shouldUseArchiveMode({ fileName = "", label = "", configuredMode = "auto" } = {}) {
+-  const mode = String(configuredMode || "auto").toLowerCase();
+-  if (mode === "archive_only" || mode === "roundpack_archive") return true;
+-  if (mode === "patch_upload") return false;
+-  return looksLikeRoundPackDownloadText(`${fileName} ${label}`);
++  return classifyOpenPatchAsset({ fileName, label, configuredMode }).mode === "roundpack_archive";
+ }
+ 
+ export function sanitizeArchiveFileName(name, fallback = "webai-roundpack.zip") {
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/openpatch-main/test/utils.test.js /mnt/data/openpatch_agent_gateway_v17_candidate/openpatch-main/test/utils.test.js
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/openpatch-main/test/utils.test.js	2026-05-05 23:25:31.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/openpatch-main/test/utils.test.js	2026-05-06 10:56:51.935260650 +0000
+@@ -107,3 +107,19 @@
+   assert.equal(buildRoundReceiptPath(path), "rounds/webai-transfer/2026/05/06/round-001/upload_receipt.json");
+   assert.equal(buildLatestIndexPath({ indexRoot: "index", project: "WebAI Transfer" }), "index/latest/webai-transfer.json");
+ });
++
++import { classifyOpenPatchAsset } from "../src/utils.js";
++
++test("v17 hard asset classifier blocks unknown zip and classifies known assets", () => {
++  assert.deepEqual(classifyOpenPatchAsset({ fileName: "changed-files.zip" }).asset_kind, "changed_files_zip");
++  assert.equal(classifyOpenPatchAsset({ fileName: "changed-files.zip" }).allowed_action, "upload_openpatch_content");
++  assert.equal(classifyOpenPatchAsset({ fileName: "webai-roundpack.zip" }).asset_kind, "roundpack_archive");
++  assert.equal(classifyOpenPatchAsset({ fileName: "webai-roundpack.zip" }).not_approval, true);
++  assert.equal(classifyOpenPatchAsset({ fileName: "openpatch-review-result.zip" }).asset_kind, "review_evidence");
++  assert.equal(classifyOpenPatchAsset({ fileName: "openpatch_agent_gateway_v17_candidate.zip" }).asset_kind, "candidate_or_evidence_archive");
++  const unknown = classifyOpenPatchAsset({ fileName: "random.zip" });
++  assert.equal(unknown.asset_kind, "unknown_zip");
++  assert.equal(unknown.route_decision, "unknown_blocked");
++  assert.equal(unknown.allowed_action, "none");
++  assert.equal(unknown.can_upload, false);
++});
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/schemas/openpatch.agent_button.v17.schema.json /mnt/data/openpatch_agent_gateway_v17_candidate/schemas/openpatch.agent_button.v17.schema.json
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/schemas/openpatch.agent_button.v17.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/schemas/openpatch.agent_button.v17.schema.json	2026-05-06 10:58:27.157922887 +0000
+@@ -0,0 +1,21 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "openpatch.agent_button.v17.schema.json",
++  "title": "OpenPatch RE v17 Agent Button Marker",
++  "type": "object",
++  "required": ["schemaVersion", "status", "asset_kind", "route_decision", "route_decision_reason", "allowed_action", "not_approval", "fileName", "routeContext"],
++  "properties": {
++    "schemaVersion": { "const": "openpatch.agent_button.v17" },
++    "status": { "type": "string" },
++    "asset_kind": { "type": "string" },
++    "route_decision": { "type": "string" },
++    "route_decision_reason": { "type": "string" },
++    "allowed_action": { "type": "string" },
++    "not_approval": { "type": "boolean" },
++    "fileName": { "type": "string" },
++    "routeContext": { "type": "object" },
++    "recommendedAgentAction": { "type": "string" },
++    "decisionHint": { "type": "string" }
++  },
++  "additionalProperties": true
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/schemas/openpatch.asset_classifier.v17.schema.json /mnt/data/openpatch_agent_gateway_v17_candidate/schemas/openpatch.asset_classifier.v17.schema.json
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/schemas/openpatch.asset_classifier.v17.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/schemas/openpatch.asset_classifier.v17.schema.json	2026-05-06 10:58:27.145496238 +0000
+@@ -0,0 +1,22 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "openpatch.asset_classifier.v17.schema.json",
++  "title": "OpenPatch RE v17 Asset Classifier Result",
++  "type": "object",
++  "required": ["schema_version", "asset_kind", "route_decision", "route_decision_reason", "allowed_action", "can_upload", "not_approval"],
++  "properties": {
++    "schema_version": { "const": "openpatch.asset_classifier.v17" },
++    "file_name": { "type": "string" },
++    "extension": { "type": "string" },
++    "asset_kind": {
++      "enum": ["changed_files_zip", "patch_diff", "roundpack_archive", "review_evidence", "candidate_or_evidence_archive", "forced_archive", "unknown_zip", "unknown"]
++    },
++    "route_decision": { "enum": ["patch_upload_allowed", "archive_allowed", "unknown_blocked"] },
++    "route_decision_reason": { "type": "string" },
++    "allowed_action": { "enum": ["upload_openpatch_content", "archive_roundpack_content", "none"] },
++    "mode": { "enum": ["patch_upload", "roundpack_archive", "blocked"] },
++    "can_upload": { "type": "boolean" },
++    "not_approval": { "type": "boolean" }
++  },
++  "additionalProperties": true
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/schemas/openpatch.auto_continue_heartbeat.v17.schema.json /mnt/data/openpatch_agent_gateway_v17_candidate/schemas/openpatch.auto_continue_heartbeat.v17.schema.json
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/schemas/openpatch.auto_continue_heartbeat.v17.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/schemas/openpatch.auto_continue_heartbeat.v17.schema.json	2026-05-06 10:58:27.238069269 +0000
+@@ -0,0 +1,17 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "openpatch.auto_continue_heartbeat.v17.schema.json",
++  "title": "OpenPatch RE v17 Auto Continue Heartbeat",
++  "type": "object",
++  "required": ["schema_version", "page_session_id", "project", "status", "receipt_required", "receipt_status", "next_action"],
++  "properties": {
++    "schema_version": { "const": "openpatch.auto_continue_heartbeat.v17" },
++    "page_session_id": { "type": "string" },
++    "project": { "type": "string" },
++    "status": { "enum": ["continue_allowed", "roundpack_required", "waiting_for_receipt", "receipt_missing", "blocked"] },
++    "receipt_required": { "type": "boolean" },
++    "receipt_status": { "enum": ["not_required", "pending", "observed", "missing"] },
++    "next_action": { "type": "string" }
++  },
++  "additionalProperties": true
++}
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/task_cards/FOR_CODEX_MINIMAL_V17.md /mnt/data/openpatch_agent_gateway_v17_candidate/task_cards/FOR_CODEX_MINIMAL_V17.md
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/task_cards/FOR_CODEX_MINIMAL_V17.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/task_cards/FOR_CODEX_MINIMAL_V17.md	2026-05-06 11:01:09.444157513 +0000
+@@ -0,0 +1,27 @@
++# FOR_CODEX_MINIMAL_V17
++
++Task: run OpenPatch RE v17 bridge-only dry-run smoke and return JSON evidence. Do not perform real GitHub upload, production install, or live Auto Continue install.
++
++Default commands:
++
++```text
++node local-bridge/openpatch-local-bridge.mjs
++node local-bridge/openpatch-ledger-cli.mjs health
++node local-bridge/openpatch-ledger-cli.mjs preflight --project openpatch-smoke --target bridge-only
++node local-bridge/openpatch-ledger-cli.mjs codex-brief --project openpatch-smoke --target bridge-only
++node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project openpatch-smoke --round v17-smoke
++node local-bridge/openpatch-ledger-cli.mjs smoke-plan --project openpatch-smoke --target all
++```
++
++Return:
++
++```text
++health.json
++preflight.json
++codex_brief.json
++bridge_smoke_run.json
++smoke_plan.json
++short conclusion
++```
++
++Stop if any output prints secrets, PATs, cookies, `.env`, or browser profile internals.
+diff -ruN /mnt/data/openpatch_agent_gateway_v16_candidate/task_cards/FOR_GITHUB_TEST_UPLOAD_V17.md /mnt/data/openpatch_agent_gateway_v17_candidate/task_cards/FOR_GITHUB_TEST_UPLOAD_V17.md
+--- /mnt/data/openpatch_agent_gateway_v16_candidate/task_cards/FOR_GITHUB_TEST_UPLOAD_V17.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_agent_gateway_v17_candidate/task_cards/FOR_GITHUB_TEST_UPLOAD_V17.md	2026-05-06 10:57:57.147121305 +0000
+@@ -0,0 +1,15 @@
++# FOR_GITHUB_TEST_UPLOAD_V17
++
++Status: blocked until owner grants one-run action-time approval for a single test repo/fine-grained PAT.
++
++Use only after v17 bridge-only dry-run and Chrome/CDP observe-only smoke pass.
++
++Preflight command:
++
++```text
++node local-bridge/openpatch-ledger-cli.mjs github-upload-gate --project <project> --url <page_url> --title <page_title>
++```
++
++Proceed only if `gate` is `go` or explicitly accepted `go_with_warnings`, route is not ambiguous, repo_alias/key_alias match the intended test repo, and upload is archive-only.
++
++Do not claim real upload success without receipt/latest evidence from the archive repo.

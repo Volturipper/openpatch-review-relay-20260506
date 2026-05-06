@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.github_rate_status.v8.schema.json",
+  "title": "OpenPatch GitHub Rate Status v8",
+  "type": "object",
+  "required": ["ok", "schema_version", "total_requests", "retry_count"],
+  "properties": {
+    "ok": { "const": true },
+    "schema_version": { "const": "openpatch.github_rate_status.v8" },
+    "total_requests": { "type": "number" },
+    "retry_count": { "type": "number" },
+    "last_status": { "type": "number" },
+    "rate_limit": { "type": ["object", "null"] },
+    "updated_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}

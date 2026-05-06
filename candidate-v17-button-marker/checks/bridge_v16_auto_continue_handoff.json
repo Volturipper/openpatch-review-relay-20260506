@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.auto_continue_live_handoff.v16",
+  "project": "openpatch-smoke",
+  "roundpack_interval": 5,
+  "adapter_contract": {
+    "outbound_events": [
+      "openpatch:api:get-agent-summary",
+      "openpatch:api:get-roundpack-prompt",
+      "openpatch:api:trigger-upload"
+    ],
+    "inbound_events": [
+      "openpatch:agent-status",
+      "openpatch:api:agent-summary",
+      "openpatch:api:roundpack-prompt"
+    ],
+    "required_marker": "[ROUND_PACK_READY]",
+    "pause_conditions": [
+      "roundpack_required_but_missing",
+      "route_conflict_blocking",
+      "archive_upload_in_progress",
+      "upload_failed_needs_retry"
+    ]
+  },
+  "default_commands": [
+    "node local-bridge/openpatch-ledger-cli.mjs auto-continue-preflight --project openpatch-smoke --message-count 0",
+    "node local-bridge/openpatch-ledger-cli.mjs operation-brief --project openpatch-smoke --intent auto-continue",
+    "node local-bridge/openpatch-ledger-cli.mjs compact-summary --project openpatch-smoke"
+  ],
+  "plan_sample": {
+    "ok": true,
+    "schema_version": "openpatch.auto_continue_plan.v1",
+    "project": "openpatch-smoke",
+    "should_request_roundpack": false,
+    "should_pause_until_archive_receipt": false,
+    "reason": "continue_allowed",
+    "required_marker": "[ROUND_PACK_READY]",
+    "preferred_file_name": "webai-roundpack-openpatch-smoke.zip",
+    "prompt_hint": "use_openpatch_roundpack_prompt",
+    "next_agent_action": "continue_iteration",
+    "created_at": "2026-05-06T09:22:19.653Z"
+  },
+  "evidence_required": [
+    "auto_continue_preflight_before.json",
+    "roundpack_prompt_used.txt",
+    "round_pack_ready_marker.json",
+    "openpatch_agent_status_events.json",
+    "archive_receipt_after.json"
+  ],
+  "recommended_agent_action": "wire_adapter_as_optional_layer_then_smoke_with_one_test_chat",
+  "generated_at": "2026-05-06T09:22:19.654Z"
+}

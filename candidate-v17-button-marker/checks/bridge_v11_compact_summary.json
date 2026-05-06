@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.compact_summary.v1",
+  "project": "openpatch-smoke",
+  "latest_round": "v11-smoke-001",
+  "status": "dry_run_planned",
+  "archive_only": true,
+  "allow_execution": false,
+  "file_sha256": "b5a2c96250612366ea272ffac6d9744aaf4b45aacd96aa7cfcb931ee3b558259",
+  "queue_counts": {},
+  "recommended_agent_action": "read_latest_receipt_or_fetch_roundpack",
+  "codex_next": "node local-bridge/openpatch-ledger-cli.mjs receipt --project openpatch-smoke --round v11-smoke-001",
+  "updated_at": "2026-05-06T01:38:26.176Z"
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenPatch agent button marker v9",
+  "type": "object",
+  "required": ["schemaVersion", "status", "mode", "buttonId", "pageSessionId"],
+  "properties": {
+    "schemaVersion": { "const": "openpatch.agent_button.v9" },
+    "status": { "type": "string" },
+    "mode": { "type": "string" },
+    "buttonId": { "type": "string" },
+    "pageSessionId": { "type": "string" },
+    "routeConflictHint": { "type": "string" },
+    "recommendedAgentAction": { "type": "string" },
+    "targetSummary": { "type": "string" }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schema_version": "openpatch.bridge_latest.v7",
+  "project": "openpatch-smoke",
+  "latest_round": "v15-cli-smoke-001",
+  "status": "dry_run_planned",
+  "latest": {
+    "project": "openpatch-smoke",
+    "round_id": "v15-cli-smoke-001",
+    "status": "dry_run_planned",
+    "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
+    "receipt_path": "/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-cli-smoke-001.json",
+    "received_at": "2026-05-06T09:15:42.047Z"
+  },
+  "recent_rounds": [
+    {
+      "project": "openpatch-smoke",
+      "round_id": "v15-cli-smoke-001",
+      "status": "dry_run_planned",
+      "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
+      "receipt_path": "/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-cli-smoke-001.json",
+      "received_at": "2026-05-06T09:15:42.047Z"
+    },
+    {
+      "project": "openpatch-smoke",
+      "round_id": "v15-smoke-001",
+      "status": "dry_run_planned",
+      "file_sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
+      "receipt_path": "/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-smoke-001.json",
+      "received_at": "2026-05-06T09:15:39.844Z"
+    }
+  ],
+  "codex_next_query": "/latest?project=openpatch-smoke",
+  "updated_at": "2026-05-06T09:15:42.048Z"
+}

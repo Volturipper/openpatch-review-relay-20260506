@@ -1,0 +1,33 @@
+{
+  "schema_version": "openpatch.repo_aliases.v1",
+  "repos": [
+    {
+      "repo_alias": "webai-round-ledger",
+      "provider": "github",
+      "owner": "YOUR_GITHUB_OWNER",
+      "repo": "webai-round-ledger",
+      "branch": "webai-archive",
+      "archive_root": "rounds",
+      "index_root": "index",
+      "dry_run": false,
+      "allowed_projects": [
+        "webai-transfer",
+        "ai-chat-file-relay",
+        "openpatch-smoke"
+      ]
+    },
+    {
+      "repo_alias": "dry-run-archive",
+      "provider": "github",
+      "owner": "example-owner",
+      "repo": "example-archive-repo",
+      "branch": "webai-archive",
+      "archive_root": "rounds",
+      "index_root": "index",
+      "dry_run": true,
+      "allowed_projects": [
+        "*"
+      ]
+    }
+  ]
+}

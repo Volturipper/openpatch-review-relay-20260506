@@ -1,0 +1,34 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.github_test_upload_handoff.v16",
+  "project": "openpatch-smoke",
+  "gate": "blocked",
+  "can_upload": false,
+  "repo_alias": "",
+  "key_alias": "",
+  "default_commands": [
+    "node local-bridge/openpatch-ledger-cli.mjs github-upload-gate --project openpatch-smoke",
+    "node local-bridge/openpatch-ledger-cli.mjs archive-base64 --project openpatch-smoke --round github-test-1778059338463 --file webai-roundpack-openpatch-smoke-github-test.zip --content-base64 b3BlbnBhdGNoLWdpdGh1Yi10ZXN0Om9wZW5wYXRjaC1zbW9rZTpnaXRodWItdGVzdC0xNzc4MDU5MzM4NDYzOjIwMjYtMDUtMDZUMDk6MjI6MTguNDYzWg== --dry-run",
+    "node local-bridge/openpatch-ledger-cli.mjs compact-summary --project openpatch-smoke",
+    "node local-bridge/openpatch-ledger-cli.mjs receipt --project openpatch-smoke --round github-test-1778059338463"
+  ],
+  "real_upload_command_template": "node local-bridge/openpatch-ledger-cli.mjs archive-base64 --project openpatch-smoke --round github-test-1778059338463 --file webai-roundpack-openpatch-smoke-github-test.zip --content-base64 <base64-roundpack> --repo-alias <test_repo_alias> --key-alias <test_key_alias>",
+  "evidence_required": [
+    "github_upload_gate.json",
+    "archive_receipt.json",
+    "latest_after_upload.json",
+    "github_path_or_dry_run_path.txt",
+    "rate_limit_status.json"
+  ],
+  "gate_summary": {
+    "blockers": [
+      "repo_alias_missing",
+      "key_alias_missing",
+      "repo_alias_not_found",
+      "key_alias_not_found"
+    ],
+    "warnings": []
+  },
+  "recommended_agent_action": "fix_repo_key_route_gate_then_retry",
+  "generated_at": "2026-05-06T09:22:18.463Z"
+}

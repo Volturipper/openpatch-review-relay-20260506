@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "status": "resolved",
+  "route_context": {
+    "schema_version": "openpatch.route_context.v2",
+    "route_profile": "webai-transfer-designer-chat",
+    "project": "webai-transfer",
+    "repo_alias": "github-webai-archive",
+    "key_alias": "gh-webai-archive-fgpat",
+    "archive_root": "rounds",
+    "index_root": "index",
+    "mode": "roundpack_archive",
+    "confidence": 85,
+    "resolved_at": "2026-05-05T23:31:10.470Z"
+  }
+}

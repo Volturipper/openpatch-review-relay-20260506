@@ -1,0 +1,72 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.route_stress.v10",
+  "count": 200,
+  "ambiguous": 200,
+  "unresolved": 0,
+  "resolved": 200,
+  "recommended_agent_action": "inspect_route_profiles_before_live_upload",
+  "sample": [
+    {
+      "status": "resolved",
+      "project": "webai-transfer",
+      "route_profile": "webai-transfer-chatgpt",
+      "ambiguity": "ambiguous"
+    },
+    {
+      "status": "resolved",
+      "project": "webai-transfer",
+      "route_profile": "webai-transfer-chatgpt",
+      "ambiguity": "ambiguous"
+    },
+    {
+      "status": "resolved",
+      "project": "webai-transfer",
+      "route_profile": "webai-transfer-chatgpt",
+      "ambiguity": "ambiguous"
+    },
+    {
+      "status": "resolved",
+      "project": "webai-transfer",
+      "route_profile": "webai-transfer-chatgpt",
+      "ambiguity": "ambiguous"
+    },
+    {
+      "status": "resolved",
+      "project": "webai-transfer",
+      "route_profile": "webai-transfer-chatgpt",
+      "ambiguity": "ambiguous"
+    },
+    {
+      "status": "resolved",
+      "project": "webai-transfer",
+      "route_profile": "webai-transfer-chatgpt",
+      "ambiguity": "ambiguous"
+    },
+    {
+      "status": "resolved",
+      "project": "webai-transfer",
+      "route_profile": "webai-transfer-chatgpt",
+      "ambiguity": "ambiguous"
+    },
+    {
+      "status": "resolved",
+      "project": "webai-transfer",
+      "route_profile": "webai-transfer-chatgpt",
+      "ambiguity": "ambiguous"
+    },
+    {
+      "status": "resolved",
+      "project": "webai-transfer",
+      "route_profile": "webai-transfer-chatgpt",
+      "ambiguity": "ambiguous"
+    },
+    {
+      "status": "resolved",
+      "project": "webai-transfer",
+      "route_profile": "webai-transfer-chatgpt",
+      "ambiguity": "ambiguous"
+    }
+  ],
+  "generated_at": "2026-05-06T01:34:12.381Z"
+}

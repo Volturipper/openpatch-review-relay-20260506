@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.evidence_template.v12",
+  "project": "openpatch-smoke",
+  "target": "bridge-only",
+  "status": "pending",
+  "required_files": [
+    "health.json",
+    "config_lint.json",
+    "readiness.json",
+    "smoke_plan.json",
+    "latest_or_receipt.json",
+    "SELF_TEST_NOTES.md"
+  ],
+  "evidence_json_template": {
+    "schema_version": "openpatch.smoke_evidence.v12",
+    "project": "openpatch-smoke",
+    "target": "bridge-only",
+    "actor": "codex_or_local_agent",
+    "started_at": "",
+    "finished_at": "",
+    "commands_run": [],
+    "files_created": [],
+    "pass": false,
+    "blockers": [],
+    "warnings": [],
+    "next_recommended_action": ""
+  },
+  "created_at": "2026-05-06T02:14:35.280Z"
+}

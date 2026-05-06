@@ -1,0 +1,302 @@
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate: PATCH_FROM_V13_TO_V14.diff
+diff -ru /mnt/data/openpatch_agent_gateway_v13_candidate/audit_decision.json /mnt/data/openpatch_agent_gateway_v14_candidate/audit_decision.json
+--- /mnt/data/openpatch_agent_gateway_v13_candidate/audit_decision.json	2026-05-06 02:46:32.100880998 +0000
++++ /mnt/data/openpatch_agent_gateway_v14_candidate/audit_decision.json	2026-05-06 02:57:48.387179441 +0000
+@@ -1,31 +1,24 @@
+ {
+-  "schema_version": "openpatch.audit_decision.v13",
+-  "version": "v13-candidate",
+-  "decision": "candidate_continue_iteration",
+-  "summary": "v13 adds sanitized config snapshot, project listing, alias binding lint, and Codex next-action API. It is suitable for bridge-only smoke and further review, not production install.",
+-  "checklist": {
+-    "goal_role_scope_written_in_package": "✅",
+-    "code_patch_included": "✅",
+-    "self_test_report_included": "✅",
+-    "npm_test_passed": "✅",
+-    "npm_run_check_passed": "✅",
+-    "bridge_cli_syntax_passed": "✅",
+-    "bridge_default_smoke_passed": "✅",
+-    "example_config_lint_passed": "✅",
+-    "real_chrome_smoke_done": "⬜",
+-    "real_github_upload_done": "⬜",
+-    "live_auto_continue_integration_done": "⬜"
+-  },
+-  "not_release_for": [
+-    "production install",
+-    "real GitHub upload without explicit local owner action-time approval",
+-    "live Auto Continue hard integration without isolated smoke",
+-    "multi-browser production run"
++  "schema_version": "openpatch.audit_decision.v14",
++  "candidate": "openpatch_agent_gateway_v14_candidate",
++  "decision": "candidate_for_bridge_only_smoke",
++  "production_release": false,
++  "real_github_upload_approved": false,
++  "real_chrome_profile_install_approved": false,
++  "summary": "v14 adds compact preflight, GitHub upload gate, Auto Continue preflight, and instance compaction APIs. It is ready for bridge-only Codex smoke, not production install.",
++  "completed": [
++    "preflight bundle API",
++    "GitHub upload gate API",
++    "Auto Continue preflight API",
++    "instances compact API",
++    "CLI wrappers",
++    "sandbox self-test"
+   ],
+-  "next_tasks": [
+-    "Codex bridge-only smoke using FOR_CODEX_MINIMAL_V13.md",
+-    "Chrome Dev profile unpacked extension smoke",
+-    "single test repo fine-grained PAT archive-only smoke",
+-    "Auto Continue live adapter integration"
+-  ]
++  "not_completed": [
++    "real Chrome Dev profile install test",
++    "real GitHub fine-grained PAT upload test",
++    "live Auto Continue adapter integration",
++    "multi-browser real long-run test"
++  ],
++  "next_task": "Codex bridge-only smoke using task_cards/FOR_CODEX_MINIMAL_V14.md"
+ }
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: SELF_TEST_REPORT_V14.md
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: bridge_v14_auto_continue_preflight.json
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: bridge_v14_cli_auto_continue_preflight.json
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: bridge_v14_cli_github_upload_gate.json
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: bridge_v14_cli_instances_compact.json
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: bridge_v14_cli_preflight.json
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: bridge_v14_github_upload_gate.json
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: bridge_v14_health.json
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: bridge_v14_instances_compact.json
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: bridge_v14_preflight.json
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: bridge_v14_preflight_github.json
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: bridge_v14_server.log
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: bridge_v14_server.pid
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: ledger_cli_node_check_v14.log
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: local_bridge_node_check_v14.log
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: npm_run_check_v14.log
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/checks: npm_test_v14.log
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/docs: 39_V14_IMPLEMENTATION_REPORT.md
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/docs: 40_V14_AGENT_API_QUICK_REFERENCE.md
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/docs: 41_V14_PREFLIGHT_GATE_AND_SMOKE_PATH.md
+diff -ru /mnt/data/openpatch_agent_gateway_v13_candidate/local-bridge/openpatch-ledger-cli.mjs /mnt/data/openpatch_agent_gateway_v14_candidate/local-bridge/openpatch-ledger-cli.mjs
+--- /mnt/data/openpatch_agent_gateway_v13_candidate/local-bridge/openpatch-ledger-cli.mjs	2026-05-06 02:43:58.090913982 +0000
++++ /mnt/data/openpatch_agent_gateway_v14_candidate/local-bridge/openpatch-ledger-cli.mjs	2026-05-06 02:55:18.881039106 +0000
+@@ -9,6 +9,10 @@
+   config-status
+   config-snapshot
+   config-lint
++  preflight [--project <project>] [--target <bridge-only|chrome|github|auto-continue>]
++  github-upload-gate [--project <project>] [--url <page_url>] [--title <title>]
++  auto-continue-preflight --project <project> [--message-count <n>] [--force]
++  instances-compact
+   smoke-plan [--target <all|bridge|chrome|github|auto-continue>] [--project <project>]
+   readiness [--project <project>] [--target <bridge-only|chrome|github|auto-continue>]
+   codex-handoff [--project <project>] [--target <bridge-only|chrome|github|auto-continue>]
+@@ -82,6 +86,10 @@
+   if (command === "config-status") return print(await request("/config-status"));
+   if (command === "config-snapshot") return print(await request("/config/snapshot"));
+   if (command === "config-lint") return print(await request("/config-lint"));
++  if (command === "preflight") return print(await request("/preflight", { method: "POST", body: { project: getArg("--project", "openpatch-smoke"), target: getArg("--target", "bridge-only"), message_count: Number(getArg("--message-count", "0")), page_url: getArg("--url", ""), title: getArg("--title", "") } }));
++  if (command === "github-upload-gate") return print(await request("/github/upload-gate", { method: "POST", body: { project: getArg("--project", "openpatch-smoke"), page_url: getArg("--url", ""), title: getArg("--title", ""), route_profile: getArg("--route-profile", "") } }));
++  if (command === "auto-continue-preflight") return print(await request("/auto-continue/preflight", { method: "POST", body: { project: getArg("--project", "openpatch-smoke"), message_count: Number(getArg("--message-count", "0")), force_roundpack: hasFlag("--force"), page_url: getArg("--url", ""), title: getArg("--title", "") } }));
++  if (command === "instances-compact") return print(await request("/instances/compact"));
+   if (command === "smoke-plan") return print(await request("/smoke/plan", { method: "POST", body: { target: getArg("--target", "all"), project: getArg("--project", "openpatch-smoke") } }));
+   if (command === "readiness") return print(await request("/readiness", { method: "POST", body: { target: getArg("--target", "bridge-only"), project: getArg("--project", "openpatch-smoke") } }));
+   if (command === "codex-handoff") return print(await request("/codex/handoff", { method: "POST", body: { target: getArg("--target", "bridge-only"), project: getArg("--project", "openpatch-smoke") } }));
+diff -ru /mnt/data/openpatch_agent_gateway_v13_candidate/local-bridge/openpatch-local-bridge.mjs /mnt/data/openpatch_agent_gateway_v14_candidate/local-bridge/openpatch-local-bridge.mjs
+--- /mnt/data/openpatch_agent_gateway_v13_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-06 02:43:46.171604015 +0000
++++ /mnt/data/openpatch_agent_gateway_v14_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-06 02:56:46.674295766 +0000
+@@ -1366,11 +1366,171 @@
+   });
+ }
+ 
++
++async function instancesCompact(body = {}) {
++  const data = await readJson(INSTANCES_FILE, { schema_version: 'openpatch.browser_instances.v1', instances: [] });
++  const nowMs = Date.now();
++  const items = Array.isArray(data.instances) ? data.instances : [];
++  const byProject = {};
++  const byRoute = {};
++  const stale = [];
++  const active = [];
++  for (const item of items) {
++    const ttlMs = Number(item.ttl_ms || 10 * 60 * 1000);
++    const lastSeenMs = Date.parse(item.last_seen_at || item.first_seen_at || '') || 0;
++    const isStale = lastSeenMs && (nowMs - lastSeenMs > ttlMs);
++    const project = safeId(item.project_hint || item.project || 'unknown', 'unknown');
++    const route = safeId(item.route_profile || 'unknown', 'unknown');
++    const bucket = { instance_id: item.instance_id, browser_profile: item.browser_profile || '', page_url_host: item.page_url_host || '', project_hint: project, route_profile: route, stale: Boolean(isStale), last_seen_at: item.last_seen_at || '' };
++    if (isStale) stale.push(bucket); else active.push(bucket);
++    byProject[project] = Number(byProject[project] || 0) + 1;
++    byRoute[route] = Number(byRoute[route] || 0) + 1;
++  }
++  const duplicateRouteGroups = Object.entries(byRoute).filter(([, count]) => count > 1).map(([route_profile, count]) => ({ route_profile, count }));
++  const recommended = stale.length ? 'prune_stale_instances_then_continue' : (duplicateRouteGroups.length ? 'review_duplicate_active_routes_before_upload' : 'instances_ok');
++  return {
++    ok: true,
++    schema_version: 'openpatch.instances_compact.v14',
++    total_instances: items.length,
++    active_count: active.length,
++    stale_count: stale.length,
++    by_project: byProject,
++    by_route_profile: byRoute,
++    duplicate_route_groups: duplicateRouteGroups,
++    active_sample: active.slice(0, 25),
++    stale_sample: stale.slice(0, 25),
++    recommended_agent_action: recommended,
++    checked_at: nowIso()
++  };
++}
++
++async function githubUploadGate(body = {}) {
++  const project = safeId(body.project || body.project_hint || 'default', 'default');
++  const route = await resolveRoute({ project_hint: project, page_url: body.page_url || '', title: body.title || '', route_profile: body.route_profile || '' });
++  const repos = await readJson(REPOS_FILE, { repos: [] });
++  const keys = await readJson(KEYS_FILE, { keys: [] });
++  const repoAlias = safeString(body.repo_alias || route.selected?.repo_alias || '', 120);
++  const keyAlias = safeString(body.key_alias || route.selected?.key_alias || '', 120);
++  const repo = (repos.repos || []).find((r) => r.repo_alias === repoAlias) || null;
++  const key = (keys.keys || []).find((k) => k.key_alias === keyAlias) || null;
++  const lint = await configLint();
++  const conflicts = await detectRouteConflicts({ project_hint: project, page_url: body.page_url || '', title: body.title || '' });
++  const blockers = [];
++  const warnings = [];
++  if (!repoAlias) blockers.push('repo_alias_missing');
++  if (!keyAlias) blockers.push('key_alias_missing');
++  if (!repo) blockers.push('repo_alias_not_found');
++  if (!key) blockers.push('key_alias_not_found');
++  if (conflicts.has_blocking_conflict) blockers.push('route_profile_blocking_conflict');
++  if (route.ambiguous) blockers.push('route_resolution_ambiguous');
++  if (lint.blockers?.length) blockers.push('config_lint_blockers_present');
++  if (repo && Array.isArray(repo.allowed_projects) && repo.allowed_projects.length && !repo.allowed_projects.map((x) => safeId(x, '')).includes(project)) blockers.push('project_not_allowed_for_repo_alias');
++  if (key && Array.isArray(key.allowed_repo_aliases) && key.allowed_repo_aliases.length && !key.allowed_repo_aliases.includes(repoAlias)) blockers.push('repo_alias_not_allowed_for_key_alias');
++  if (repo?.dry_run) warnings.push('repo_alias_is_dry_run');
++  if (key && !key.token && !key.token_env) blockers.push('key_has_no_token_or_token_env');
++  if (key?.token_env && !process.env[key.token_env]) warnings.push('token_env_not_set_in_current_process');
++  const gate = blockers.length ? 'blocked' : (warnings.length ? 'go_with_warnings' : 'go');
++  return {
++    ok: true,
++    schema_version: 'openpatch.github_upload_gate.v14',
++    project,
++    gate,
++    can_upload: blockers.length === 0,
++    route_profile: route.selected?.profile_id || '',
++    repo_alias: repoAlias,
++    key_alias: keyAlias,
++    repo_summary: repo ? { owner: repo.owner || '', repo: repo.repo || '', branch: repo.branch || '', archive_root: repo.archive_root || 'rounds', index_root: repo.index_root || 'index', dry_run: Boolean(repo.dry_run), allowed_projects: repo.allowed_projects || [] } : null,
++    key_summary: key ? { key_alias: key.key_alias, provider: key.provider || 'github', token_env: key.token_env || '', has_inline_token: Boolean(key.token), allowed_repo_aliases: key.allowed_repo_aliases || [] } : null,
++    blockers,
++    warnings,
++    recommended_agent_action: blockers.length ? 'fix_gate_blockers_before_real_upload' : 'archive_or_run_single_test_upload',
++    checked_at: nowIso()
++  };
++}
++
++async function autoContinuePreflight(body = {}) {
++  const project = safeId(body.project || body.project_hint || 'default', 'default');
++  const messageCount = Number(body.message_count || body.messageCount || 0);
++  const plan = await autoContinuePlan({ ...body, project, message_count: messageCount });
++  const summary = await compactSummary(project);
++  const instances = await instancesCompact({ project });
++  const conflicts = await detectRouteConflicts({ project_hint: project, page_url: body.page_url || '', title: body.title || '' });
++  const shouldPause = Boolean(plan.should_pause || plan.should_request_roundpack || conflicts.has_blocking_conflict || instances.stale_count > 0);
++  return {
++    ok: true,
++    schema_version: 'openpatch.auto_continue_preflight.v14',
++    project,
++    should_pause: shouldPause,
++    should_request_roundpack: Boolean(plan.should_request_roundpack),
++    plan,
++    compact_summary: summary,
++    instances_compact: instances,
++    route_conflicts: { issue_count: conflicts.issue_count, has_blocking_conflict: conflicts.has_blocking_conflict, recommended_agent_action: conflicts.recommended_agent_action },
++    recommended_agent_action: shouldPause ? 'pause_or_request_roundpack_before_next_continue' : 'continue_auto_flow',
++    checked_at: nowIso()
++  };
++}
++
++async function preflightBundle(body = {}) {
++  const project = safeId(body.project || body.project_hint || 'default', 'default');
++  const target = safeString(body.target || 'bridge-only', 80);
++  const [readiness, handoff, evidence, config, snapshot, projects, compact, instances, gate, next] = await Promise.all([
++    readinessReport({ project, target }),
++    codexHandoff({ project, target }),
++    evidenceTemplate({ project, target }),
++    configLint(),
++    configSnapshot(),
++    projectList(),
++    compactSummary(project),
++    instancesCompact({ project }),
++    githubUploadGate({ project, page_url: body.page_url || '', title: body.title || '', route_profile: body.route_profile || '' }),
++    agentNextAction({ project, target, message_count: Number(body.message_count || 0) })
++  ]);
++  const blockers = [];
++  if (readiness.status === 'no_go') blockers.push('readiness_no_go');
++  if (config.blockers?.length) blockers.push('config_lint_blockers');
++  if (['github', 'all', 'real-upload'].includes(target) && gate.gate === 'blocked') blockers.push('github_upload_gate_blocked');
++  if (instances.stale_count > 20) blockers.push('too_many_stale_instances');
++  const result = blockers.length ? 'no_go' : ((readiness.status === 'go_with_warnings' || gate.gate === 'go_with_warnings' || config.warnings?.length) ? 'go_with_warnings' : 'go');
++  return {
++    ok: true,
++    schema_version: 'openpatch.preflight_bundle.v14',
++    project,
++    target,
++    result,
++    blockers,
++    recommended_agent_action: blockers.length ? 'fix_preflight_blockers_before_smoke' : 'run_codex_handoff_or_single_smoke',
++    codex_short_command: `node local-bridge/openpatch-ledger-cli.mjs preflight --project ${project} --target ${target}`,
++    default_next_commands: [
++      `node local-bridge/openpatch-ledger-cli.mjs readiness --project ${project} --target ${target}`,
++      `node local-bridge/openpatch-ledger-cli.mjs github-upload-gate --project ${project}`,
++      `node local-bridge/openpatch-ledger-cli.mjs evidence-template --project ${project} --target ${target}`
++    ],
++    readiness,
++    codex_handoff: handoff,
++    evidence_template: evidence,
++    config_lint: config,
++    config_snapshot: snapshot,
++    projects,
++    compact_summary: compact,
++    instances_compact: instances,
++    github_upload_gate: gate,
++    next_action: next,
++    checked_at: nowIso()
++  };
++}
++
+ async function handle(req, res) {
+   if (req.method === "OPTIONS") return jsonResponse(res, 200, { ok: true });
+   const url = new URL(req.url || "/", `http://${req.headers.host || "127.0.0.1"}`);
+ 
+-  if (req.method === "GET" && url.pathname === "/health") return jsonResponse(res, 200, { ok: true, schema_version: "openpatch.bridge_health.v12", service: "openpatch-local-bridge", root: ROOT, capabilities: ["routes", "resolve_route", "receipts", "latest", "sha_index", "queue", "config_status", "archive_base64", "bridge_side_github_upload", "agent_summary", "receipt_query", "queue_claim", "queue_retry", "auto_continue_plan", "events", "compact_summary", "recent_receipts", "queue_stats", "queue_claim_batch", "queue_release", "lease_reclaim", "github_rate_backoff", "events_compact", "archive_size_guard", "stress_test_ready", "route_conflict_detector", "queue_reclaim_expired", "route_ambiguity_report", "route_visual_map", "route_fix_suggestions", "route_resolution_stress", "multi_browser_planning", "config_lint", "smoke_plan", "browser_instance_registry", "real_smoke_handoff", "readiness_report", "codex_handoff", "evidence_template", "instances_prune_stale", "config_snapshot", "projects", "agent_next_action", "alias_binding_lint"], time: nowIso() });
++
++  if (req.method === "POST" && url.pathname === "/preflight") return jsonResponse(res, 200, await preflightBundle(await collectBody(req)));
++  if (req.method === "POST" && url.pathname === "/github/upload-gate") return jsonResponse(res, 200, await githubUploadGate(await collectBody(req)));
++  if (req.method === "POST" && url.pathname === "/auto-continue/preflight") return jsonResponse(res, 200, await autoContinuePreflight(await collectBody(req)));
++  if (req.method === "GET" && url.pathname === "/instances/compact") return jsonResponse(res, 200, await instancesCompact({}));
++  if (req.method === "POST" && url.pathname === "/instances/compact") return jsonResponse(res, 200, await instancesCompact(await collectBody(req)));
++  if (req.method === "GET" && url.pathname === "/health") return jsonResponse(res, 200, { ok: true, schema_version: "openpatch.bridge_health.v14", service: "openpatch-local-bridge", root: ROOT, capabilities: ["routes", "resolve_route", "receipts", "latest", "sha_index", "queue", "config_status", "archive_base64", "bridge_side_github_upload", "agent_summary", "receipt_query", "queue_claim", "queue_retry", "auto_continue_plan", "events", "compact_summary", "recent_receipts", "queue_stats", "queue_claim_batch", "queue_release", "lease_reclaim", "github_rate_backoff", "events_compact", "archive_size_guard", "stress_test_ready", "route_conflict_detector", "queue_reclaim_expired", "route_ambiguity_report", "route_visual_map", "route_fix_suggestions", "route_resolution_stress", "multi_browser_planning", "config_lint", "smoke_plan", "browser_instance_registry", "real_smoke_handoff", "readiness_report", "codex_handoff", "evidence_template", "instances_prune_stale", "config_snapshot", "projects", "agent_next_action", "alias_binding_lint", "preflight_bundle", "github_upload_gate", "auto_continue_preflight", "instances_compact"], time: nowIso() });
+   if (req.method === "GET" && url.pathname === "/config-status") return jsonResponse(res, 200, await sanitizedConfigStatus());
+   if (req.method === "GET" && url.pathname === "/config/snapshot") return jsonResponse(res, 200, await configSnapshot());
+   if (req.method === "GET" && url.pathname === "/projects") return jsonResponse(res, 200, await projectList());
+diff -ru /mnt/data/openpatch_agent_gateway_v13_candidate/openpatch-main/src/content-script.js /mnt/data/openpatch_agent_gateway_v14_candidate/openpatch-main/src/content-script.js
+--- /mnt/data/openpatch_agent_gateway_v13_candidate/openpatch-main/src/content-script.js	2026-05-06 02:13:50.509818263 +0000
++++ /mnt/data/openpatch_agent_gateway_v14_candidate/openpatch-main/src/content-script.js	2026-05-06 02:55:18.881926127 +0000
+@@ -263,7 +263,7 @@
+   function buildAgentMarker({ sourceButton, suggestedName, label, archiveMode = false }) {
+     const href = sourceButton.getAttribute("href") || "";
+     return {
+-      schemaVersion: "openpatch.agent_button.v12",
++      schemaVersion: "openpatch.agent_button.v14",
+       marker: "openpatch-inline-upload",
+       status: "ready",
+       mode: archiveMode ? "roundpack_archive" : "patch_upload",
+@@ -491,7 +491,7 @@
+       return JSON.parse(button.dataset.openpatchContext || "{}");
+     } catch {
+       return {
+-        schemaVersion: button.dataset.openpatchMarker || "openpatch.agent_button.v12",
++        schemaVersion: button.dataset.openpatchMarker || "openpatch.agent_button.v14",
+         status: button.dataset.openpatchStatus || "unknown",
+         fileName: button.dataset.openpatchFileName || ""
+       };
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/task_cards: FOR_AUTO_CONTINUE_V14.md
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/task_cards: FOR_CODEX_MINIMAL_V14.md
+Only in /mnt/data/openpatch_agent_gateway_v14_candidate/task_cards: FOR_GITHUB_TEST_UPLOAD_V14.md

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.agent_button.v8.schema.json",
+  "title": "OpenPatch Agent Button Marker v8",
+  "type": "object",
+  "required": ["schemaVersion", "buttonId", "status", "mode", "recommendedAgentAction"],
+  "properties": {
+    "schemaVersion": { "const": "openpatch.agent_button.v8" },
+    "buttonId": { "type": "string", "minLength": 1 },
+    "pageSessionId": { "type": "string" },
+    "status": { "type": "string" },
+    "mode": { "type": "string" },
+    "fileName": { "type": "string" },
+    "project": { "type": "string" },
+    "roundId": { "type": "string" },
+    "routeContext": { "type": "object" },
+    "repoAlias": { "type": "string" },
+    "keyAlias": { "type": "string" },
+    "stalenessStatus": { "type": "string" },
+    "recommendedAgentAction": { "type": "string" },
+    "targetSummary": { "type": "string" },
+    "performanceHint": { "type": "string" },
+    "apiHint": { "type": "string" }
+  },
+  "additionalProperties": true
+}

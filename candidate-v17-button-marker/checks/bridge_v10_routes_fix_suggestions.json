@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.route_fix_suggestions.v10",
+  "suggestion_count": 0,
+  "suggestions": [],
+  "recommended_agent_action": "no_route_fix_needed",
+  "generated_at": "2026-05-06T01:34:11.690Z"
+}

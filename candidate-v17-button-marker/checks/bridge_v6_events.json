@@ -1,0 +1,60 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.bridge_events.v1",
+  "events": [
+    {
+      "schema_version": "openpatch.bridge_event.v1",
+      "type": "auto_continue_plan",
+      "detail": {
+        "project": "webai-transfer",
+        "should_request_roundpack": true,
+        "reason": "interval_reached"
+      },
+      "created_at": "2026-05-05T23:41:28.375Z"
+    },
+    {
+      "schema_version": "openpatch.bridge_event.v1",
+      "type": "archive_base64",
+      "detail": {
+        "project": "webai-transfer",
+        "round_id": "round-v6-001",
+        "status": "dry_run_planned",
+        "file_sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
+        "repo_alias": "example-dry-run-archive",
+        "key_alias": "example-gh-token-env",
+        "dry_run": true
+      },
+      "created_at": "2026-05-05T23:41:28.576Z"
+    },
+    {
+      "schema_version": "openpatch.bridge_event.v1",
+      "type": "queue_enqueued",
+      "detail": {
+        "project": "webai-transfer",
+        "round_id": "round-v6-002",
+        "idempotency_key": "webai-transfer-round-v6-002-abc"
+      },
+      "created_at": "2026-05-05T23:41:28.794Z"
+    },
+    {
+      "schema_version": "openpatch.bridge_event.v1",
+      "type": "queue_claimed",
+      "detail": {
+        "project": "webai-transfer",
+        "round_id": "round-v6-002",
+        "idempotency_key": "webai-transfer-round-v6-002-abc"
+      },
+      "created_at": "2026-05-05T23:41:28.882Z"
+    },
+    {
+      "schema_version": "openpatch.bridge_event.v1",
+      "type": "queue_retry_requested",
+      "detail": {
+        "project": "webai-transfer",
+        "round_id": "round-v6-002",
+        "idempotency_key": ""
+      },
+      "created_at": "2026-05-05T23:41:28.971Z"
+    }
+  ]
+}

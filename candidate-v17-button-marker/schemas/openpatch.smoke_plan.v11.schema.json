@@ -1,0 +1,14 @@
+{
+  "schema_version": "openpatch.smoke_plan.v11.schema",
+  "type": "object",
+  "required": ["ok", "schema_version", "project", "target", "steps", "stop_conditions"],
+  "properties": {
+    "ok": { "type": "boolean" },
+    "schema_version": { "const": "openpatch.smoke_plan.v11" },
+    "project": { "type": "string" },
+    "target": { "type": "string" },
+    "steps": { "type": "array" },
+    "stop_conditions": { "type": "array" }
+  },
+  "additionalProperties": true
+}
