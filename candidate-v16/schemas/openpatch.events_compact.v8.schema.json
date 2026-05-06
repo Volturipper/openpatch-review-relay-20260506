@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.events_compact.v8.schema.json",
+  "title": "OpenPatch Events Compact Result v8",
+  "type": "object",
+  "required": ["ok", "schema_version", "before", "after", "max_events"],
+  "properties": {
+    "ok": { "const": true },
+    "schema_version": { "const": "openpatch.events_compact.v8" },
+    "before": { "type": "number" },
+    "after": { "type": "number" },
+    "max_events": { "type": "number" },
+    "compacted_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}

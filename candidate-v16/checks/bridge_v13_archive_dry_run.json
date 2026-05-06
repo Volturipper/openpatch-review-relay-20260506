@@ -1,0 +1,92 @@
+{
+  "ok": true,
+  "status": "dry_run_planned",
+  "mode": "bridge_archive_base64",
+  "project": "openpatch-smoke",
+  "round_id": "v13-smoke",
+  "file_sha256": "b5a2c96250612366ea272ffac6d9744aaf4b45aacd96aa7cfcb931ee3b558259",
+  "repo_alias": "",
+  "key_alias": "",
+  "paths": {
+    "archive_path": "rounds/openpatch-smoke/2026/05/06/v13-smoke/webai-roundpack.zip",
+    "manifest_path": "rounds/openpatch-smoke/2026/05/06/v13-smoke/archive_manifest.json",
+    "receipt_path": "rounds/openpatch-smoke/2026/05/06/v13-smoke/upload_receipt.json",
+    "latest_path": "index/latest/openpatch-smoke.json"
+  },
+  "github": {
+    "owner": "",
+    "repo": "",
+    "branch": "webai-archive",
+    "archive_path": "rounds/openpatch-smoke/2026/05/06/v13-smoke/webai-roundpack.zip",
+    "manifest_path": "rounds/openpatch-smoke/2026/05/06/v13-smoke/archive_manifest.json",
+    "receipt_path": "rounds/openpatch-smoke/2026/05/06/v13-smoke/upload_receipt.json",
+    "latest_path": "index/latest/openpatch-smoke.json",
+    "dry_run": true
+  },
+  "commit_sha": "",
+  "receipt": {
+    "schema_version": "openpatch.upload_receipt.v7",
+    "status": "dry_run_planned",
+    "archive_only": true,
+    "allow_execution": false,
+    "project": "openpatch-smoke",
+    "round_id": "v13-smoke",
+    "file_name": "webai-roundpack.zip",
+    "file_sha256": "b5a2c96250612366ea272ffac6d9744aaf4b45aacd96aa7cfcb931ee3b558259",
+    "size_bytes": 5,
+    "route_context": {
+      "project": "openpatch-smoke",
+      "repo_alias": "",
+      "key_alias": "",
+      "archive_root": "rounds",
+      "index_root": "index",
+      "route_profile": "manual"
+    },
+    "github": {
+      "owner": "",
+      "repo": "",
+      "branch": "webai-archive",
+      "archive_path": "rounds/openpatch-smoke/2026/05/06/v13-smoke/webai-roundpack.zip",
+      "manifest_path": "rounds/openpatch-smoke/2026/05/06/v13-smoke/archive_manifest.json",
+      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v13-smoke/upload_receipt.json",
+      "latest_path": "index/latest/openpatch-smoke.json",
+      "dry_run": true
+    },
+    "created_at": "2026-05-06T02:44:08.974Z",
+    "next_actions": [
+      "read_latest",
+      "fetch_roundpack",
+      "read_receipt",
+      "continue_agent_workflow"
+    ]
+  },
+  "latest": {
+    "schema_version": "openpatch.latest.v7",
+    "project": "openpatch-smoke",
+    "latest_round": "v13-smoke",
+    "status": "dry_run_planned",
+    "archive_only": true,
+    "allow_execution": false,
+    "latest": {
+      "round_id": "v13-smoke",
+      "project": "openpatch-smoke",
+      "status": "dry_run_planned",
+      "file_name": "webai-roundpack.zip",
+      "file_sha256": "b5a2c96250612366ea272ffac6d9744aaf4b45aacd96aa7cfcb931ee3b558259",
+      "size_bytes": 5,
+      "archive_path": "rounds/openpatch-smoke/2026/05/06/v13-smoke/webai-roundpack.zip",
+      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v13-smoke/upload_receipt.json",
+      "created_at": "2026-05-06T02:44:08.974Z"
+    },
+    "recent_rounds": [],
+    "codex_should_read": [
+      "upload_receipt.json",
+      "archive_manifest.json",
+      "NEXT_FOR_CODEX.md",
+      "ROUND_SUMMARY.md"
+    ],
+    "next_actor": "codex_or_reviewer",
+    "updated_at": "2026-05-06T02:44:08.974Z"
+  },
+  "duplicate": null
+}

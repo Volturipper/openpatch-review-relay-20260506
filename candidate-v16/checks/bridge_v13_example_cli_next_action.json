@@ -1,0 +1,50 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.agent_next_action.v13",
+  "project": "webai-transfer",
+  "target": "bridge-only",
+  "go_no_go": "go_with_warnings",
+  "recommended_agent_action": "request_roundpack_then_archive",
+  "actions": [
+    {
+      "priority": 10,
+      "action": "request_roundpack_then_archive",
+      "command": "node local-bridge/openpatch-ledger-cli.mjs auto-continue-plan --project webai-transfer --message-count 12 --force",
+      "reason": "no latest round for this project"
+    },
+    {
+      "priority": 20,
+      "action": "check_readiness",
+      "command": "node local-bridge/openpatch-ledger-cli.mjs readiness --project webai-transfer --target bridge-only",
+      "reason": "current go/no-go is go_with_warnings"
+    },
+    {
+      "priority": 30,
+      "action": "inspect_queue",
+      "command": "node local-bridge/openpatch-ledger-cli.mjs queue-stats --project webai-transfer",
+      "reason": "claim/retry/release tasks if needed"
+    }
+  ],
+  "compact": {
+    "ok": true,
+    "schema_version": "openpatch.compact_summary.v1",
+    "project": "webai-transfer",
+    "latest_round": "",
+    "status": "missing",
+    "archive_only": true,
+    "allow_execution": false,
+    "file_sha256": "",
+    "queue_counts": {},
+    "recommended_agent_action": "request_or_archive_roundpack",
+    "codex_next": "node local-bridge/openpatch-ledger-cli.mjs auto-continue-plan --project webai-transfer --message-count 0 --force",
+    "updated_at": "2026-05-06T02:44:58.671Z"
+  },
+  "readiness_compact": {
+    "latest_round": "",
+    "latest_status": "missing",
+    "queue_counts": {},
+    "instance_count": 0,
+    "github_rate_last_status": 0
+  },
+  "generated_at": "2026-05-06T02:44:58.676Z"
+}

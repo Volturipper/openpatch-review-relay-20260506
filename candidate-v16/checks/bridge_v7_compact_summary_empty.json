@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.compact_summary.v1",
+  "project": "webai-transfer",
+  "latest_round": "",
+  "status": "missing",
+  "archive_only": true,
+  "allow_execution": false,
+  "file_sha256": "",
+  "queue_counts": {},
+  "recommended_agent_action": "request_or_archive_roundpack",
+  "codex_next": "node local-bridge/openpatch-ledger-cli.mjs auto-continue-plan --project webai-transfer --message-count 0 --force",
+  "updated_at": "2026-05-06T00:13:26.562Z"
+}

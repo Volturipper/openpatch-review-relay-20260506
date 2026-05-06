@@ -1,0 +1,6 @@
+{
+  "schema": "openpatch.agent_button.v10",
+  "description": "Compact DOM marker for OpenPatch Agent Gateway buttons. v10 adds routeVisualHint for route map/debug integration.",
+  "required_fields": ["schemaVersion", "status", "mode", "buttonId", "pageSessionId", "recommendedAgentAction", "routeContext"],
+  "new_fields": ["routeVisualHint"]
+}

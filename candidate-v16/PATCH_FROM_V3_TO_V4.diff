@@ -1,0 +1,1598 @@
+diff -ruN /mnt/data/openpatch_v3_candidate/README.md /mnt/data/openpatch_v4_candidate/README.md
+--- /mnt/data/openpatch_v3_candidate/README.md	2026-05-05 23:26:44.631445066 +0000
++++ /mnt/data/openpatch_v4_candidate/README.md	2026-05-05 23:32:14.267071330 +0000
+@@ -1,31 +1,38 @@
+-# OPENPATCH Agent Gateway v3 Candidate
++# OPENPATCH Agent Gateway v4 Candidate
+ 
+-This package is a candidate iteration for a private/local OPENPATCH fork used as a multi-agent artifact gateway.
++This package is a candidate iteration for a private/local OPENPATCH fork used as a multi-agent artifact gateway across many ChatGPT/Web AI pages, browser profiles, key aliases, and GitHub archive repositories.
+ 
+-## What changed in v3
++## What changed in v4
+ 
+-✅ Added archive-only RoundPack upload path in the extension.
+-✅ Added `upload_receipt.json`, `archive_manifest.json`, and `index/latest/<project>.json` generation.
+-✅ Added route context fields for project/round/repo/key aliases.
+-✅ Added page event trigger API so Auto Continue or another page script can trigger an existing button by `buttonId` or file name.
+-✅ Added local bridge MVP skeleton for local status/receipt management.
+-✅ Added new unit tests for RoundPack helper functions and archive upload flow.
+-✅ Existing patch upload flow is preserved for compatibility.
++✅ Local Bridge upgraded with route resolution, latest, queue, SHA duplicate index, and richer receipts.  
++✅ Added `openpatch-ledger-cli.mjs` so Codex/agents can query `health/routes/status/latest/queue/sha-index/resolve/enqueue`.  
++✅ Extension manifest now allows local bridge hosts (`127.0.0.1` / `localhost`).  
++✅ Extension archive upload posts sanitized receipt to local bridge after GitHub upload.  
++✅ Page event API adds route resolution and bridge status checks.  
++✅ Agent marker schema version moved to `openpatch.agent_button.v4`.  
++✅ Added validate-roundpack GitHub workflow draft for archive-only validation.  
++✅ Self-tests cover npm check, bridge smoke test, route resolver, queue, latest, sha-index, duplicate SHA.
+ 
+ ## Current decision
+ 
+ ⚠️ Candidate package for review and further iteration.
+ 
+-It is not a final install/release package yet. The next iterations should connect route profiles more deeply, add queue/retry, and add local bridge key-alias integration.
++This is not a final multi-browser production install package. The next high-value iteration is moving GitHub upload execution from the extension into the Local Bridge, so multiple key aliases and repo aliases can be managed locally instead of inside browser UI storage.
+ 
+ ## Default use
+ 
+-Use this as an implementation candidate for:
+-
+ ```text
+ Web AI files / RoundPack attachments
+ → OPENPATCH button marker + event API
+-→ archive-only upload to GitHub ledger repo
+-→ receipt/latest/result feedback
+-→ Codex/agent reads status and continues
++→ route profile resolver
++→ archive-only upload / receipt
++→ Local Bridge latest + sha-index + queue
++→ Codex/agent queries status and continues
+ ```
++
++## Fast entry points
++
++- `docs/09_V4_IMPLEMENTATION_REPORT.md`
++- `docs/10_V4_AGENT_API_QUICK_REFERENCE.md`
++- `checks/SELF_TEST_REPORT_V4.md`
++- `task_cards/FOR_CODEX_MINIMAL_V4.md`
+diff -ruN /mnt/data/openpatch_v3_candidate/audit_decision.json /mnt/data/openpatch_v4_candidate/audit_decision.json
+--- /mnt/data/openpatch_v3_candidate/audit_decision.json	2026-05-05 23:27:05.387698513 +0000
++++ /mnt/data/openpatch_v4_candidate/audit_decision.json	2026-05-05 23:32:14.280923004 +0000
+@@ -1,29 +1,32 @@
+ {
+-  "schema_version": "openpatch.agent_gateway.audit_decision.v1",
+-  "package": "openpatch_agent_gateway_v3_candidate",
++  "schema_version": "openpatch.agent_gateway.audit_decision.v2",
++  "package": "openpatch_agent_gateway_v4_candidate",
+   "decision": "candidate_for_review_and_iteration",
+   "role": "web_ai_candidate_developer",
+   "scope": [
+-    "agent marker and page API",
+-    "archive-only RoundPack upload mode",
+-    "GitHub receipt/latest outputs",
+-    "local bridge MVP skeleton",
+-    "self-test documentation"
++    "multi-context route resolver",
++    "local bridge latest/status/sha-index/queue",
++    "Codex CLI query entry",
++    "extension-to-bridge receipt posting",
++    "page API bridge status and route resolution",
++    "archive-only validate workflow draft"
+   ],
+   "checklist": {
+-    "implemented_v3_features": "✅",
++    "implemented_v4_features": "✅",
+     "npm_check_passed": "✅",
+     "local_bridge_smoke_passed": "✅",
++    "duplicate_sha_smoke_passed": "✅",
++    "codex_cli_added": "✅",
+     "real_browser_tested": "⬜",
+     "real_github_upload_tested": "⬜",
+-    "multi_browser_queue_complete": "⬜"
++    "bridge_side_key_alias_upload_proxy": "⬜"
+   },
+   "not_final_release": true,
+   "next_tasks": [
+-    "route profile resolver",
+-    "upload queue and retry",
+-    "duplicate SHA index",
+-    "Codex CLI",
+-    "validate-roundpack workflow"
++    "bridge-side GitHub upload proxy using key_alias and repo_alias",
++    "real Chrome Dev profile smoke test",
++    "real GitHub sandbox archive upload test",
++    "Auto Continue RoundPack scheduler integration",
++    "multi-browser queue stress test"
+   ]
+ }
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/SELF_TEST_REPORT_V4.md /mnt/data/openpatch_v4_candidate/checks/SELF_TEST_REPORT_V4.md
+--- /mnt/data/openpatch_v3_candidate/checks/SELF_TEST_REPORT_V4.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/SELF_TEST_REPORT_V4.md	2026-05-05 23:31:47.382911391 +0000
+@@ -0,0 +1,55 @@
++# SELF_TEST_REPORT_V4
++
++## Scope
++
++Local sandbox only. No real GitHub token, no real browser profile, no real repository upload, no production service.
++
++## Commands Run
++
++✅ `cd openpatch-main && npm run check`  
++✅ `node --check local-bridge/openpatch-local-bridge.mjs`  
++✅ `node --check local-bridge/openpatch-ledger-cli.mjs`  
++✅ Start Local Bridge on `127.0.0.1:17874` with project-local temp root  
++✅ `GET /health`  
++✅ CLI `health`  
++✅ CLI `resolve --url ... --title ...`  
++✅ `POST /queue/enqueue`  
++✅ `GET /queue/status`  
++✅ `POST /receipts`  
++✅ `GET /latest?project=webai-transfer`  
++✅ `GET /sha-index`  
++✅ duplicate SHA receipt smoke test
++
++## Results
++
++✅ `npm run check`: pass, 14/14 tests pass, manifest parse ok.  
++✅ Local Bridge syntax check: pass.  
++✅ Ledger CLI syntax check: pass.  
++✅ Local Bridge smoke test: pass.  
++✅ Route resolver selected `webai-transfer-designer-chat` for ChatGPT URL/title hint.  
++✅ Queue accepted task and returned idempotency key.  
++✅ Receipt wrote latest and sha-index.  
++✅ Duplicate SHA returns `received_duplicate_sha` with first/latest round ids.
++
++## Evidence Files
++
++- `checks/npm_run_check_v4.log`
++- `checks/local_bridge_node_check_v4.log`
++- `checks/ledger_cli_node_check_v4.log`
++- `checks/bridge_v4_health.json`
++- `checks/bridge_v4_cli_health.json`
++- `checks/bridge_v4_route_resolve.json`
++- `checks/bridge_v4_queue_enqueue.json`
++- `checks/bridge_v4_queue_status.json`
++- `checks/bridge_v4_receipt_post.json`
++- `checks/bridge_v4_latest.json`
++- `checks/bridge_v4_sha_index.json`
++- `checks/bridge_v4_dup_receipt_2.json`
++
++## Not Tested
++
++⬜ Real Chrome/Chrome Dev extension installation.  
++⬜ Real ChatGPT DOM attachment upload.  
++⬜ Real GitHub Contents API upload.  
++⬜ Multi-browser live concurrent upload.  
++⬜ Bridge-side key alias upload proxy.
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/bridge_v4_cli_health.json /mnt/data/openpatch_v4_candidate/checks/bridge_v4_cli_health.json
+--- /mnt/data/openpatch_v3_candidate/checks/bridge_v4_cli_health.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/bridge_v4_cli_health.json	2026-05-05 23:31:09.976003215 +0000
+@@ -0,0 +1,15 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_health.v2",
++  "service": "openpatch-local-bridge",
++  "root": "/mnt/data/openpatch_v4_bridge_test",
++  "capabilities": [
++    "routes",
++    "resolve_route",
++    "receipts",
++    "latest",
++    "sha_index",
++    "queue"
++  ],
++  "time": "2026-05-05T23:31:09.912Z"
++}
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/bridge_v4_dup_receipt_1.json /mnt/data/openpatch_v4_candidate/checks/bridge_v4_dup_receipt_1.json
+--- /mnt/data/openpatch_v3_candidate/checks/bridge_v4_dup_receipt_1.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/bridge_v4_dup_receipt_1.json	2026-05-05 23:31:29.469381715 +0000
+@@ -0,0 +1,38 @@
++{
++  "ok": true,
++  "status": "received",
++  "receipt": {
++    "project": "webai-transfer",
++    "round_id": "r001",
++    "receipt_path": "/mnt/data/openpatch_v4_bridge_test_dup/receipts/webai-transfer/r001.json",
++    "file_sha256": "same",
++    "received_at": "2026-05-05T23:31:29.394Z"
++  },
++  "latest": {
++    "schema_version": "openpatch.bridge_latest.v1",
++    "project": "webai-transfer",
++    "latest_round": "r001",
++    "status": "uploaded",
++    "latest": {
++      "project": "webai-transfer",
++      "round_id": "r001",
++      "status": "uploaded",
++      "file_sha256": "same",
++      "receipt_path": "/mnt/data/openpatch_v4_bridge_test_dup/receipts/webai-transfer/r001.json",
++      "received_at": "2026-05-05T23:31:29.394Z"
++    },
++    "recent_rounds": [
++      {
++        "project": "webai-transfer",
++        "round_id": "r001",
++        "status": "uploaded",
++        "file_sha256": "same",
++        "receipt_path": "/mnt/data/openpatch_v4_bridge_test_dup/receipts/webai-transfer/r001.json",
++        "received_at": "2026-05-05T23:31:29.394Z"
++      }
++    ],
++    "codex_next_query": "/latest?project=webai-transfer",
++    "updated_at": "2026-05-05T23:31:29.395Z"
++  },
++  "duplicate": null
++}
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/bridge_v4_dup_receipt_2.json /mnt/data/openpatch_v4_candidate/checks/bridge_v4_dup_receipt_2.json
+--- /mnt/data/openpatch_v3_candidate/checks/bridge_v4_dup_receipt_2.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/bridge_v4_dup_receipt_2.json	2026-05-05 23:31:29.669509021 +0000
+@@ -0,0 +1,52 @@
++{
++  "ok": true,
++  "status": "received_duplicate_sha",
++  "receipt": {
++    "project": "webai-transfer",
++    "round_id": "r002",
++    "receipt_path": "/mnt/data/openpatch_v4_bridge_test_dup/receipts/webai-transfer/r002.json",
++    "file_sha256": "same",
++    "received_at": "2026-05-05T23:31:29.584Z"
++  },
++  "latest": {
++    "schema_version": "openpatch.bridge_latest.v1",
++    "project": "webai-transfer",
++    "latest_round": "r002",
++    "status": "uploaded",
++    "latest": {
++      "project": "webai-transfer",
++      "round_id": "r002",
++      "status": "uploaded",
++      "file_sha256": "same",
++      "receipt_path": "/mnt/data/openpatch_v4_bridge_test_dup/receipts/webai-transfer/r002.json",
++      "received_at": "2026-05-05T23:31:29.584Z"
++    },
++    "recent_rounds": [
++      {
++        "project": "webai-transfer",
++        "round_id": "r002",
++        "status": "uploaded",
++        "file_sha256": "same",
++        "receipt_path": "/mnt/data/openpatch_v4_bridge_test_dup/receipts/webai-transfer/r002.json",
++        "received_at": "2026-05-05T23:31:29.584Z"
++      },
++      {
++        "project": "webai-transfer",
++        "round_id": "r001",
++        "status": "uploaded",
++        "file_sha256": "same",
++        "receipt_path": "/mnt/data/openpatch_v4_bridge_test_dup/receipts/webai-transfer/r001.json",
++        "received_at": "2026-05-05T23:31:29.394Z"
++      }
++    ],
++    "codex_next_query": "/latest?project=webai-transfer",
++    "updated_at": "2026-05-05T23:31:29.585Z"
++  },
++  "duplicate": {
++    "project": "webai-transfer",
++    "file_sha256": "same",
++    "first_round_id": "r001",
++    "latest_round_id": "r002",
++    "count": 2
++  }
++}
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/bridge_v4_dup_server.log /mnt/data/openpatch_v4_candidate/checks/bridge_v4_dup_server.log
+--- /mnt/data/openpatch_v3_candidate/checks/bridge_v4_dup_server.log	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/bridge_v4_dup_server.log	2026-05-05 23:31:29.084939711 +0000
+@@ -0,0 +1 @@
++{"ok":true,"service":"openpatch-local-bridge","port":17875,"root":"/mnt/data/openpatch_v4_bridge_test_dup"}
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/bridge_v4_health.json /mnt/data/openpatch_v4_candidate/checks/bridge_v4_health.json
+--- /mnt/data/openpatch_v3_candidate/checks/bridge_v4_health.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/bridge_v4_health.json	2026-05-05 23:31:09.677901088 +0000
+@@ -0,0 +1,15 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_health.v2",
++  "service": "openpatch-local-bridge",
++  "root": "/mnt/data/openpatch_v4_bridge_test",
++  "capabilities": [
++    "routes",
++    "resolve_route",
++    "receipts",
++    "latest",
++    "sha_index",
++    "queue"
++  ],
++  "time": "2026-05-05T23:31:09.676Z"
++}
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/bridge_v4_latest.json /mnt/data/openpatch_v4_candidate/checks/bridge_v4_latest.json
+--- /mnt/data/openpatch_v3_candidate/checks/bridge_v4_latest.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/bridge_v4_latest.json	2026-05-05 23:31:11.098016422 +0000
+@@ -0,0 +1,26 @@
++{
++  "schema_version": "openpatch.bridge_latest.v1",
++  "project": "webai-transfer",
++  "latest_round": "r001",
++  "status": "uploaded",
++  "latest": {
++    "project": "webai-transfer",
++    "round_id": "r001",
++    "status": "uploaded",
++    "file_sha256": "abc123",
++    "receipt_path": "/mnt/data/openpatch_v4_bridge_test/receipts/webai-transfer/r001.json",
++    "received_at": "2026-05-05T23:31:10.997Z"
++  },
++  "recent_rounds": [
++    {
++      "project": "webai-transfer",
++      "round_id": "r001",
++      "status": "uploaded",
++      "file_sha256": "abc123",
++      "receipt_path": "/mnt/data/openpatch_v4_bridge_test/receipts/webai-transfer/r001.json",
++      "received_at": "2026-05-05T23:31:10.997Z"
++    }
++  ],
++  "codex_next_query": "/latest?project=webai-transfer",
++  "updated_at": "2026-05-05T23:31:10.998Z"
++}
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/bridge_v4_queue_enqueue.json /mnt/data/openpatch_v4_candidate/checks/bridge_v4_queue_enqueue.json
+--- /mnt/data/openpatch_v3_candidate/checks/bridge_v4_queue_enqueue.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/bridge_v4_queue_enqueue.json	2026-05-05 23:31:10.778074959 +0000
+@@ -0,0 +1,16 @@
++{
++  "ok": true,
++  "status": "queued",
++  "task": {
++    "schema_version": "openpatch.bridge_queue_item.v1",
++    "idempotency_key": "webai-transfer-r001-abc123",
++    "project": "webai-transfer",
++    "round_id": "r001",
++    "file_sha256": "abc123",
++    "status": "queued",
++    "action": "archive_roundpack",
++    "route_context": {},
++    "created_at": "2026-05-05T23:31:10.771Z",
++    "updated_at": "2026-05-05T23:31:10.771Z"
++  }
++}
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/bridge_v4_queue_status.json /mnt/data/openpatch_v4_candidate/checks/bridge_v4_queue_status.json
+--- /mnt/data/openpatch_v3_candidate/checks/bridge_v4_queue_status.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/bridge_v4_queue_status.json	2026-05-05 23:31:10.893023728 +0000
+@@ -0,0 +1,18 @@
++{
++  "schema_version": "openpatch.bridge_queue.v1",
++  "items": [
++    {
++      "schema_version": "openpatch.bridge_queue_item.v1",
++      "idempotency_key": "webai-transfer-r001-abc123",
++      "project": "webai-transfer",
++      "round_id": "r001",
++      "file_sha256": "abc123",
++      "status": "queued",
++      "action": "archive_roundpack",
++      "route_context": {},
++      "created_at": "2026-05-05T23:31:10.771Z",
++      "updated_at": "2026-05-05T23:31:10.771Z"
++    }
++  ],
++  "updated_at": "2026-05-05T23:31:10.771Z"
++}
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/bridge_v4_receipt_post.json /mnt/data/openpatch_v4_candidate/checks/bridge_v4_receipt_post.json
+--- /mnt/data/openpatch_v3_candidate/checks/bridge_v4_receipt_post.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/bridge_v4_receipt_post.json	2026-05-05 23:31:11.004640200 +0000
+@@ -0,0 +1,38 @@
++{
++  "ok": true,
++  "status": "received",
++  "receipt": {
++    "project": "webai-transfer",
++    "round_id": "r001",
++    "receipt_path": "/mnt/data/openpatch_v4_bridge_test/receipts/webai-transfer/r001.json",
++    "file_sha256": "abc123",
++    "received_at": "2026-05-05T23:31:10.997Z"
++  },
++  "latest": {
++    "schema_version": "openpatch.bridge_latest.v1",
++    "project": "webai-transfer",
++    "latest_round": "r001",
++    "status": "uploaded",
++    "latest": {
++      "project": "webai-transfer",
++      "round_id": "r001",
++      "status": "uploaded",
++      "file_sha256": "abc123",
++      "receipt_path": "/mnt/data/openpatch_v4_bridge_test/receipts/webai-transfer/r001.json",
++      "received_at": "2026-05-05T23:31:10.997Z"
++    },
++    "recent_rounds": [
++      {
++        "project": "webai-transfer",
++        "round_id": "r001",
++        "status": "uploaded",
++        "file_sha256": "abc123",
++        "receipt_path": "/mnt/data/openpatch_v4_bridge_test/receipts/webai-transfer/r001.json",
++        "received_at": "2026-05-05T23:31:10.997Z"
++      }
++    ],
++    "codex_next_query": "/latest?project=webai-transfer",
++    "updated_at": "2026-05-05T23:31:10.998Z"
++  },
++  "duplicate": null
++}
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/bridge_v4_route_resolve.json /mnt/data/openpatch_v4_candidate/checks/bridge_v4_route_resolve.json
+--- /mnt/data/openpatch_v3_candidate/checks/bridge_v4_route_resolve.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/bridge_v4_route_resolve.json	2026-05-05 23:31:10.572906303 +0000
+@@ -0,0 +1,16 @@
++{
++  "ok": true,
++  "status": "resolved",
++  "route_context": {
++    "schema_version": "openpatch.route_context.v2",
++    "route_profile": "webai-transfer-designer-chat",
++    "project": "webai-transfer",
++    "repo_alias": "github-webai-archive",
++    "key_alias": "gh-webai-archive-fgpat",
++    "archive_root": "rounds",
++    "index_root": "index",
++    "mode": "roundpack_archive",
++    "confidence": 85,
++    "resolved_at": "2026-05-05T23:31:10.470Z"
++  }
++}
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/bridge_v4_server.log /mnt/data/openpatch_v4_candidate/checks/bridge_v4_server.log
+--- /mnt/data/openpatch_v3_candidate/checks/bridge_v4_server.log	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/bridge_v4_server.log	2026-05-05 23:31:09.567192850 +0000
+@@ -0,0 +1 @@
++{"ok":true,"service":"openpatch-local-bridge","port":17874,"root":"/mnt/data/openpatch_v4_bridge_test"}
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/bridge_v4_server.pid /mnt/data/openpatch_v4_candidate/checks/bridge_v4_server.pid
+--- /mnt/data/openpatch_v3_candidate/checks/bridge_v4_server.pid	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/bridge_v4_server.pid	2026-05-05 23:31:09.186173462 +0000
+@@ -0,0 +1 @@
++7095
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/bridge_v4_sha_index.json /mnt/data/openpatch_v4_candidate/checks/bridge_v4_sha_index.json
+--- /mnt/data/openpatch_v3_candidate/checks/bridge_v4_sha_index.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/bridge_v4_sha_index.json	2026-05-05 23:31:11.190205537 +0000
+@@ -0,0 +1,15 @@
++{
++  "schema_version": "openpatch.sha_index.v1",
++  "entries": [
++    {
++      "project": "webai-transfer",
++      "file_sha256": "abc123",
++      "first_round_id": "r001",
++      "latest_round_id": "r001",
++      "count": 1,
++      "created_at": "2026-05-05T23:31:10.998Z",
++      "updated_at": "2026-05-05T23:31:10.998Z"
++    }
++  ],
++  "updated_at": "2026-05-05T23:31:10.998Z"
++}
+diff -ruN /mnt/data/openpatch_v3_candidate/checks/npm_run_check_v4.log /mnt/data/openpatch_v4_candidate/checks/npm_run_check_v4.log
+--- /mnt/data/openpatch_v3_candidate/checks/npm_run_check_v4.log	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/checks/npm_run_check_v4.log	2026-05-05 23:31:46.371076573 +0000
+@@ -0,0 +1,99 @@
++
++> openpatch@0.2.0 check
++> node --test && node --check src/*.js && node -e "JSON.parse(require('fs').readFileSync('manifest.json','utf8')); console.log('manifest ok')"
++
++TAP version 13
++# Subtest: encodeGitHubPath preserves path separators and escapes segments
++ok 1 - encodeGitHubPath preserves path separators and escapes segments
++  ---
++  duration_ms: 0.813069
++  type: 'test'
++  ...
++# Subtest: buildContentsApiUrl encodes repository and path
++ok 2 - buildContentsApiUrl encodes repository and path
++  ---
++  duration_ms: 0.177631
++  type: 'test'
++  ...
++# Subtest: uploadPatchText uploads metadata first then patch to target branch
++ok 3 - uploadPatchText uploads metadata first then patch to target branch
++  ---
++  duration_ms: 5.471943
++  type: 'test'
++  ...
++# Subtest: uploadPatchText resolves missing owner from GitHub token user
++ok 4 - uploadPatchText resolves missing owner from GitHub token user
++  ---
++  duration_ms: 0.614816
++  type: 'test'
++  ...
++# Subtest: uploadPatchFile uploads zip as binary content
++ok 5 - uploadPatchFile uploads zip as binary content
++  ---
++  duration_ms: 0.49677
++  type: 'test'
++  ...
++# Subtest: uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++ok 6 - uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++  ---
++  duration_ms: 8.706919
++  type: 'test'
++  ...
++# Subtest: parseRepositoryInput accepts owner/repo and GitHub URLs
++ok 7 - parseRepositoryInput accepts owner/repo and GitHub URLs
++  ---
++  duration_ms: 77.132251
++  type: 'test'
++  ...
++# Subtest: looksLikePatchDownloadText detects loose Chinese diff labels
++ok 8 - looksLikePatchDownloadText detects loose Chinese diff labels
++  ---
++  duration_ms: 0.786702
++  type: 'test'
++  ...
++# Subtest: buildPatchUploadPath creates safe unique paths
++ok 9 - buildPatchUploadPath creates safe unique paths
++  ---
++  duration_ms: 1.717824
++  type: 'test'
++  ...
++# Subtest: zip upload paths and metadata paths are supported
++ok 10 - zip upload paths and metadata paths are supported
++  ---
++  duration_ms: 0.433261
++  type: 'test'
++  ...
++# Subtest: buildDefaultCommitTitle distinguishes zip packages
++ok 11 - buildDefaultCommitTitle distinguishes zip packages
++  ---
++  duration_ms: 0.187554
++  type: 'test'
++  ...
++# Subtest: encodeBase64Bytes encodes binary data
++ok 12 - encodeBase64Bytes encodes binary data
++  ---
++  duration_ms: 0.206794
++  type: 'test'
++  ...
++# Subtest: sanitizePatchName keeps fallback usable
++ok 13 - sanitizePatchName keeps fallback usable
++  ---
++  duration_ms: 0.114174
++  type: 'test'
++  ...
++# Subtest: roundpack helpers detect archive artifacts and build safe paths
++ok 14 - roundpack helpers detect archive artifacts and build safe paths
++  ---
++  duration_ms: 0.875329
++  type: 'test'
++  ...
++1..14
++# tests 14
++# suites 0
++# pass 14
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 691.72073
++manifest ok
+diff -ruN /mnt/data/openpatch_v3_candidate/docs/09_V4_IMPLEMENTATION_REPORT.md /mnt/data/openpatch_v4_candidate/docs/09_V4_IMPLEMENTATION_REPORT.md
+--- /mnt/data/openpatch_v3_candidate/docs/09_V4_IMPLEMENTATION_REPORT.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/docs/09_V4_IMPLEMENTATION_REPORT.md	2026-05-05 23:30:33.174559850 +0000
+@@ -0,0 +1,33 @@
++# OPENPATCH Agent Gateway v4 Implementation Report
++
++## 本轮目标
++
++把 v3 从“可上传/可归档”推进到“多页面、多浏览器、多 key、多仓库场景下可被 agent 查询、调度、去重和恢复”的候选版。
++
++## 完成项
++
++✅ Local Bridge 升级到 v2 health/capabilities。  
++✅ 新增 `/resolve-route`，根据 route profiles 从页面 URL/title/project hint 解析 project/repo_alias/key_alias。  
++✅ 新增 `/latest?project=...`，Codex 可直接查询最新 round。  
++✅ 新增 `/sha-index`，按 project + file_sha256 追踪重复文件。  
++✅ 新增 `/queue/enqueue`、`/queue/status`、`/queue/complete`、`/queue/fail`，为多页面并发上传预留队列。  
++✅ `/receipts` 升级：写 receipt、latest、status、sha_index，并返回 duplicate hint。  
++✅ 新增 `openpatch-ledger-cli.mjs`，Codex 可查 health/routes/status/latest/queue/sha-index/resolve/enqueue。  
++✅ 插件 manifest 增加 localhost/127.0.0.1 bridge host permissions。  
++✅ 插件上传 RoundPack 后会向本地 bridge 回传 receipt；bridge 失败不阻断 GitHub 上传结果。  
++✅ 页面事件 API 新增 `openpatch:api:resolve-route` 与 `openpatch:api:get-bridge-status`。  
++✅ Marker 升级为 `openpatch.agent_button.v4`，runtime status 增加 bridgeStatus。  
++
++## 未完成项
++
++⬜ 真实浏览器多实例压力测试。  
++⬜ 真实 GitHub fine-grained token 上传测试。  
++⬜ bridge 使用本地 key_alias 代替插件 token 的完整上传代理。  
++⬜ validate-roundpack workflow 真实运行。  
++⬜ 队列尚未真正承接上传执行，只是 agent 调度/状态层。  
++
++## 决策建议
++
++✅ 可以进入下一轮 v5：Local Bridge upload proxy（本地 key_alias 管理 + GitHub 上传由 bridge 执行）。  
++⚠️ 当前 v4 仍保留插件内 GitHub token 上传路径；如果你准备把多个 API key 放本地环境，v5 应把上传执行逐步迁移到 bridge。  
++❌ 不建议把此候选直接当生产版多浏览器部署。  
+diff -ruN /mnt/data/openpatch_v3_candidate/docs/10_V4_AGENT_API_QUICK_REFERENCE.md /mnt/data/openpatch_v4_candidate/docs/10_V4_AGENT_API_QUICK_REFERENCE.md
+--- /mnt/data/openpatch_v3_candidate/docs/10_V4_AGENT_API_QUICK_REFERENCE.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/docs/10_V4_AGENT_API_QUICK_REFERENCE.md	2026-05-05 23:30:33.189943401 +0000
+@@ -0,0 +1,36 @@
++# Agent API Quick Reference v4
++
++## 页面事件 API
++
++- `openpatch:api:get-buttons` → `openpatch:api:buttons`
++- `openpatch:api:get-runtime-status` → `openpatch:api:runtime-status`
++- `openpatch:api:get-bridge-status` → `openpatch:api:bridge-status`
++- `openpatch:api:resolve-route` → `openpatch:api:resolve-route-result`
++- `openpatch:api:trigger-upload` → `openpatch:api:trigger-upload-result`
++
++## Local Bridge API
++
++- `GET /health`
++- `GET /routes`
++- `POST /resolve-route`
++- `GET /status`
++- `GET /latest?project=<project>`
++- `GET /sha-index`
++- `GET /queue/status`
++- `POST /queue/enqueue`
++- `POST /queue/complete`
++- `POST /queue/fail`
++- `POST /receipts`
++
++## Codex CLI
++
++```bash
++node local-bridge/openpatch-ledger-cli.mjs health
++node local-bridge/openpatch-ledger-cli.mjs latest --project webai-transfer
++node local-bridge/openpatch-ledger-cli.mjs resolve --url "https://chatgpt.com/c/..." --title "webai_transfer designer"
++node local-bridge/openpatch-ledger-cli.mjs queue
++```
++
++## 便利性原则
++
++Codex 可以直接查询、排队、解析路由、读取 latest、检查重复和回传 evidence。只有真实上传 key、切换真实 repo、merge/apply 等高影响动作需要 owner 明确确认。
+diff -ruN /mnt/data/openpatch_v3_candidate/github-workflows/validate-roundpack.yml /mnt/data/openpatch_v4_candidate/github-workflows/validate-roundpack.yml
+--- /mnt/data/openpatch_v3_candidate/github-workflows/validate-roundpack.yml	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/github-workflows/validate-roundpack.yml	2026-05-05 23:31:57.981188556 +0000
+@@ -0,0 +1,76 @@
++name: Validate OpenPatch RoundPack Archive
++
++on:
++  push:
++    branches:
++      - "**"
++    paths:
++      - "rounds/**/*.zip"
++      - "rounds/**/archive_manifest.json"
++      - "rounds/**/upload_receipt.json"
++      - "index/latest/*.json"
++
++permissions:
++  contents: read
++
++env:
++  MAX_ROUNDPACK_BYTES: "52428800"
++
++jobs:
++  validate-roundpack:
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v4
++      - name: Validate archive-only files
++        shell: bash
++        run: |
++          set -euo pipefail
++          mkdir -p validation-results
++          python3 - <<'PY'
++          import hashlib, json, os, pathlib, sys, zipfile
++          root = pathlib.Path('.')
++          problems = []
++          warnings = []
++          max_bytes = int(os.environ.get('MAX_ROUNDPACK_BYTES', '52428800'))
++          zips = sorted(root.glob('rounds/**/*.zip'))
++          for zp in zips:
++            if zp.stat().st_size > max_bytes:
++              problems.append(f'{zp}: too large: {zp.stat().st_size}')
++            try:
++              with zipfile.ZipFile(zp) as zf:
++                names = zf.namelist()
++                bad = [n for n in names if n.startswith('/') or '..' in pathlib.PurePosixPath(n).parts or n.startswith('.git/') or 'node_modules/' in n or 'browser-profile' in n.lower()]
++                if bad:
++                  problems.append(f'{zp}: unsafe entries: {bad[:10]}')
++                required = {'README.md', 'ROUND_SUMMARY.md', 'NEXT_FOR_CODEX.md', 'FILES_MANIFEST.json', 'SHA256SUMS.txt'}
++                missing = sorted(required - set(names))
++                if missing:
++                  warnings.append(f'{zp}: missing recommended entries: {missing}')
++            except zipfile.BadZipFile:
++              problems.append(f'{zp}: bad zip')
++          for manifest in root.glob('rounds/**/archive_manifest.json'):
++            try:
++              data = json.loads(manifest.read_text(encoding='utf-8'))
++              if data.get('allow_execution') is not False:
++                problems.append(f'{manifest}: allow_execution must be false')
++              if data.get('archive_only') is not True:
++                problems.append(f'{manifest}: archive_only must be true')
++            except Exception as exc:
++              problems.append(f'{manifest}: invalid json: {exc}')
++          result = {
++            'schema_version': 'openpatch.validate_roundpack.result.v1',
++            'passed': not problems,
++            'problems': problems,
++            'warnings': warnings,
++            'zip_count': len(zips),
++          }
++          pathlib.Path('validation-results/validate_result.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
++          print(json.dumps(result, indent=2))
++          if problems:
++            sys.exit(1)
++          PY
++      - uses: actions/upload-artifact@v4
++        if: always()
++        with:
++          name: validate-roundpack-result
++          path: validation-results/validate_result.json
+diff -ruN /mnt/data/openpatch_v3_candidate/local-bridge/openpatch-ledger-cli.mjs /mnt/data/openpatch_v4_candidate/local-bridge/openpatch-ledger-cli.mjs
+--- /mnt/data/openpatch_v3_candidate/local-bridge/openpatch-ledger-cli.mjs	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/local-bridge/openpatch-ledger-cli.mjs	2026-05-05 23:29:31.904101034 +0000
+@@ -0,0 +1,87 @@
++#!/usr/bin/env node
++const DEFAULT_BRIDGE_URL = process.env.OPENPATCH_BRIDGE_URL || "http://127.0.0.1:17873";
++
++function usage() {
++  console.log(`openpatch-ledger-cli
++
++Commands:
++  health
++  routes
++  status
++  latest --project <project>
++  queue
++  sha-index
++  resolve --url <page_url> [--title <title>] [--project <project>]
++  enqueue --project <project> --round <round_id> [--sha <sha256>]
++
++Env:
++  OPENPATCH_BRIDGE_URL=http://127.0.0.1:17873
++`);
++}
++
++function getArg(name, fallback = "") {
++  const index = process.argv.indexOf(name);
++  if (index < 0) return fallback;
++  return process.argv[index + 1] || fallback;
++}
++
++async function request(path, { method = "GET", body = null } = {}) {
++  const response = await fetch(`${DEFAULT_BRIDGE_URL}${path}`, {
++    method,
++    headers: body ? { "Content-Type": "application/json" } : {},
++    body: body ? JSON.stringify(body) : undefined
++  });
++  const text = await response.text();
++  let json;
++  try { json = JSON.parse(text); } catch { json = { raw: text }; }
++  if (!response.ok) {
++    throw new Error(JSON.stringify({ status: response.status, body: json }));
++  }
++  return json;
++}
++
++async function main() {
++  const command = process.argv[2] || "help";
++  if (command === "help" || command === "--help" || command === "-h") return usage();
++
++  if (command === "health") return print(await request("/health"));
++  if (command === "routes") return print(await request("/routes"));
++  if (command === "status") return print(await request("/status"));
++  if (command === "queue") return print(await request("/queue/status"));
++  if (command === "sha-index") return print(await request("/sha-index"));
++  if (command === "latest") {
++    const project = getArg("--project", "default");
++    return print(await request(`/latest?project=${encodeURIComponent(project)}`));
++  }
++  if (command === "resolve") {
++    return print(await request("/resolve-route", {
++      method: "POST",
++      body: {
++        page_url: getArg("--url", ""),
++        title: getArg("--title", ""),
++        project_hint: getArg("--project", "")
++      }
++    }));
++  }
++  if (command === "enqueue") {
++    return print(await request("/queue/enqueue", {
++      method: "POST",
++      body: {
++        project: getArg("--project", "default"),
++        round_id: getArg("--round", `${Date.now()}`),
++        file_sha256: getArg("--sha", ""),
++        action: getArg("--action", "archive_roundpack")
++      }
++    }));
++  }
++  throw new Error(`unknown command: ${command}`);
++}
++
++function print(value) {
++  console.log(JSON.stringify(value, null, 2));
++}
++
++main().catch((error) => {
++  console.error(JSON.stringify({ ok: false, error: error.message }, null, 2));
++  process.exit(1);
++});
+diff -ruN /mnt/data/openpatch_v3_candidate/local-bridge/openpatch-local-bridge.mjs /mnt/data/openpatch_v4_candidate/local-bridge/openpatch-local-bridge.mjs
+--- /mnt/data/openpatch_v3_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-05 23:25:56.768733140 +0000
++++ /mnt/data/openpatch_v4_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-05 23:29:21.386544628 +0000
+@@ -8,19 +8,41 @@
+ const ROOT = path.resolve(process.env.OPENPATCH_BRIDGE_ROOT || "./openpatch-bridge-data");
+ const ROUTES_FILE = path.join(ROOT, "route_profiles.json");
+ const RECEIPTS_DIR = path.join(ROOT, "receipts");
++const LATEST_DIR = path.join(ROOT, "latest");
++const QUEUE_FILE = path.join(ROOT, "queue.json");
+ const STATUS_FILE = path.join(ROOT, "status.json");
++const SHA_INDEX_FILE = path.join(ROOT, "sha_index.json");
++const LOCKS = new Map();
+ 
+ async function ensureRoot() {
+   await fs.mkdir(RECEIPTS_DIR, { recursive: true });
+-  await ensureJsonFile(ROUTES_FILE, { schema_version: "openpatch.route_profiles.v1", profiles: [] });
+-  await ensureJsonFile(STATUS_FILE, { schema_version: "openpatch.bridge_status.v1", receipts: [], updated_at: new Date().toISOString() });
++  await fs.mkdir(LATEST_DIR, { recursive: true });
++  await ensureJsonFile(ROUTES_FILE, {
++    schema_version: "openpatch.route_profiles.v1",
++    profiles: []
++  });
++  await ensureJsonFile(STATUS_FILE, {
++    schema_version: "openpatch.bridge_status.v2",
++    receipts: [],
++    updated_at: new Date().toISOString()
++  });
++  await ensureJsonFile(QUEUE_FILE, {
++    schema_version: "openpatch.bridge_queue.v1",
++    items: [],
++    updated_at: new Date().toISOString()
++  });
++  await ensureJsonFile(SHA_INDEX_FILE, {
++    schema_version: "openpatch.sha_index.v1",
++    entries: [],
++    updated_at: new Date().toISOString()
++  });
+ }
+ 
+ async function ensureJsonFile(file, fallback) {
+   try {
+     await fs.access(file);
+   } catch {
+-    await fs.writeFile(file, `${JSON.stringify(fallback, null, 2)}\n`);
++    await writeJsonAtomic(file, fallback);
+   }
+ }
+ 
+@@ -34,11 +56,25 @@
+ 
+ async function writeJsonAtomic(file, value) {
+   await fs.mkdir(path.dirname(file), { recursive: true });
+-  const tmp = `${file}.${process.pid}.${Date.now()}.tmp`;
++  const tmp = `${file}.${process.pid}.${Date.now()}.${Math.random().toString(16).slice(2)}.tmp`;
+   await fs.writeFile(tmp, `${JSON.stringify(value, null, 2)}\n`);
+   await fs.rename(tmp, file);
+ }
+ 
++async function withLock(name, fn) {
++  const previous = LOCKS.get(name) || Promise.resolve();
++  let release;
++  const current = new Promise((resolve) => { release = resolve; });
++  LOCKS.set(name, previous.then(() => current));
++  await previous;
++  try {
++    return await fn();
++  } finally {
++    release();
++    if (LOCKS.get(name) === current) LOCKS.delete(name);
++  }
++}
++
+ function jsonResponse(res, status, body) {
+   res.writeHead(status, {
+     "Content-Type": "application/json; charset=utf-8",
+@@ -54,14 +90,225 @@
+     .normalize("NFKD")
+     .replace(/[^a-zA-Z0-9_.-]+/g, "-")
+     .replace(/-+/g, "-")
+-    .replace(/^[.-]+|[.-]+$/g, "") || fallback;
++    .replace(/^[.-]+|[.-]+$/g, "")
++    .toLowerCase() || fallback;
++}
++
++function safeString(value, max = 500) {
++  return String(value || "").slice(0, max);
+ }
+ 
+ async function collectBody(req) {
+   const chunks = [];
+   for await (const chunk of req) chunks.push(chunk);
+   const text = Buffer.concat(chunks).toString("utf8");
+-  return text ? JSON.parse(text) : {};
++  if (!text.trim()) return {};
++  return JSON.parse(text);
++}
++
++function extractReceiptPayload(body) {
++  const payload = body?.receipt || body?.payload?.receipt || body?.result?.receipt || body;
++  const project = safeId(payload.project || body.project || body.payload?.project || "default", "default");
++  const roundId = safeId(payload.round_id || payload.roundId || body.round_id || body.roundId || `${Date.now()}`, "round");
++  const fileSha256 = safeString(payload.file_sha256 || payload.fileSha256 || body.file_sha256 || body.fileSha256 || body.result?.fileSha256 || "", 128);
++  return { payload, project, roundId, fileSha256 };
++}
++
++function pickMatchText(body) {
++  return `${body.page_url || body.url || ""}\n${body.title || body.page_title || ""}\n${body.project_hint || body.project || ""}`.toLowerCase();
++}
++
++function arrayIncludesAny(haystack, values) {
++  if (!Array.isArray(values)) return false;
++  return values.some((value) => String(value || "") && haystack.includes(String(value).toLowerCase()));
++}
++
++function profileScore(profile, body) {
++  const match = profile.match || {};
++  const text = pickMatchText(body);
++  let score = Number(profile.priority || 0);
++  if (body.project_hint && safeId(body.project_hint) === safeId(profile.project)) score += 25;
++  if (body.route_profile && safeId(body.route_profile) === safeId(profile.profile_id || profile.route_profile)) score += 100;
++  if (arrayIncludesAny(text, match.url_contains)) score += 20;
++  if (arrayIncludesAny(text, match.title_contains)) score += 15;
++  if (arrayIncludesAny(String(body.page_url || body.url || "").toLowerCase(), match.host_contains)) score += 20;
++  if (Array.isArray(match.url_regex)) {
++    for (const pattern of match.url_regex) {
++      try {
++        if (new RegExp(pattern, "i").test(String(body.page_url || body.url || ""))) score += 30;
++      } catch {
++        score -= 10;
++      }
++    }
++  }
++  return score;
++}
++
++async function resolveRoute(body) {
++  const routes = await readJson(ROUTES_FILE, { profiles: [] });
++  const profiles = Array.isArray(routes.profiles) ? routes.profiles : [];
++  const scored = profiles
++    .map((profile) => ({ profile, score: profileScore(profile, body) }))
++    .filter((item) => item.score > 0)
++    .sort((a, b) => b.score - a.score);
++  const selected = scored[0]?.profile || profiles.find((profile) => profile.default === true) || null;
++  if (!selected) {
++    return {
++      ok: false,
++      status: "unresolved",
++      reason: "no_matching_route_profile",
++      input: {
++        project_hint: safeString(body.project_hint || body.project || "", 100),
++        page_url_host: hostOnly(body.page_url || body.url || "")
++      }
++    };
++  }
++  return {
++    ok: true,
++    status: "resolved",
++    route_context: {
++      schema_version: "openpatch.route_context.v2",
++      route_profile: safeString(selected.profile_id || selected.route_profile || "", 120),
++      project: safeId(selected.project || body.project_hint || "default", "default"),
++      repo_alias: safeString(selected.repo_alias || "", 120),
++      key_alias: safeString(selected.key_alias || "", 120),
++      archive_root: safeString(selected.archive_root || "rounds", 120),
++      index_root: safeString(selected.index_root || "index", 120),
++      mode: safeString(selected.mode || "roundpack_archive", 60),
++      confidence: scored[0]?.score || 1,
++      resolved_at: new Date().toISOString()
++    }
++  };
++}
++
++function hostOnly(url) {
++  try { return new URL(String(url || "")).host; } catch { return ""; }
++}
++
++async function updateLatestAndIndexes({ project, roundId, receipt, fileSha256, receiptPath }) {
++  return withLock(`project:${project}`, async () => {
++    const now = new Date().toISOString();
++    const latestPath = path.join(LATEST_DIR, `${project}.json`);
++    const previousLatest = await readJson(latestPath, { recent_rounds: [] });
++    const item = {
++      project,
++      round_id: roundId,
++      status: receipt.payload?.status || receipt.payload?.receipt?.status || "received",
++      file_sha256: fileSha256,
++      receipt_path: receiptPath,
++      received_at: receipt.received_at
++    };
++    const history = Array.isArray(previousLatest.recent_rounds) ? previousLatest.recent_rounds : [];
++    const latest = {
++      schema_version: "openpatch.bridge_latest.v1",
++      project,
++      latest_round: roundId,
++      status: item.status,
++      latest: item,
++      recent_rounds: [item, ...history.filter((existing) => existing.round_id !== roundId)].slice(0, 50),
++      codex_next_query: `/latest?project=${encodeURIComponent(project)}`,
++      updated_at: now
++    };
++    await writeJsonAtomic(latestPath, latest);
++
++    const status = await readJson(STATUS_FILE, { schema_version: "openpatch.bridge_status.v2", receipts: [] });
++    const receipts = Array.isArray(status.receipts) ? status.receipts : [];
++    status.receipts = [item, ...receipts.filter((existing) => existing.round_id !== roundId || existing.project !== project)].slice(0, 500);
++    status.latest_by_project = { ...(status.latest_by_project || {}), [project]: roundId };
++    status.updated_at = now;
++    await writeJsonAtomic(STATUS_FILE, status);
++
++    if (fileSha256) {
++      const shaIndex = await readJson(SHA_INDEX_FILE, { schema_version: "openpatch.sha_index.v1", entries: [] });
++      const entries = Array.isArray(shaIndex.entries) ? shaIndex.entries : [];
++      const existing = entries.find((entry) => entry.project === project && entry.file_sha256 === fileSha256);
++      const next = existing ? {
++        ...existing,
++        latest_round_id: roundId,
++        count: Number(existing.count || 1) + 1,
++        updated_at: now
++      } : {
++        project,
++        file_sha256: fileSha256,
++        first_round_id: roundId,
++        latest_round_id: roundId,
++        count: 1,
++        created_at: now,
++        updated_at: now
++      };
++      shaIndex.entries = [next, ...entries.filter((entry) => !(entry.project === project && entry.file_sha256 === fileSha256))].slice(0, 2000);
++      shaIndex.updated_at = now;
++      await writeJsonAtomic(SHA_INDEX_FILE, shaIndex);
++    }
++
++    return { latest, duplicate: fileSha256 ? await findDuplicate(project, fileSha256, roundId) : null };
++  });
++}
++
++async function findDuplicate(project, fileSha256, roundId) {
++  const shaIndex = await readJson(SHA_INDEX_FILE, { entries: [] });
++  const entry = (Array.isArray(shaIndex.entries) ? shaIndex.entries : []).find((item) => item.project === project && item.file_sha256 === fileSha256);
++  if (!entry || entry.first_round_id === roundId) return null;
++  return {
++    project,
++    file_sha256: fileSha256,
++    first_round_id: entry.first_round_id,
++    latest_round_id: entry.latest_round_id,
++    count: entry.count
++  };
++}
++
++async function enqueueTask(body) {
++  return withLock("queue", async () => {
++    const now = new Date().toISOString();
++    const queue = await readJson(QUEUE_FILE, { schema_version: "openpatch.bridge_queue.v1", items: [] });
++    const items = Array.isArray(queue.items) ? queue.items : [];
++    const project = safeId(body.project || "default", "default");
++    const roundId = safeId(body.round_id || body.roundId || `${Date.now()}`, "round");
++    const fileSha256 = safeString(body.file_sha256 || body.fileSha256 || "", 128);
++    const idempotencyKey = safeId(body.idempotency_key || body.idempotencyKey || `${project}-${roundId}-${fileSha256 || "no-sha"}`, "task");
++    const existing = items.find((item) => item.idempotency_key === idempotencyKey);
++    if (existing) {
++      return { ok: true, status: "duplicate", task: existing };
++    }
++    const task = {
++      schema_version: "openpatch.bridge_queue_item.v1",
++      idempotency_key: idempotencyKey,
++      project,
++      round_id: roundId,
++      file_sha256: fileSha256,
++      status: "queued",
++      action: safeString(body.action || "archive_roundpack", 80),
++      route_context: body.route_context || {},
++      created_at: now,
++      updated_at: now
++    };
++    queue.items = [task, ...items].slice(0, 1000);
++    queue.updated_at = now;
++    await writeJsonAtomic(QUEUE_FILE, queue);
++    return { ok: true, status: "queued", task };
++  });
++}
++
++async function updateQueueTask(body, status) {
++  return withLock("queue", async () => {
++    const queue = await readJson(QUEUE_FILE, { schema_version: "openpatch.bridge_queue.v1", items: [] });
++    const items = Array.isArray(queue.items) ? queue.items : [];
++    const idempotencyKey = safeId(body.idempotency_key || body.idempotencyKey || "", "");
++    const project = safeId(body.project || "default", "default");
++    const roundId = safeId(body.round_id || body.roundId || "", "");
++    const now = new Date().toISOString();
++    let found = false;
++    queue.items = items.map((item) => {
++      const match = idempotencyKey ? item.idempotency_key === idempotencyKey : (item.project === project && item.round_id === roundId);
++      if (!match) return item;
++      found = true;
++      return { ...item, status, result: body.result || item.result || null, error: body.error || "", updated_at: now };
++    });
++    queue.updated_at = now;
++    await writeJsonAtomic(QUEUE_FILE, queue);
++    return { ok: found, status: found ? "updated" : "not_found" };
++  });
+ }
+ 
+ async function handle(req, res) {
+@@ -71,9 +318,10 @@
+   if (req.method === "GET" && url.pathname === "/health") {
+     return jsonResponse(res, 200, {
+       ok: true,
+-      schema_version: "openpatch.bridge_health.v1",
++      schema_version: "openpatch.bridge_health.v2",
+       service: "openpatch-local-bridge",
+       root: ROOT,
++      capabilities: ["routes", "resolve_route", "receipts", "latest", "sha_index", "queue"],
+       time: new Date().toISOString()
+     });
+   }
+@@ -82,33 +330,73 @@
+     return jsonResponse(res, 200, await readJson(ROUTES_FILE, { profiles: [] }));
+   }
+ 
++  if (req.method === "POST" && url.pathname === "/resolve-route") {
++    return jsonResponse(res, 200, await resolveRoute(await collectBody(req)));
++  }
++
+   if (req.method === "GET" && url.pathname === "/status") {
+     return jsonResponse(res, 200, await readJson(STATUS_FILE, { receipts: [] }));
+   }
+ 
++  if (req.method === "GET" && url.pathname === "/latest") {
++    const project = safeId(url.searchParams.get("project") || "default", "default");
++    return jsonResponse(res, 200, await readJson(path.join(LATEST_DIR, `${project}.json`), {
++      schema_version: "openpatch.bridge_latest.v1",
++      project,
++      status: "missing",
++      latest_round: ""
++    }));
++  }
++
++  if (req.method === "GET" && url.pathname === "/sha-index") {
++    return jsonResponse(res, 200, await readJson(SHA_INDEX_FILE, { entries: [] }));
++  }
++
++  if (req.method === "GET" && url.pathname === "/queue/status") {
++    return jsonResponse(res, 200, await readJson(QUEUE_FILE, { items: [] }));
++  }
++
++  if (req.method === "POST" && url.pathname === "/queue/enqueue") {
++    return jsonResponse(res, 200, await enqueueTask(await collectBody(req)));
++  }
++
++  if (req.method === "POST" && url.pathname === "/queue/complete") {
++    return jsonResponse(res, 200, await updateQueueTask(await collectBody(req), "completed"));
++  }
++
++  if (req.method === "POST" && url.pathname === "/queue/fail") {
++    return jsonResponse(res, 200, await updateQueueTask(await collectBody(req), "failed"));
++  }
++
+   if (req.method === "POST" && url.pathname === "/receipts") {
+     const body = await collectBody(req);
+-    const project = safeId(body.project || body.receipt?.project || "default", "default");
+-    const roundId = safeId(body.round_id || body.receipt?.round_id || `${Date.now()}`, "round");
++    const { payload, project, roundId, fileSha256 } = extractReceiptPayload(body);
+     const receipt = {
+-      schema_version: "openpatch.bridge_receipt.v1",
++      schema_version: "openpatch.bridge_receipt.v2",
+       project,
+       round_id: roundId,
+-      source: "openpatch-extension-or-agent",
++      file_sha256: fileSha256,
++      source: safeString(body.source || "openpatch-extension-or-agent", 120),
+       payload_sha256: crypto.createHash("sha256").update(JSON.stringify(body)).digest("hex"),
+       received_at: new Date().toISOString(),
+-      payload: body
++      payload
+     };
+     const receiptPath = path.join(RECEIPTS_DIR, project, `${roundId}.json`);
+     await writeJsonAtomic(receiptPath, receipt);
+-
+-    const status = await readJson(STATUS_FILE, { schema_version: "openpatch.bridge_status.v1", receipts: [] });
+-    const item = { project, round_id: roundId, receipt_path: receiptPath, received_at: receipt.received_at };
+-    const receipts = Array.isArray(status.receipts) ? status.receipts : [];
+-    status.receipts = [item, ...receipts.filter((existing) => existing.round_id !== roundId)].slice(0, 100);
+-    status.updated_at = new Date().toISOString();
+-    await writeJsonAtomic(STATUS_FILE, status);
+-    return jsonResponse(res, 200, { ok: true, receipt: item });
++    const { latest, duplicate } = await updateLatestAndIndexes({ project, roundId, receipt, fileSha256, receiptPath });
++    return jsonResponse(res, 200, {
++      ok: true,
++      status: duplicate ? "received_duplicate_sha" : "received",
++      receipt: {
++        project,
++        round_id: roundId,
++        receipt_path: receiptPath,
++        file_sha256: fileSha256,
++        received_at: receipt.received_at
++      },
++      latest,
++      duplicate
++    });
+   }
+ 
+   return jsonResponse(res, 404, { ok: false, error: "not_found" });
+@@ -116,7 +404,10 @@
+ 
+ await ensureRoot();
+ const server = http.createServer((req, res) => {
+-  handle(req, res).catch((error) => jsonResponse(res, 500, { ok: false, error: error.message }));
++  handle(req, res).catch((error) => {
++    const status = error instanceof SyntaxError ? 400 : 500;
++    jsonResponse(res, status, { ok: false, error: error.message });
++  });
+ });
+ server.listen(PORT, "127.0.0.1", () => {
+   console.log(JSON.stringify({ ok: true, service: "openpatch-local-bridge", port: PORT, root: ROOT }));
+diff -ruN /mnt/data/openpatch_v3_candidate/local-bridge/route_profiles.example.json /mnt/data/openpatch_v4_candidate/local-bridge/route_profiles.example.json
+--- /mnt/data/openpatch_v3_candidate/local-bridge/route_profiles.example.json	2026-05-05 23:25:56.786010532 +0000
++++ /mnt/data/openpatch_v4_candidate/local-bridge/route_profiles.example.json	2026-05-05 23:29:31.972913761 +0000
+@@ -2,15 +2,30 @@
+   "schema_version": "openpatch.route_profiles.v1",
+   "profiles": [
+     {
+-      "route_profile_id": "webai-transfer-designer",
++      "profile_id": "webai-transfer-designer-chat",
+       "project": "webai-transfer",
+-      "repo_alias": "github-archive-webai-transfer",
+-      "key_alias": "github-pat-archive-only",
++      "repo_alias": "github-webai-archive",
++      "key_alias": "gh-webai-archive-fgpat",
+       "archive_root": "rounds",
+       "index_root": "index",
+-      "default_mode": "archive_only",
+-      "browser_hint": "chrome-dev-ai-collab",
+-      "chat_hint": "designer"
++      "mode": "roundpack_archive",
++      "priority": 50,
++      "match": {
++        "url_contains": ["chatgpt.com/c/"],
++        "title_contains": ["webai_transfer", "webai transfer", "designer"]
++      }
++    },
++    {
++      "profile_id": "default-archive",
++      "default": true,
++      "project": "default",
++      "repo_alias": "github-default-archive",
++      "key_alias": "gh-default-archive-fgpat",
++      "archive_root": "rounds",
++      "index_root": "index",
++      "mode": "roundpack_archive",
++      "priority": 1,
++      "match": {}
+     }
+   ]
+ }
+diff -ruN /mnt/data/openpatch_v3_candidate/openpatch-main/manifest.json /mnt/data/openpatch_v4_candidate/openpatch-main/manifest.json
+--- /mnt/data/openpatch_v3_candidate/openpatch-main/manifest.json	2026-04-24 13:57:59.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/openpatch-main/manifest.json	2026-05-05 23:29:46.700238032 +0000
+@@ -2,7 +2,7 @@
+   "manifest_version": 3,
+   "name": "OpenPatch",
+   "version": "0.2.0",
+-  "description": "Upload AI-generated code packages to GitHub workflows for automatic apply.",
++  "description": "Agent-friendly ChatGPT artifact uploader with patch upload and archive-only RoundPack gateway modes.",
+   "permissions": [
+     "downloads",
+     "storage",
+@@ -14,7 +14,9 @@
+     "https://chat.openai.com/*",
+     "https://*.openai.com/*",
+     "https://*.oaiusercontent.com/*",
+-    "https://oaiusercontent.com/*"
++    "https://oaiusercontent.com/*",
++    "http://127.0.0.1:*/*",
++    "http://localhost:*/*"
+   ],
+   "background": {
+     "service_worker": "src/background.js",
+diff -ruN /mnt/data/openpatch_v3_candidate/openpatch-main/src/background.js /mnt/data/openpatch_v4_candidate/openpatch-main/src/background.js
+--- /mnt/data/openpatch_v3_candidate/openpatch-main/src/background.js	2026-05-05 23:24:19.370953136 +0000
++++ /mnt/data/openpatch_v4_candidate/openpatch-main/src/background.js	2026-05-05 23:29:48.786943204 +0000
+@@ -87,6 +87,14 @@
+       title: message.title || `archive: ${fileName}`
+     });
+ 
++    const bridgeReceipt = await postBridgeReceipt(config, {
++      source: "openpatch-extension",
++      result,
++      receipt: result.receipt,
++      route_context: message.routeContext || {}
++    });
++    result.bridgeReceipt = bridgeReceipt;
++
+     if (config.autoOpenBranch) {
+       await chrome.tabs.create({ url: result.branchUrl });
+     }
+@@ -94,6 +102,21 @@
+     return result;
+   }
+ 
++  if (message?.type === "RESOLVE_OPENPATCH_ROUTE") {
++    const config = await getConfig();
++    return postBridge(config, "/resolve-route", {
++      page_url: message.pageUrl || message.page_url || "",
++      title: message.title || "",
++      project_hint: message.project || message.projectHint || "",
++      route_profile: message.routeProfile || message.route_profile || ""
++    });
++  }
++
++  if (message?.type === "GET_OPENPATCH_BRIDGE_STATUS") {
++    const config = await getConfig();
++    return getBridgeJson(config, "/health");
++  }
++
+   if (message?.type === "UPLOAD_OPENPATCH_CONTENT") {
+     let fileName = message.fileName || "";
+     if (!isPatchFileName(fileName)) {
+@@ -119,6 +142,55 @@
+   throw new Error("未知操作。");
+ }
+ 
++async function postBridgeReceipt(config, payload) {
++  if (!config?.bridgeEnabled || !config?.bridgeUrl) {
++    return { ok: false, status: "bridge_disabled" };
++  }
++  try {
++    return await postBridge(config, "/receipts", payload);
++  } catch (error) {
++    return { ok: false, status: "bridge_error", error: error.message };
++  }
++}
++
++async function postBridge(config, endpoint, payload) {
++  const base = normalizeBridgeUrl(config.bridgeUrl);
++  if (!base) throw new Error("Bridge URL 未配置。");
++  const response = await fetch(`${base}${endpoint}`, {
++    method: "POST",
++    headers: { "Content-Type": "application/json" },
++    body: JSON.stringify(payload || {})
++  });
++  const json = await response.json().catch(() => ({}));
++  if (!response.ok) {
++    throw new Error(json?.error || `Bridge HTTP ${response.status}`);
++  }
++  return json;
++}
++
++async function getBridgeJson(config, endpoint) {
++  const base = normalizeBridgeUrl(config.bridgeUrl);
++  if (!base) return { ok: false, status: "bridge_url_missing" };
++  const response = await fetch(`${base}${endpoint}`, { method: "GET" });
++  const json = await response.json().catch(() => ({}));
++  if (!response.ok) {
++    throw new Error(json?.error || `Bridge HTTP ${response.status}`);
++  }
++  return json;
++}
++
++function normalizeBridgeUrl(url) {
++  const value = String(url || "").trim().replace(/\/+$/, "");
++  if (!value) return "";
++  try {
++    const parsed = new URL(value);
++    if (!["http:", "https:"].includes(parsed.protocol)) return "";
++    return parsed.toString().replace(/\/+$/, "");
++  } catch {
++    return "";
++  }
++}
++
+ async function fetchUploadContent(url) {
+   if (!url) {
+     throw new Error("没有读取到附件内容。");
+diff -ruN /mnt/data/openpatch_v3_candidate/openpatch-main/src/content-script.js /mnt/data/openpatch_v4_candidate/openpatch-main/src/content-script.js
+--- /mnt/data/openpatch_v3_candidate/openpatch-main/src/content-script.js	2026-05-05 23:25:17.487593290 +0000
++++ /mnt/data/openpatch_v4_candidate/openpatch-main/src/content-script.js	2026-05-05 23:30:15.713815517 +0000
+@@ -15,6 +15,10 @@
+   const AGENT_ARCHIVE_RESPONSE_EVENT = "openpatch:api:archive-requested";
+   const AGENT_TRIGGER_UPLOAD_EVENT = "openpatch:api:trigger-upload";
+   const AGENT_TRIGGER_UPLOAD_RESPONSE_EVENT = "openpatch:api:trigger-upload-result";
++  const AGENT_RESOLVE_ROUTE_EVENT = "openpatch:api:resolve-route";
++  const AGENT_RESOLVE_ROUTE_RESPONSE_EVENT = "openpatch:api:resolve-route-result";
++  const AGENT_BRIDGE_STATUS_EVENT = "openpatch:api:get-bridge-status";
++  const AGENT_BRIDGE_STATUS_RESPONSE_EVENT = "openpatch:api:bridge-status";
+   const BUTTON_STALE_AFTER_MS = 10 * 60 * 1000;
+   const PAGE_SESSION_ID = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+   let routeContext = {
+@@ -238,7 +242,7 @@
+   function buildAgentMarker({ sourceButton, suggestedName, label, archiveMode = false }) {
+     const href = sourceButton.getAttribute("href") || "";
+     return {
+-      schemaVersion: "openpatch.agent_button.v2",
++      schemaVersion: "openpatch.agent_button.v4",
+       marker: "openpatch-inline-upload",
+       status: "ready",
+       mode: archiveMode ? "roundpack_archive" : "patch_upload",
+@@ -323,7 +327,7 @@
+     };
+     button.__openpatchAgentMarker = next;
+ 
+-    button.dataset.openpatchMarker = next.schemaVersion || "openpatch.agent_button.v2";
++    button.dataset.openpatchMarker = next.schemaVersion || "openpatch.agent_button.v4";
+     button.dataset.openpatchStatus = String(next.status || "unknown");
+     button.dataset.openpatchMode = String(next.mode || "patch_upload");
+     button.dataset.openpatchAction = String(next.action || "upload_openpatch_content");
+@@ -420,20 +424,90 @@
+ 
+   window.addEventListener(AGENT_STATUS_REQUEST_EVENT, async (event) => {
+     let configStatus = { available: false };
++    let bridgeStatus = { available: false };
+     try {
+       const response = await chrome.runtime.sendMessage({ type: "GET_OPENPATCH_CONFIG_STATUS" });
+       configStatus = response?.result || { available: false };
+     } catch (error) {
+       configStatus = { available: false, error: error?.message || "runtime_status_unavailable" };
+     }
++    try {
++      const response = await chrome.runtime.sendMessage({ type: "GET_OPENPATCH_BRIDGE_STATUS" });
++      bridgeStatus = response?.result || { available: false };
++    } catch (error) {
++      bridgeStatus = { available: false, error: error?.message || "bridge_status_unavailable" };
++    }
+     window.dispatchEvent(new CustomEvent(AGENT_STATUS_RESPONSE_EVENT, {
+       detail: {
+-        schemaVersion: "openpatch.runtime_status.v1",
++        schemaVersion: "openpatch.runtime_status.v2",
+         requestId: event?.detail?.requestId || event?.detail?.request_id || "",
+         pageSessionId: PAGE_SESSION_ID,
+         routeContext: sanitizeRouteContext(routeContext),
+         buttons: getCurrentAgentMarkers(),
+         configStatus,
++        bridgeStatus,
++        createdAt: new Date().toISOString()
++      }
++    }));
++  });
++
++  window.addEventListener(AGENT_BRIDGE_STATUS_EVENT, async (event) => {
++    let bridgeStatus = { available: false };
++    try {
++      const response = await chrome.runtime.sendMessage({ type: "GET_OPENPATCH_BRIDGE_STATUS" });
++      bridgeStatus = response?.result || { available: false };
++    } catch (error) {
++      bridgeStatus = { available: false, error: error?.message || "bridge_status_unavailable" };
++    }
++    window.dispatchEvent(new CustomEvent(AGENT_BRIDGE_STATUS_RESPONSE_EVENT, {
++      detail: {
++        schemaVersion: "openpatch.bridge_status_response.v1",
++        requestId: event?.detail?.requestId || event?.detail?.request_id || "",
++        bridgeStatus,
++        createdAt: new Date().toISOString()
++      }
++    }));
++  });
++
++  window.addEventListener(AGENT_RESOLVE_ROUTE_EVENT, async (event) => {
++    const detail = event?.detail || {};
++    let result;
++    try {
++      const response = await chrome.runtime.sendMessage({
++        type: "RESOLVE_OPENPATCH_ROUTE",
++        pageUrl: detail.pageUrl || detail.page_url || window.location.href,
++        title: detail.title || document.title || "",
++        projectHint: detail.project || detail.project_hint || routeContext.project || "",
++        routeProfile: detail.routeProfile || detail.route_profile || routeContext.routeProfile || ""
++      });
++      result = response?.result || { ok: false, error: "route_resolution_unavailable" };
++      if (result.ok && result.route_context) {
++        const resolved = result.route_context;
++        routeContext = sanitizeRouteContext({
++          ...routeContext,
++          project: resolved.project || routeContext.project,
++          routeProfile: resolved.route_profile || resolved.routeProfile || routeContext.routeProfile,
++          repoAlias: resolved.repo_alias || resolved.repoAlias || routeContext.repoAlias,
++          keyAlias: resolved.key_alias || resolved.keyAlias || routeContext.keyAlias,
++          mode: resolved.mode || routeContext.mode,
++          updatedAt: new Date().toISOString()
++        });
++        for (const button of document.querySelectorAll(`.${BUTTON_CLASS}`)) {
++          setButtonMarker(button, {
++            routeContext: sanitizeRouteContext(routeContext),
++            decisionHint: "route_resolved_by_bridge"
++          }, { quiet: true });
++        }
++      }
++    } catch (error) {
++      result = { ok: false, error: error?.message || "route_resolution_failed" };
++    }
++    window.dispatchEvent(new CustomEvent(AGENT_RESOLVE_ROUTE_RESPONSE_EVENT, {
++      detail: {
++        schemaVersion: "openpatch.resolve_route_response.v1",
++        requestId: detail.requestId || detail.request_id || "",
++        result,
++        routeContext: sanitizeRouteContext(routeContext),
+         createdAt: new Date().toISOString()
+       }
+     }));
+diff -ruN /mnt/data/openpatch_v3_candidate/schemas/openpatch.bridge_latest.v1.schema.json /mnt/data/openpatch_v4_candidate/schemas/openpatch.bridge_latest.v1.schema.json
+--- /mnt/data/openpatch_v3_candidate/schemas/openpatch.bridge_latest.v1.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/schemas/openpatch.bridge_latest.v1.schema.json	2026-05-05 23:30:33.090745886 +0000
+@@ -0,0 +1,17 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "openpatch.bridge_latest.v1",
++  "type": "object",
++  "required": ["schema_version", "project", "latest_round", "status", "updated_at"],
++  "properties": {
++    "schema_version": { "const": "openpatch.bridge_latest.v1" },
++    "project": { "type": "string" },
++    "latest_round": { "type": "string" },
++    "status": { "type": "string" },
++    "latest": { "type": "object" },
++    "recent_rounds": { "type": "array", "items": { "type": "object" } },
++    "codex_next_query": { "type": "string" },
++    "updated_at": { "type": "string" }
++  },
++  "additionalProperties": true
++}
+diff -ruN /mnt/data/openpatch_v3_candidate/schemas/openpatch.bridge_queue.v1.schema.json /mnt/data/openpatch_v4_candidate/schemas/openpatch.bridge_queue.v1.schema.json
+--- /mnt/data/openpatch_v3_candidate/schemas/openpatch.bridge_queue.v1.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/schemas/openpatch.bridge_queue.v1.schema.json	2026-05-05 23:30:33.106058073 +0000
+@@ -0,0 +1,12 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "openpatch.bridge_queue.v1",
++  "type": "object",
++  "required": ["schema_version", "items", "updated_at"],
++  "properties": {
++    "schema_version": { "const": "openpatch.bridge_queue.v1" },
++    "items": { "type": "array", "items": { "type": "object" } },
++    "updated_at": { "type": "string" }
++  },
++  "additionalProperties": true
++}
+diff -ruN /mnt/data/openpatch_v3_candidate/schemas/openpatch.sha_index.v1.schema.json /mnt/data/openpatch_v4_candidate/schemas/openpatch.sha_index.v1.schema.json
+--- /mnt/data/openpatch_v3_candidate/schemas/openpatch.sha_index.v1.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/schemas/openpatch.sha_index.v1.schema.json	2026-05-05 23:30:33.116200950 +0000
+@@ -0,0 +1,12 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "openpatch.sha_index.v1",
++  "type": "object",
++  "required": ["schema_version", "entries", "updated_at"],
++  "properties": {
++    "schema_version": { "const": "openpatch.sha_index.v1" },
++    "entries": { "type": "array", "items": { "type": "object" } },
++    "updated_at": { "type": "string" }
++  },
++  "additionalProperties": true
++}
+diff -ruN /mnt/data/openpatch_v3_candidate/task_cards/FOR_CODEX_MINIMAL_V4.md /mnt/data/openpatch_v4_candidate/task_cards/FOR_CODEX_MINIMAL_V4.md
+--- /mnt/data/openpatch_v3_candidate/task_cards/FOR_CODEX_MINIMAL_V4.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/openpatch_v4_candidate/task_cards/FOR_CODEX_MINIMAL_V4.md	2026-05-05 23:30:33.199284930 +0000
+@@ -0,0 +1,22 @@
++# FOR_CODEX_MINIMAL_V4
++
++任务：验证 OPENPATCH Agent Gateway v4 的本地 bridge 与 CLI。
++
++允许：
++✅ 在项目内临时目录启动 `node local-bridge/openpatch-local-bridge.mjs`。  
++✅ 用 `openpatch-ledger-cli.mjs health/routes/resolve/latest/queue` 查询。  
++✅ POST mock receipt，检查 latest 与 sha-index。  
++✅ 回传命令、JSON 摘要、失败项。  
++
++输出：
++- `bridge_health.json`
++- `route_resolve_result.json`
++- `mock_receipt_result.json`
++- `latest_result.json`
++- `sha_index_result.json`
++- 简短结论
++
++停止条件：
++- CLI 无法启动
++- bridge 返回非 JSON
++- latest/sha-index 写入失败

@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "status": "queued",
+  "task": {
+    "schema_version": "openpatch.bridge_queue_item.v1",
+    "idempotency_key": "webai-transfer-r001-abc123",
+    "project": "webai-transfer",
+    "round_id": "r001",
+    "file_sha256": "abc123",
+    "status": "queued",
+    "action": "archive_roundpack",
+    "route_context": {},
+    "created_at": "2026-05-05T23:31:10.771Z",
+    "updated_at": "2026-05-05T23:31:10.771Z"
+  }
+}

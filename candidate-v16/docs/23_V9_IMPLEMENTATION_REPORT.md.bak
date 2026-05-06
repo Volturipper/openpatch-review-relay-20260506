@@ -1,0 +1,34 @@
+# OPENPATCH Agent Gateway v9 Implementation Report
+
+## 本轮目标
+
+✅ 加速进入真实试跑前状态，而不是继续扩写概念。  
+✅ 重点补多页面/多浏览器/多 key 场景最容易误传的 route profile 冲突检测。  
+✅ 继续便利 Codex：增加 CLI/API 查询、队列过期回收、动态路由歧义报告。  
+✅ 保持聊天低冗余：代码、schema、测试日志全部放包内。
+
+## 新增能力
+
+- `GET /routes/conflicts`：静态检查 route profile 配置。
+- `POST /routes/conflicts`：按当前页面 URL/title/project_hint 做动态歧义检测。
+- `resolve-route` 返回 top candidates 与 ambiguity 信息。
+- `POST /queue/reclaim-expired`：回收过期 lease，避免多 agent 抢任务后卡死。
+- Codex CLI 新增 `routes-conflicts` 与 `queue-reclaim-expired`。
+- 页面 API 新增 `openpatch:api:get-route-conflicts` / `openpatch:api:route-conflicts`。
+- 按钮 marker 升级到 `openpatch.agent_button.v9`，增加 `routeConflictHint`。
+- 增加真实 GitHub 单测试仓上传任务卡、Chrome Dev profile smoke 任务卡、Auto Continue live 接入任务卡。
+
+## 当前状态
+
+✅ 候选实现已自检。  
+✅ 可交给 Codex 做隔离 smoke / 测试仓真实上传准备。  
+⚠️ 尚未在真实 Chrome Dev profile 安装。  
+⚠️ 尚未使用真实 fine-grained PAT 上传。  
+⚠️ 尚未接入用户当前 live Auto Continue 脚本实测。
+
+## 下一步 fast-track
+
+1. 用 `browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V9.md` 做插件加载 smoke。
+2. 用 `task_cards/FOR_GITHUB_TEST_UPLOAD_V9.md` 做单测试仓 archive-only 上传。
+3. 用 `auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V9.md` 接入当前 Auto Continue。
+4. 运行 `stress-archive --count 300 --parallel 20` 做更高轮次 dry-run。

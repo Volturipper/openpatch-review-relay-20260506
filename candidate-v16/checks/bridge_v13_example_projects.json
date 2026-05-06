@@ -1,0 +1,55 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.project_list.v13",
+  "projects": [
+    {
+      "project": "default",
+      "latest_round": "",
+      "latest_status": "missing",
+      "bindings": [
+        {
+          "profile_id": "default-archive",
+          "project": "default",
+          "repo_alias": "dry-run-archive",
+          "key_alias": "gh-webai-ledger",
+          "repo_known": true,
+          "key_known": true,
+          "repo_dry_run": true,
+          "branch": "webai-archive",
+          "archive_root": "rounds",
+          "index_root": "index",
+          "key_has_token": false,
+          "allowed_by_repo": true,
+          "allowed_by_key": true,
+          "mode": "roundpack_archive",
+          "default": true
+        }
+      ]
+    },
+    {
+      "project": "webai-transfer",
+      "latest_round": "",
+      "latest_status": "missing",
+      "bindings": [
+        {
+          "profile_id": "webai-transfer-designer-chat",
+          "project": "webai-transfer",
+          "repo_alias": "webai-round-ledger",
+          "key_alias": "gh-webai-ledger",
+          "repo_known": true,
+          "key_known": true,
+          "repo_dry_run": false,
+          "branch": "webai-archive",
+          "archive_root": "rounds",
+          "index_root": "index",
+          "key_has_token": false,
+          "allowed_by_repo": true,
+          "allowed_by_key": true,
+          "mode": "roundpack_archive",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "generated_at": "2026-05-06T02:44:58.191Z"
+}

@@ -1,0 +1,968 @@
+diff -ruN /mnt/data/openpatch_v2_candidate/openpatch-main/pages/options.html /mnt/data/openpatch_v3_candidate/openpatch-main/pages/options.html
+--- /mnt/data/openpatch_v2_candidate/openpatch-main/pages/options.html	2026-04-24 13:57:59.000000000 +0000
++++ /mnt/data/openpatch_v3_candidate/openpatch-main/pages/options.html	2026-05-05 23:25:10.583328312 +0000
+@@ -42,9 +42,58 @@
+               Patch 目录
+               <input id="patch-dir" type="text" placeholder=".ai-patches">
+             </label>
++
++            <label>
++              Project ID
++              <input id="project-id" type="text" placeholder="webai-transfer">
++            </label>
++
++            <label>
++              Route Profile ID
++              <input id="route-profile-id" type="text" placeholder="designer-chat-a">
++            </label>
++
++            <label>
++              Repo Alias
++              <input id="repo-alias" type="text" placeholder="archive-repo-default">
++            </label>
++
++            <label>
++              Key Alias
++              <input id="key-alias" type="text" placeholder="github-archive-key">
++            </label>
++
++            <label>
++              Archive Root
++              <input id="archive-root" type="text" placeholder="rounds">
++            </label>
++
++            <label>
++              Index Root
++              <input id="index-root" type="text" placeholder="index">
++            </label>
++
++            <label>
++              Archive Mode
++              <select id="archive-mode-default">
++                <option value="auto">auto</option>
++                <option value="archive_only">archive_only</option>
++                <option value="patch_upload">patch_upload</option>
++              </select>
++            </label>
++
++            <label>
++              Local Bridge URL
++              <input id="bridge-url" type="text" placeholder="http://127.0.0.1:17873">
++            </label>
+           </div>
+ 
+           <label class="check">
++            <input id="bridge-enabled" type="checkbox">
++            启用本地 Agent Bridge 状态联动
++          </label>
++
++          <label class="check">
+             <input id="auto-open-branch" type="checkbox">
+             Upload 后打开目标分支页面
+           </label>
+diff -ruN /mnt/data/openpatch_v2_candidate/openpatch-main/src/background.js /mnt/data/openpatch_v3_candidate/openpatch-main/src/background.js
+--- /mnt/data/openpatch_v2_candidate/openpatch-main/src/background.js	2026-05-05 23:19:15.992291985 +0000
++++ /mnt/data/openpatch_v3_candidate/openpatch-main/src/background.js	2026-05-05 23:24:19.370953136 +0000
+@@ -1,6 +1,6 @@
+ import { getConfig, savePatchDownload } from "./storage.js";
+-import { uploadOpenPatchFile } from "./uploader.js";
+-import { buildDefaultCommitTitle, encodeBase64Bytes, isPatchFileName } from "./utils.js";
++import { uploadOpenPatchFile, uploadRoundArchiveContent } from "./uploader.js";
++import { buildDefaultCommitTitle, encodeBase64Bytes, isArchiveFileName, isPatchFileName } from "./utils.js";
+ 
+ chrome.runtime.onInstalled.addListener(() => {
+   chrome.contextMenus?.removeAll?.();
+@@ -62,10 +62,38 @@
+       keyAlias: config.keyAlias || "",
+       bridgeEnabled: Boolean(config.bridgeEnabled),
+       bridgeUrl: config.bridgeUrl ? "configured" : "",
++      archiveRoot: config.archiveRoot || "rounds",
++      indexRoot: config.indexRoot || "index",
++      archiveModeDefault: config.archiveModeDefault || "auto",
++      maxArchiveSizeMb: Number(config.maxArchiveSizeMb || 50),
+       autoOpenBranch: Boolean(config.autoOpenBranch)
+     };
+   }
+ 
++
++  if (message?.type === "ARCHIVE_ROUNDPACK_CONTENT") {
++    const fileName = message.fileName || "";
++    if (!isArchiveFileName(fileName)) {
++      throw new Error("没有读取到可归档的 .zip、.json、.md 或 .txt 文件。");
++    }
++    const content = message.content || await fetchUploadContent(message.url);
++
++    const config = await getConfig();
++    const result = await uploadRoundArchiveContent({
++      config,
++      fileName,
++      content,
++      routeContext: message.routeContext || {},
++      title: message.title || `archive: ${fileName}`
++    });
++
++    if (config.autoOpenBranch) {
++      await chrome.tabs.create({ url: result.branchUrl });
++    }
++
++    return result;
++  }
++
+   if (message?.type === "UPLOAD_OPENPATCH_CONTENT") {
+     let fileName = message.fileName || "";
+     if (!isPatchFileName(fileName)) {
+diff -ruN /mnt/data/openpatch_v2_candidate/openpatch-main/src/content-script.js /mnt/data/openpatch_v3_candidate/openpatch-main/src/content-script.js
+--- /mnt/data/openpatch_v2_candidate/openpatch-main/src/content-script.js	2026-05-05 23:18:58.274962028 +0000
++++ /mnt/data/openpatch_v3_candidate/openpatch-main/src/content-script.js	2026-05-05 23:25:17.487593290 +0000
+@@ -13,6 +13,8 @@
+   const AGENT_ROUTE_CONTEXT_EVENT = "openpatch:api:set-route-context";
+   const AGENT_ARCHIVE_REQUEST_EVENT = "openpatch:api:request-archive";
+   const AGENT_ARCHIVE_RESPONSE_EVENT = "openpatch:api:archive-requested";
++  const AGENT_TRIGGER_UPLOAD_EVENT = "openpatch:api:trigger-upload";
++  const AGENT_TRIGGER_UPLOAD_RESPONSE_EVENT = "openpatch:api:trigger-upload-result";
+   const BUTTON_STALE_AFTER_MS = 10 * 60 * 1000;
+   const PAGE_SESSION_ID = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+   let routeContext = {
+@@ -24,6 +26,8 @@
+     keyAlias: "",
+     browserProfile: "",
+     actorHint: "",
++    mode: "auto",
++    roundId: "",
+     updatedAt: new Date().toISOString()
+   };
+   let attachScheduled = false;
+@@ -44,6 +48,20 @@
+ 10. 如果用户已经连续做过多轮修改，必须基于上一轮修改后的完整文件继续生成新的 changed-files.zip。
+ 11. 如果你没有看到某个文件的当前完整内容，请先要求用户提供该文件，或者明确说明无法可靠生成 changed-files.zip。`;
+ 
++
++
++  const ROUNDPACK_PROMPT = `请为本轮 Web AI 工作生成一个可下载的 webai-roundpack.zip 文件，并严格遵守以下规则：
++
++1. 只生成一个 webai-roundpack.zip 附件，不要把文件全文粘贴在聊天正文。
++2. zip 根目录必须包含 README.md、ROUND_SUMMARY.md、FULL_TRANSCRIPT.md、NEXT_FOR_CODEX.md、NEXT_FOR_REVIEWER.md、FILES_MANIFEST.json、SHA256SUMS.txt。
++3. ROUND_SUMMARY.md 用简洁中文说明本轮做了什么、关键结论、生成文件、下一步建议、未完成项。
++4. NEXT_FOR_CODEX.md 必须极短，只写 Codex 下一步默认该读什么、做什么、输出什么。
++5. FILES_MANIFEST.json 必须是机器可读 JSON，并包含 round_id、project、source_ai、created_at、purpose、allow_execution=false、files、next_actor。
++6. SHA256SUMS.txt 必须列出包内主要文件和附件的 SHA256。
++7. ARTIFACTS/ 可放本轮候选包、审核包、证据包或其他附件。
++8. 不要包含 secrets、.env、cookies、tokens、浏览器 profile、node_modules、缓存、大模型、ComfyUI models。
++9. 本轮包是 archive_only，默认不授权执行、安装、apply、push 或提交真实项目。`;
++
+   const GIT_DIFF_PROMPT = `请为本次代码修改生成一个可下载的 openpatch.diff 文件，并严格遵守以下规则：
+ 
+ 1. 你必须先在项目容器里完成实际代码修改，不能手写 diff，不能在聊天正文里直接编造 diff 内容。
+@@ -72,6 +90,21 @@
+       || /changed-files\.zip|代码包|文件包|压缩包/i.test(value);
+   }
+ 
++
++
++  function looksLikeRoundPackDownloadText(text) {
++    const value = String(text || "").trim().toLowerCase();
++    if (!value) return false;
++    return /round\s*pack|roundpack|webai-roundpack|review-pack|audit-pack|handoff|evidence|receipt|归档|回合包|交接包|审核包|证据包/i.test(value);
++  }
++
++  function shouldUseArchiveMode({ fileName, label }) {
++    const configured = String(routeContext.mode || "auto").toLowerCase();
++    if (configured === "archive_only" || configured === "roundpack_archive") return true;
++    if (configured === "patch_upload") return false;
++    return looksLikeRoundPackDownloadText(`${fileName || ""} ${label || ""}`);
++  }
++
+   function inferPatchName(text) {
+     const fileMatch = String(text || "").match(/([\w.-]+\.(?:diff|patch|zip))/i);
+     if (fileMatch) return fileMatch[1];
+@@ -87,23 +120,28 @@
+   function createInlineButton(sourceButton) {
+     const label = sourceButton.textContent || sourceButton.getAttribute("aria-label") || "";
+     const suggestedName = inferPatchName(label);
+-    const marker = buildAgentMarker({ sourceButton, suggestedName, label });
++    const archiveMode = shouldUseArchiveMode({ fileName: suggestedName, label });
++    const marker = buildAgentMarker({ sourceButton, suggestedName, label, archiveMode });
+ 
+     const button = document.createElement("button");
+     button.type = "button";
+     button.className = BUTTON_CLASS;
+-    button.textContent = "Upload to GitHub";
+-    button.title = "Read this attachment and upload it to GitHub";
+-    button.setAttribute("aria-label", `OpenPatch upload ${suggestedName}`);
++    button.textContent = archiveMode ? "Archive RoundPack" : "Upload to GitHub";
++    button.title = archiveMode ? "Archive this attachment as a RoundPack/artifact" : "Read this attachment and upload it to GitHub";
++    button.setAttribute("aria-label", archiveMode ? `OpenPatch archive ${suggestedName}` : `OpenPatch upload ${suggestedName}`);
+     setButtonMarker(button, marker);
+ 
+     button.addEventListener("click", async (event) => {
+       event.preventDefault();
+       event.stopPropagation();
+ 
+-      const title = suggestedName.toLowerCase().endsWith(".zip")
+-        ? `ai: apply changed files package ${suggestedName}`
+-        : `ai: apply ${suggestedName}`;
++      const currentMarker = button.__openpatchAgentMarker || marker;
++      const archiveMode = currentMarker.mode === "roundpack_archive";
++      const title = archiveMode
++        ? `archive: ${suggestedName}`
++        : (suggestedName.toLowerCase().endsWith(".zip")
++          ? `ai: apply changed files package ${suggestedName}`
++          : `ai: apply ${suggestedName}`);
+ 
+       button.disabled = true;
+       button.textContent = "Uploading...";
+@@ -126,16 +164,21 @@
+           extension: getFileExtension(uploadName),
+           sourceUrlKind: getUrlKind(captured.url),
+           sourceHost: getUrlHost(captured.url),
+-          decisionHint: "github_upload_in_progress"
++          decisionHint: archiveMode ? "archive_upload_in_progress" : "github_upload_in_progress"
+         });
+         showToast("Uploading to GitHub...");
+ 
+         const response = await chrome.runtime.sendMessage({
+-          type: "UPLOAD_OPENPATCH_CONTENT",
++          type: archiveMode ? "ARCHIVE_ROUNDPACK_CONTENT" : "UPLOAD_OPENPATCH_CONTENT",
+           fileName: uploadName,
+           content: captured.content,
+           url: captured.url,
+-          title
++          title,
++          routeContext: {
++            ...sanitizeRouteContext(routeContext),
++            pageSessionId: PAGE_SESSION_ID,
++            buttonId: currentMarker.buttonId || ""
++          }
+         });
+ 
+         if (!response?.ok) {
+@@ -144,11 +187,11 @@
+ 
+         setButtonMarker(button, {
+           status: "uploaded",
+-          decisionHint: "upload_complete_check_github_feedback",
++          decisionHint: archiveMode ? "archive_complete_check_latest_receipt" : "upload_complete_check_github_feedback",
+           canRetry: "true",
+           result: sanitizeUploadResult(response.result)
+         });
+-        showToast("Upload complete. The workflow will apply it.");
++        showToast(archiveMode ? "Archive complete. Receipt/latest are available." : "Upload complete. The workflow will apply it.");
+       } catch (error) {
+         setButtonMarker(button, {
+           status: "failed",
+@@ -159,7 +202,7 @@
+         showToast(error?.message || "上传失败。");
+       } finally {
+         button.disabled = false;
+-        button.textContent = "Upload to GitHub";
++        button.textContent = archiveMode ? "Archive RoundPack" : "Upload to GitHub";
+       }
+     });
+ 
+@@ -192,14 +235,14 @@
+     }
+   }
+ 
+-  function buildAgentMarker({ sourceButton, suggestedName, label }) {
++  function buildAgentMarker({ sourceButton, suggestedName, label, archiveMode = false }) {
+     const href = sourceButton.getAttribute("href") || "";
+     return {
+       schemaVersion: "openpatch.agent_button.v2",
+       marker: "openpatch-inline-upload",
+       status: "ready",
+-      mode: "patch_upload",
+-      action: "upload_openpatch_content",
++      mode: archiveMode ? "roundpack_archive" : "patch_upload",
++      action: archiveMode ? "archive_roundpack_content" : "upload_openpatch_content",
+       fileName: suggestedName,
+       extension: getFileExtension(suggestedName),
+       buttonId: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`,
+@@ -211,7 +254,7 @@
+       sourceHost: getUrlHost(href),
+       canUpload: "true",
+       canRetry: "false",
+-      decisionHint: "ready_to_capture_attachment",
++      decisionHint: archiveMode ? "ready_to_archive_attachment" : "ready_to_capture_attachment",
+       stalenessStatus: "fresh",
+       routeContext: sanitizeRouteContext(routeContext),
+       createdAt: new Date().toISOString(),
+@@ -230,6 +273,8 @@
+       keyAlias: String(value.keyAlias || value.key_alias || "").slice(0, 120),
+       browserProfile: String(value.browserProfile || value.browser_profile || "").slice(0, 160),
+       actorHint: String(value.actorHint || value.actor_hint || "").slice(0, 120),
++      mode: String(value.mode || "auto").slice(0, 80),
++      roundId: String(value.roundId || value.round_id || "").slice(0, 160),
+       updatedAt: value.updatedAt || value.updated_at || new Date().toISOString()
+     };
+   }
+@@ -257,6 +302,12 @@
+       repo: result.repo || "",
+       branch: result.branch || "",
+       path: result.path || "",
++      manifestPath: result.manifestPath || "",
++      receiptPath: result.receiptPath || "",
++      latestPath: result.latestPath || "",
++      project: result.project || "",
++      roundId: result.roundId || "",
++      fileSha256: result.fileSha256 || "",
+       commitSha: result.commitSha || "",
+       repositoryUrl: result.repositoryUrl || "",
+       branchUrl: result.branchUrl || ""
+@@ -408,6 +459,36 @@
+     }));
+   });
+ 
++
++
++  window.addEventListener(AGENT_TRIGGER_UPLOAD_EVENT, (event) => {
++    const detail = event?.detail || {};
++    const buttonId = String(detail.buttonId || detail.button_id || "");
++    const fileName = String(detail.fileName || detail.file_name || "").toLowerCase();
++    const candidates = Array.from(document.querySelectorAll(`.${BUTTON_CLASS}`));
++    const button = candidates.find((candidate) => {
++      const marker = refreshMarkerForAgent(candidate);
++      if (buttonId && marker.buttonId === buttonId) return true;
++      if (fileName && String(marker.fileName || "").toLowerCase() === fileName) return true;
++      return false;
++    });
++
++    if (button && !button.disabled) {
++      button.click();
++    }
++
++    window.dispatchEvent(new CustomEvent(AGENT_TRIGGER_UPLOAD_RESPONSE_EVENT, {
++      detail: {
++        schemaVersion: "openpatch.trigger_upload_response.v1",
++        requestId: detail.requestId || detail.request_id || "",
++        status: button ? "triggered" : "candidate_missing",
++        buttonId: button?.dataset?.openpatchButtonId || "",
++        fileName: button?.dataset?.openpatchFileName || "",
++        createdAt: new Date().toISOString()
++      }
++    }));
++  });
++
+   function captureDownloadFromSource({ sourceButton, suggestedName }) {
+     return new Promise((resolve, reject) => {
+       const id = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+@@ -572,6 +653,19 @@
+       }
+     });
+ 
++    const copyRoundPackPrompt = document.createElement("button");
++    copyRoundPackPrompt.type = "button";
++    copyRoundPackPrompt.textContent = "复制 RoundPack 提示词";
++    copyRoundPackPrompt.title = "复制 webai-roundpack.zip 归档提示词";
++    copyRoundPackPrompt.addEventListener("click", async () => {
++      try {
++        await copyText(ROUNDPACK_PROMPT);
++        showToast("RoundPack 提示词已复制");
++      } catch (error) {
++        showToast("复制失败，请手动重试");
++      }
++    });
++
+     const copyDiffPrompt = document.createElement("button");
+     copyDiffPrompt.type = "button";
+     copyDiffPrompt.textContent = "复制 Diff 提示词";
+@@ -590,7 +684,7 @@
+       toggle.setAttribute("aria-expanded", String(isOpen));
+     });
+ 
+-    actions.append(openSubmit, copyZipPrompt, copyDiffPrompt, settings);
++    actions.append(openSubmit, copyRoundPackPrompt, copyZipPrompt, copyDiffPrompt, settings);
+     toolbar.append(toggle, actions);
+     document.documentElement.append(toolbar);
+   }
+diff -ruN /mnt/data/openpatch_v2_candidate/openpatch-main/src/github.js /mnt/data/openpatch_v3_candidate/openpatch-main/src/github.js
+--- /mnt/data/openpatch_v2_candidate/openpatch-main/src/github.js	2026-04-24 13:57:59.000000000 +0000
++++ /mnt/data/openpatch_v3_candidate/openpatch-main/src/github.js	2026-05-05 23:23:36.824647567 +0000
+@@ -34,7 +34,7 @@
+   return `GitHub API 失败：${response.status} ${detail}`;
+ }
+ 
+-export async function createRepositoryFile({ token, owner, repo, path, branch, message, content }) {
++export async function createRepositoryFile({ token, owner, repo, path, branch, message, content, sha }) {
+   const response = await fetch(buildContentsApiUrl({ owner, repo, path }), {
+     method: "PUT",
+     headers: {
+@@ -46,7 +46,8 @@
+     body: JSON.stringify({
+       message,
+       content,
+-      branch
++      branch,
++      ...(sha ? { sha } : {})
+     })
+   });
+ 
+@@ -77,3 +78,41 @@
+ 
+   return user;
+ }
++
++
++export async function getRepositoryFile({ token, owner, repo, path, branch }) {
++  const url = new URL(buildContentsApiUrl({ owner, repo, path }));
++  if (branch) {
++    url.searchParams.set("ref", branch);
++  }
++
++  const response = await fetch(url.toString(), {
++    headers: {
++      Authorization: `Bearer ${token}`,
++      Accept: "application/vnd.github+json",
++      "X-GitHub-Api-Version": "2022-11-28"
++    }
++  });
++
++  if (response.status === 404) {
++    return null;
++  }
++  if (!response.ok) {
++    throw new Error(await getGitHubErrorMessage(response));
++  }
++  return response.json();
++}
++
++export async function upsertRepositoryFile({ token, owner, repo, path, branch, message, content }) {
++  const existing = await getRepositoryFile({ token, owner, repo, path, branch });
++  return createRepositoryFile({
++    token,
++    owner,
++    repo,
++    path,
++    branch,
++    message,
++    content,
++    sha: existing?.sha || undefined
++  });
++}
+diff -ruN /mnt/data/openpatch_v2_candidate/openpatch-main/src/options.js /mnt/data/openpatch_v3_candidate/openpatch-main/src/options.js
+--- /mnt/data/openpatch_v2_candidate/openpatch-main/src/options.js	2026-04-24 13:57:59.000000000 +0000
++++ /mnt/data/openpatch_v3_candidate/openpatch-main/src/options.js	2026-05-05 23:25:10.583683547 +0000
+@@ -7,6 +7,15 @@
+ const branchInput = document.querySelector("#base-branch");
+ const patchDirInput = document.querySelector("#patch-dir");
+ const autoOpenInput = document.querySelector("#auto-open-branch");
++const projectIdInput = document.querySelector("#project-id");
++const routeProfileIdInput = document.querySelector("#route-profile-id");
++const repoAliasInput = document.querySelector("#repo-alias");
++const keyAliasInput = document.querySelector("#key-alias");
++const archiveRootInput = document.querySelector("#archive-root");
++const indexRootInput = document.querySelector("#index-root");
++const archiveModeDefaultInput = document.querySelector("#archive-mode-default");
++const bridgeEnabledInput = document.querySelector("#bridge-enabled");
++const bridgeUrlInput = document.querySelector("#bridge-url");
+ const clearTokenButton = document.querySelector("#clear-token");
+ const statusEl = document.querySelector("#status");
+ const tokenStateEl = document.querySelector("#token-state");
+@@ -19,6 +28,15 @@
+   repositoryInput.value = formatRepositoryInput(config);
+   branchInput.value = config.baseBranch;
+   patchDirInput.value = config.patchDir;
++  projectIdInput.value = config.projectId || "";
++  routeProfileIdInput.value = config.routeProfileId || "";
++  repoAliasInput.value = config.repoAlias || "";
++  keyAliasInput.value = config.keyAlias || "";
++  archiveRootInput.value = config.archiveRoot || "rounds";
++  indexRootInput.value = config.indexRoot || "index";
++  archiveModeDefaultInput.value = config.archiveModeDefault || "auto";
++  bridgeEnabledInput.checked = Boolean(config.bridgeEnabled);
++  bridgeUrlInput.value = config.bridgeUrl || "";
+   autoOpenInput.checked = config.autoOpenBranch;
+   tokenStateEl.textContent = config.githubToken ? "已配置" : "未配置";
+ }
+@@ -30,6 +48,15 @@
+     repository: repositoryInput.value,
+     baseBranch: branchInput.value,
+     patchDir: patchDirInput.value,
++    projectId: projectIdInput.value,
++    routeProfileId: routeProfileIdInput.value,
++    repoAlias: repoAliasInput.value,
++    keyAlias: keyAliasInput.value,
++    archiveRoot: archiveRootInput.value,
++    indexRoot: indexRootInput.value,
++    archiveModeDefault: archiveModeDefaultInput.value,
++    bridgeEnabled: bridgeEnabledInput.checked,
++    bridgeUrl: bridgeUrlInput.value,
+     autoOpenBranch: autoOpenInput.checked
+   });
+   statusEl.textContent = "设置已保存。";
+diff -ruN /mnt/data/openpatch_v2_candidate/openpatch-main/src/storage.js /mnt/data/openpatch_v3_candidate/openpatch-main/src/storage.js
+--- /mnt/data/openpatch_v2_candidate/openpatch-main/src/storage.js	2026-05-05 23:19:54.667446501 +0000
++++ /mnt/data/openpatch_v3_candidate/openpatch-main/src/storage.js	2026-05-05 23:24:31.271788928 +0000
+@@ -29,7 +29,11 @@
+     repoAlias: String(input.repoAlias || input.repo_alias || DEFAULT_CONFIG.repoAlias).trim(),
+     keyAlias: String(input.keyAlias || input.key_alias || DEFAULT_CONFIG.keyAlias).trim(),
+     bridgeEnabled: Boolean(input.bridgeEnabled || input.bridge_enabled),
+-    bridgeUrl: String(input.bridgeUrl || input.bridge_url || DEFAULT_CONFIG.bridgeUrl).trim()
++    bridgeUrl: String(input.bridgeUrl || input.bridge_url || DEFAULT_CONFIG.bridgeUrl).trim(),
++    archiveRoot: String(input.archiveRoot || input.archive_root || DEFAULT_CONFIG.archiveRoot).trim(),
++    indexRoot: String(input.indexRoot || input.index_root || DEFAULT_CONFIG.indexRoot).trim(),
++    archiveModeDefault: String(input.archiveModeDefault || input.archive_mode_default || DEFAULT_CONFIG.archiveModeDefault).trim(),
++    maxArchiveSizeMb: Number(input.maxArchiveSizeMb || input.max_archive_size_mb || DEFAULT_CONFIG.maxArchiveSizeMb)
+   };
+ 
+   await chrome.storage.local.set({ [CONFIG_KEY]: config });
+diff -ruN /mnt/data/openpatch_v2_candidate/openpatch-main/src/uploader.js /mnt/data/openpatch_v3_candidate/openpatch-main/src/uploader.js
+--- /mnt/data/openpatch_v2_candidate/openpatch-main/src/uploader.js	2026-04-24 13:57:59.000000000 +0000
++++ /mnt/data/openpatch_v3_candidate/openpatch-main/src/uploader.js	2026-05-05 23:24:09.512888176 +0000
+@@ -1,14 +1,26 @@
+-import { createRepositoryFile, getAuthenticatedUser } from "./github.js";
++import { createRepositoryFile, getAuthenticatedUser, getRepositoryFile, upsertRepositoryFile } from "./github.js";
+ import {
+   buildBranchUrl,
++  buildLatestIndex,
++  buildLatestIndexPath,
+   buildPatchMetadata,
+   buildPatchMetadataPath,
+   buildPatchUploadPath,
+   buildRepositoryUrl,
++  buildRoundArchivePath,
++  buildRoundId,
++  buildRoundManifestPath,
++  buildRoundReceiptPath,
++  buildRoundUploadReceipt,
++  decodeBase64Json,
+   encodeBase64Bytes,
+   encodeBase64Utf8,
+   getUploadFileExtension,
++  isArchiveFileName,
+   isPatchFileName,
++  normalizeAgentAlias,
++  sanitizeArchiveFileName,
++  sha256Base64Content,
+   validateConfig
+ } from "./utils.js";
+ 
+@@ -104,5 +116,173 @@
+     ...options,
+     fileName: file.name,
+     content
++  });
++}
++
++
++export async function uploadRoundArchiveContent({
++  config,
++  fileName,
++  content,
++  routeContext = {},
++  title = "",
++  githubClient = createRepositoryFile,
++  githubUserClient = getAuthenticatedUser,
++  githubUpsertClient = upsertRepositoryFile,
++  githubGetClient = getRepositoryFile,
++  now = new Date()
++}) {
++  const validation = validateConfig({
++    ...config,
++    patchDir: config?.archiveRoot || config?.patchDir || "rounds"
++  });
++  if (!validation.ok) {
++    throw new Error(`请先配置：${validation.missing.join("、")}`);
++  }
++
++  if (!isArchiveFileName(fileName)) {
++    throw new Error("请选择 .zip、.json、.md 或 .txt 归档文件。");
++  }
++
++  const uploadConfig = { ...config };
++  if (!uploadConfig.owner) {
++    const user = await githubUserClient(uploadConfig.githubToken);
++    uploadConfig.owner = user.login;
++  }
++
++  const project = normalizeAgentAlias(
++    routeContext.project || uploadConfig.projectId || uploadConfig.routeProfileId || "default",
++    "default"
++  );
++  const roundId = normalizeAgentAlias(
++    routeContext.roundId || routeContext.round_id || buildRoundId({ project, now }),
++    "round"
++  );
++  const safeFileName = sanitizeArchiveFileName(fileName);
++  const archivePath = buildRoundArchivePath({
++    root: uploadConfig.archiveRoot || "rounds",
++    project,
++    roundId,
++    fileName: safeFileName,
++    now
++  });
++  const receiptPath = buildRoundReceiptPath(archivePath);
++  const manifestPath = buildRoundManifestPath(archivePath);
++  const latestPath = buildLatestIndexPath({
++    indexRoot: uploadConfig.indexRoot || "index",
++    project
++  });
++  const fileSha256 = await sha256Base64Content(content);
++
++  const shared = {
++    token: uploadConfig.githubToken,
++    owner: uploadConfig.owner,
++    repo: uploadConfig.repo,
++    branch: uploadConfig.baseBranch
++  };
++
++  const artifactResult = await githubClient({
++    ...shared,
++    path: archivePath,
++    message: `chore(openpatch): archive ${safeFileName}`,
++    content
++  });
++
++  const receipt = buildRoundUploadReceipt({
++    project,
++    roundId,
++    fileName: safeFileName,
++    fileSha256,
++    archivePath,
++    receiptPath,
++    latestPath,
++    owner: uploadConfig.owner,
++    repo: uploadConfig.repo,
++    branch: uploadConfig.baseBranch,
++    routeContext,
++    createdAt: now
++  });
++
++  const manifest = {
++    schema_version: "openpatch.archive_manifest.v1",
++    archive_only: true,
++    allow_execution: false,
++    project,
++    round_id: roundId,
++    title: String(title || "").slice(0, 300),
++    files: [
++      {
++        name: safeFileName,
++        sha256: fileSha256,
++        role: "roundpack_or_artifact",
++        path: archivePath
++      }
++    ],
++    receipt_path: receiptPath,
++    latest_path: latestPath,
++    route_context: receipt.route_context,
++    created_at: now.toISOString()
++  };
++
++  await githubClient({
++    ...shared,
++    path: manifestPath,
++    message: `chore(openpatch): write archive manifest for ${roundId}`,
++    content: encodeBase64Utf8(JSON.stringify(manifest, null, 2))
++  });
++
++  await githubClient({
++    ...shared,
++    path: receiptPath,
++    message: `chore(openpatch): write upload receipt for ${roundId}`,
++    content: encodeBase64Utf8(JSON.stringify(receipt, null, 2))
++  });
++
++  let previousLatest = null;
++  try {
++    const latestFile = await githubGetClient({ ...shared, path: latestPath });
++    previousLatest = decodeBase64Json(latestFile?.content || "");
++  } catch {
++    previousLatest = null;
++  }
++
++  const latest = buildLatestIndex({ receipt, previous: previousLatest, createdAt: now });
++  const latestResult = await githubUpsertClient({
++    ...shared,
++    path: latestPath,
++    message: `chore(openpatch): update latest index for ${project}`,
++    content: encodeBase64Utf8(JSON.stringify(latest, null, 2))
++  });
++
++  return {
++    mode: "roundpack_archive",
++    owner: uploadConfig.owner,
++    repo: uploadConfig.repo,
++    branch: uploadConfig.baseBranch,
++    project,
++    roundId,
++    fileName: safeFileName,
++    fileSha256,
++    path: archivePath,
++    manifestPath,
++    receiptPath,
++    latestPath,
++    commitSha: latestResult?.commit?.sha || artifactResult?.commit?.sha || "",
++    repositoryUrl: buildRepositoryUrl(uploadConfig),
++    branchUrl: buildBranchUrl({
++      owner: uploadConfig.owner,
++      repo: uploadConfig.repo,
++      branch: uploadConfig.baseBranch
++    }),
++    receipt
++  };
++}
++
++export async function uploadRoundArchiveFile({ file, ...options }) {
++  const content = encodeBase64Bytes(await file.arrayBuffer());
++  return uploadRoundArchiveContent({
++    ...options,
++    fileName: file.name,
++    content
+   });
+ }
+diff -ruN /mnt/data/openpatch_v2_candidate/openpatch-main/src/utils.js /mnt/data/openpatch_v3_candidate/openpatch-main/src/utils.js
+--- /mnt/data/openpatch_v2_candidate/openpatch-main/src/utils.js	2026-05-05 23:19:35.166564448 +0000
++++ /mnt/data/openpatch_v3_candidate/openpatch-main/src/utils.js	2026-05-05 23:23:53.098991761 +0000
+@@ -11,7 +11,11 @@
+   repoAlias: "",
+   keyAlias: "",
+   bridgeEnabled: false,
+-  bridgeUrl: ""
++  bridgeUrl: "",
++  archiveRoot: "rounds",
++  indexRoot: "index",
++  archiveModeDefault: "auto",
++  maxArchiveSizeMb: 50
+ };
+ 
+ export function parseRepositoryInput(input) {
+@@ -224,3 +228,148 @@
+ export function buildBranchUrl({ owner, repo, branch }) {
+   return `${buildRepositoryUrl({ owner, repo })}/tree/${encodeURIComponent(branch)}`;
+ }
++
++
++export function looksLikeRoundPackDownloadText(text) {
++  const value = String(text || "").trim().toLowerCase();
++  if (!value) return false;
++  return /round\s*pack|roundpack|webai-roundpack|review-pack|audit-pack|handoff|evidence|receipt|归档|回合包|交接包|审核包|证据包/i.test(value);
++}
++
++export function isArchiveFileName(name) {
++  return /\.(zip|json|md|txt)$/i.test(String(name || ""));
++}
++
++export function shouldUseArchiveMode({ fileName = "", label = "", configuredMode = "auto" } = {}) {
++  const mode = String(configuredMode || "auto").toLowerCase();
++  if (mode === "archive_only" || mode === "roundpack_archive") return true;
++  if (mode === "patch_upload") return false;
++  return looksLikeRoundPackDownloadText(`${fileName} ${label}`);
++}
++
++export function sanitizeArchiveFileName(name, fallback = "webai-roundpack.zip") {
++  const value = String(name || fallback)
++    .replace(/[\\/]+/g, "-")
++    .normalize("NFKD")
++    .replace(/[^a-zA-Z0-9_.-]+/g, "-")
++    .replace(/-+/g, "-")
++    .replace(/^[.-]+|[.-]+$/g, "");
++  return value || fallback;
++}
++
++export function buildRoundId({ project = "default", now = new Date(), randomId } = {}) {
++  return `${normalizeAgentAlias(project, "default")}-${formatTimestamp(now)}-${randomId || randomShortId(6)}`;
++}
++
++export function buildSiblingArchivePath(path, fileName) {
++  const parts = String(path || "").split("/");
++  parts[parts.length - 1] = sanitizeArchiveFileName(fileName, fileName);
++  return parts.join("/");
++}
++
++export function buildRoundReceiptPath(archivePath) {
++  return buildSiblingArchivePath(archivePath, "upload_receipt.json");
++}
++
++export function buildRoundManifestPath(archivePath) {
++  return buildSiblingArchivePath(archivePath, "archive_manifest.json");
++}
++
++export function buildLatestIndexPath({ indexRoot = "index", project = "default" } = {}) {
++  const root = normalizePatchDirectory(indexRoot || "index");
++  return `${root}/latest/${normalizeAgentAlias(project, "default")}.json`;
++}
++
++export async function sha256Base64Content(base64Content) {
++  const binary = atob(String(base64Content || ""));
++  const bytes = new Uint8Array(binary.length);
++  for (let index = 0; index < binary.length; index += 1) {
++    bytes[index] = binary.charCodeAt(index);
++  }
++  const digest = await globalThis.crypto.subtle.digest("SHA-256", bytes);
++  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
++}
++
++export function buildRoundUploadReceipt({
++  project,
++  roundId,
++  fileName,
++  fileSha256,
++  archivePath,
++  receiptPath,
++  latestPath,
++  owner,
++  repo,
++  branch,
++  routeContext = {},
++  createdAt = new Date()
++}) {
++  return {
++    schema_version: "openpatch.upload_receipt.v1",
++    status: "uploaded",
++    archive_only: true,
++    allow_execution: false,
++    project: normalizeAgentAlias(project || routeContext.project || "default", "default"),
++    round_id: String(roundId || ""),
++    file_name: sanitizeArchiveFileName(fileName),
++    file_sha256: String(fileSha256 || ""),
++    github: {
++      owner: String(owner || ""),
++      repo: String(repo || ""),
++      branch: String(branch || ""),
++      archive_path: String(archivePath || ""),
++      receipt_path: String(receiptPath || ""),
++      latest_path: String(latestPath || "")
++    },
++    route_context: {
++      route_id: String(routeContext.routeId || routeContext.route_id || ""),
++      route_profile: String(routeContext.routeProfile || routeContext.route_profile || ""),
++      repo_alias: String(routeContext.repoAlias || routeContext.repo_alias || ""),
++      key_alias: String(routeContext.keyAlias || routeContext.key_alias || ""),
++      page_session_id: String(routeContext.pageSessionId || routeContext.page_session_id || "")
++    },
++    created_at: createdAt.toISOString(),
++    next_actions: ["read_latest", "fetch_roundpack", "read_receipt", "continue_agent_workflow"]
++  };
++}
++
++export function buildLatestIndex({ receipt, previous = null, createdAt = new Date() }) {
++  const history = Array.isArray(previous?.recent_rounds) ? previous.recent_rounds.slice(0, 19) : [];
++  const current = {
++    round_id: receipt.round_id,
++    project: receipt.project,
++    status: receipt.status,
++    file_name: receipt.file_name,
++    file_sha256: receipt.file_sha256,
++    archive_path: receipt.github?.archive_path || "",
++    receipt_path: receipt.github?.receipt_path || "",
++    created_at: receipt.created_at
++  };
++  return {
++    schema_version: "openpatch.latest.v1",
++    project: receipt.project,
++    latest_round: receipt.round_id,
++    status: receipt.status,
++    archive_only: true,
++    allow_execution: false,
++    latest: current,
++    recent_rounds: [current, ...history.filter((item) => item.round_id !== current.round_id)],
++    codex_should_read: ["upload_receipt.json", "archive_manifest.json", "NEXT_FOR_CODEX.md", "ROUND_SUMMARY.md"],
++    next_actor: "codex_or_reviewer",
++    updated_at: createdAt.toISOString()
++  };
++}
++
++export function decodeBase64Json(base64Content) {
++  if (!base64Content) return null;
++  try {
++    const text = decodeURIComponent(escape(atob(base64Content)));
++    return JSON.parse(text);
++  } catch {
++    try {
++      return JSON.parse(atob(base64Content));
++    } catch {
++      return null;
++    }
++  }
++}
+diff -ruN /mnt/data/openpatch_v2_candidate/openpatch-main/test/uploader.test.js /mnt/data/openpatch_v3_candidate/openpatch-main/test/uploader.test.js
+--- /mnt/data/openpatch_v2_candidate/openpatch-main/test/uploader.test.js	2026-04-24 13:57:59.000000000 +0000
++++ /mnt/data/openpatch_v3_candidate/openpatch-main/test/uploader.test.js	2026-05-05 23:25:39.594279926 +0000
+@@ -81,3 +81,50 @@
+   assert.equal(calls[1].path.endsWith(".zip"), true);
+   assert.equal(calls[1].content, "AAEC/w==");
+ });
++
++import { uploadRoundArchiveContent } from "../src/uploader.js";
++
++test("uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest", async () => {
++  const createCalls = [];
++  const upsertCalls = [];
++  const result = await uploadRoundArchiveContent({
++    config: {
++      githubToken: "token",
++      owner: "afumu",
++      repo: "webai-ledger",
++      baseBranch: "webai-archive",
++      patchDir: ".ai-patches",
++      archiveRoot: "rounds",
++      indexRoot: "index",
++      projectId: "webai-transfer"
++    },
++    fileName: "webai-roundpack.zip",
++    content: "AAEC/w==",
++    routeContext: {
++      project: "webai-transfer",
++      roundId: "round-001",
++      routeId: "designer-chat-a",
++      repoAlias: "archive-default",
++      keyAlias: "github-archive-key"
++    },
++    now: new Date("2026-05-06T00:00:00Z"),
++    githubClient: async (payload) => {
++      createCalls.push(payload);
++      return { commit: { sha: `create-${createCalls.length}` } };
++    },
++    githubGetClient: async () => null,
++    githubUpsertClient: async (payload) => {
++      upsertCalls.push(payload);
++      return { commit: { sha: "latest-sha" } };
++    }
++  });
++
++  assert.equal(createCalls.length, 3);
++  assert.equal(createCalls[0].path, "rounds/webai-transfer/2026/05/06/round-001/webai-roundpack.zip");
++  assert.equal(createCalls[1].path.endsWith("archive_manifest.json"), true);
++  assert.equal(createCalls[2].path.endsWith("upload_receipt.json"), true);
++  assert.equal(upsertCalls.length, 1);
++  assert.equal(upsertCalls[0].path, "index/latest/webai-transfer.json");
++  assert.equal(result.mode, "roundpack_archive");
++  assert.equal(result.fileSha256, "3d1f57c984978ef98a18378c8166c1cb8ede02c03eeb6aee7e2f121dfeee3e56");
++});
+diff -ruN /mnt/data/openpatch_v2_candidate/openpatch-main/test/utils.test.js /mnt/data/openpatch_v3_candidate/openpatch-main/test/utils.test.js
+--- /mnt/data/openpatch_v2_candidate/openpatch-main/test/utils.test.js	2026-04-24 13:57:59.000000000 +0000
++++ /mnt/data/openpatch_v3_candidate/openpatch-main/test/utils.test.js	2026-05-05 23:25:31.876848509 +0000
+@@ -77,3 +77,33 @@
+ test("sanitizePatchName keeps fallback usable", () => {
+   assert.equal(sanitizePatchName("   "), "ai-patch");
+ });
++
++import {
++  buildLatestIndexPath,
++  buildRoundArchivePath,
++  buildRoundReceiptPath,
++  isArchiveFileName,
++  looksLikeRoundPackDownloadText,
++  sanitizeArchiveFileName,
++  shouldUseArchiveMode
++} from "../src/utils.js";
++
++test("roundpack helpers detect archive artifacts and build safe paths", () => {
++  assert.equal(looksLikeRoundPackDownloadText("webai-roundpack.zip"), true);
++  assert.equal(looksLikeRoundPackDownloadText("审核包 audit-pack.zip"), true);
++  assert.equal(isArchiveFileName("webai-roundpack.zip"), true);
++  assert.equal(isArchiveFileName("secret.exe"), false);
++  assert.equal(shouldUseArchiveMode({ fileName: "webai-roundpack.zip", label: "download", configuredMode: "auto" }), true);
++  assert.equal(sanitizeArchiveFileName("../bad name.zip"), "bad-name.zip");
++
++  const path = buildRoundArchivePath({
++    root: "rounds",
++    project: "WebAI Transfer",
++    roundId: "Round 001",
++    fileName: "webai-roundpack.zip",
++    now: new Date("2026-05-06T00:00:00Z")
++  });
++  assert.equal(path, "rounds/webai-transfer/2026/05/06/round-001/webai-roundpack.zip");
++  assert.equal(buildRoundReceiptPath(path), "rounds/webai-transfer/2026/05/06/round-001/upload_receipt.json");
++  assert.equal(buildLatestIndexPath({ indexRoot: "index", project: "WebAI Transfer" }), "index/latest/webai-transfer.json");
++});

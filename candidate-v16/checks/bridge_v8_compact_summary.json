@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.compact_summary.v1",
+  "project": "v8stress",
+  "latest_round": "stress-0049",
+  "status": "dry_run_planned",
+  "archive_only": true,
+  "allow_execution": false,
+  "file_sha256": "25ba387b726c9e7fd14582936b537c20750e04db08f8929247d0357bec64ceb1",
+  "queue_counts": {},
+  "recommended_agent_action": "read_latest_receipt_or_fetch_roundpack",
+  "codex_next": "node local-bridge/openpatch-ledger-cli.mjs receipt --project v8stress --round stress-0049",
+  "updated_at": "2026-05-06T00:49:01.378Z"
+}

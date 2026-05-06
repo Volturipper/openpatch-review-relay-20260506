@@ -1,0 +1,5 @@
+{
+  "schema": "openpatch.route_fix_suggestions.v10",
+  "description": "Machine-readable route profile fix suggestions for Codex/agents.",
+  "top_level_fields": ["suggestions", "recommended_agent_action"]
+}

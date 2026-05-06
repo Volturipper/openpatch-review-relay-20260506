@@ -1,0 +1,1213 @@
+diff -ruN openpatch_agent_gateway_v9_candidate/checks/bridge_v10_cli_routes_fix_suggestions.json openpatch_agent_gateway_v10_candidate/checks/bridge_v10_cli_routes_fix_suggestions.json
+--- openpatch_agent_gateway_v9_candidate/checks/bridge_v10_cli_routes_fix_suggestions.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/checks/bridge_v10_cli_routes_fix_suggestions.json	2026-05-06 01:34:11.988978715 +0000
+@@ -0,0 +1,40 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.route_fix_suggestions.v10",
++  "suggestion_count": 1,
++  "suggestions": [
++    {
++      "severity": "warning",
++      "action": "add_browser_profile_chat_group_or_more_specific_match",
++      "reason": "two or more routes score too closely for this page",
++      "candidates": [
++        {
++          "profile": {
++            "profile_id": "webai-transfer-chatgpt",
++            "project": "webai-transfer",
++            "repo_alias": "archive-a",
++            "key_alias": "key-a",
++            "priority": 10,
++            "default": false,
++            "match_fingerprint": "e69ac47663afd004"
++          },
++          "score": 35
++        },
++        {
++          "profile": {
++            "profile_id": "webai-transfer-reviewer",
++            "project": "webai-transfer",
++            "repo_alias": "archive-a",
++            "key_alias": "key-a",
++            "priority": 8,
++            "default": false,
++            "match_fingerprint": "0c8e8a9c31f7d60f"
++          },
++          "score": 33
++        }
++      ]
++    }
++  ],
++  "recommended_agent_action": "review_suggestions_then_continue",
++  "generated_at": "2026-05-06T01:34:11.981Z"
++}
+diff -ruN openpatch_agent_gateway_v9_candidate/checks/bridge_v10_cli_routes_visual.json openpatch_agent_gateway_v10_candidate/checks/bridge_v10_cli_routes_visual.json
+--- openpatch_agent_gateway_v9_candidate/checks/bridge_v10_cli_routes_visual.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/checks/bridge_v10_cli_routes_visual.json	2026-05-06 01:34:11.876052957 +0000
+@@ -0,0 +1,165 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.route_visual_map.v10",
++  "route_file": "/mnt/data/openpatch_v10_bridge_test2/route_profiles.json",
++  "total_profiles": 3,
++  "nodes": [
++    {
++      "profile_id": "webai-transfer-chatgpt",
++      "project": "webai-transfer",
++      "repo_alias": "archive-a",
++      "key_alias": "key-a",
++      "priority": 10,
++      "default": false,
++      "match_fingerprint": "e69ac47663afd004",
++      "browser_profile": "chrome-dev-ai-collab",
++      "chat_group": "designer",
++      "agent_group": "",
++      "mode": "roundpack_archive",
++      "archive_root": "rounds",
++      "index_root": "index",
++      "match": {
++        "url_contains": [
++          "chatgpt.com"
++        ],
++        "title_contains": [
++          "webai transfer"
++        ],
++        "host_contains": [],
++        "url_regex_count": 0
++      },
++      "route_label": "webai-transfer -> archive-a / key-a"
++    },
++    {
++      "profile_id": "webai-transfer-reviewer",
++      "project": "webai-transfer",
++      "repo_alias": "archive-a",
++      "key_alias": "key-a",
++      "priority": 8,
++      "default": false,
++      "match_fingerprint": "0c8e8a9c31f7d60f",
++      "browser_profile": "chrome-dev-ai-collab",
++      "chat_group": "reviewer",
++      "agent_group": "",
++      "mode": "roundpack_archive",
++      "archive_root": "rounds",
++      "index_root": "index",
++      "match": {
++        "url_contains": [
++          "chatgpt.com"
++        ],
++        "title_contains": [
++          "reviewer"
++        ],
++        "host_contains": [],
++        "url_regex_count": 0
++      },
++      "route_label": "webai-transfer -> archive-a / key-a"
++    },
++    {
++      "profile_id": "default-archive",
++      "project": "default",
++      "repo_alias": "archive-a",
++      "key_alias": "key-a",
++      "priority": 0,
++      "default": true,
++      "match_fingerprint": "ac211a2f1f1d22b1",
++      "browser_profile": "",
++      "chat_group": "",
++      "agent_group": "",
++      "mode": "roundpack_archive",
++      "archive_root": "rounds",
++      "index_root": "index",
++      "match": {
++        "url_contains": [],
++        "title_contains": [],
++        "host_contains": [
++          "chatgpt.com"
++        ],
++        "url_regex_count": 0
++      },
++      "route_label": "default -> archive-a / key-a"
++    }
++  ],
++  "edges": [
++    {
++      "from": "webai-transfer-chatgpt",
++      "to_repo_alias": "archive-a",
++      "to_key_alias": "key-a",
++      "repo_known": true,
++      "key_known": true,
++      "route_label": "webai-transfer -> archive-a / key-a"
++    },
++    {
++      "from": "webai-transfer-reviewer",
++      "to_repo_alias": "archive-a",
++      "to_key_alias": "key-a",
++      "repo_known": true,
++      "key_known": true,
++      "route_label": "webai-transfer -> archive-a / key-a"
++    },
++    {
++      "from": "default-archive",
++      "to_repo_alias": "archive-a",
++      "to_key_alias": "key-a",
++      "repo_known": true,
++      "key_known": true,
++      "route_label": "default -> archive-a / key-a"
++    }
++  ],
++  "missing_alias_refs": [],
++  "conflicts_summary": {
++    "issue_count": 0,
++    "has_blocking_conflict": false,
++    "recommended_agent_action": "route_profiles_ok"
++  },
++  "dynamic": {
++    "input": {
++      "project_hint": "webai-transfer",
++      "page_url_host": "chatgpt.com",
++      "title": "webai transfer"
++    },
++    "top_candidates": [
++      {
++        "profile": {
++          "profile_id": "webai-transfer-chatgpt",
++          "project": "webai-transfer",
++          "repo_alias": "archive-a",
++          "key_alias": "key-a",
++          "priority": 10,
++          "default": false,
++          "match_fingerprint": "e69ac47663afd004"
++        },
++        "score": 70
++      },
++      {
++        "profile": {
++          "profile_id": "webai-transfer-reviewer",
++          "project": "webai-transfer",
++          "repo_alias": "archive-a",
++          "key_alias": "key-a",
++          "priority": 8,
++          "default": false,
++          "match_fingerprint": "0c8e8a9c31f7d60f"
++        },
++        "score": 53
++      },
++      {
++        "profile": {
++          "profile_id": "default-archive",
++          "project": "default",
++          "repo_alias": "archive-a",
++          "key_alias": "key-a",
++          "priority": 0,
++          "default": true,
++          "match_fingerprint": "ac211a2f1f1d22b1"
++        },
++        "score": 20
++      }
++    ],
++    "score_gap": 17,
++    "ambiguous": false
++  },
++  "recommended_agent_action": "route_visual_map_ok",
++  "generated_at": "2026-05-06T01:34:11.868Z"
++}
+diff -ruN openpatch_agent_gateway_v9_candidate/checks/bridge_v10_cli_stress_routes.json openpatch_agent_gateway_v10_candidate/checks/bridge_v10_cli_stress_routes.json
+--- openpatch_agent_gateway_v9_candidate/checks/bridge_v10_cli_stress_routes.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/checks/bridge_v10_cli_stress_routes.json	2026-05-06 01:34:12.390729857 +0000
+@@ -0,0 +1,72 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.route_stress.v10",
++  "count": 200,
++  "ambiguous": 200,
++  "unresolved": 0,
++  "resolved": 200,
++  "recommended_agent_action": "inspect_route_profiles_before_live_upload",
++  "sample": [
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    }
++  ],
++  "generated_at": "2026-05-06T01:34:12.381Z"
++}
+diff -ruN openpatch_agent_gateway_v9_candidate/checks/bridge_v10_health.json openpatch_agent_gateway_v10_candidate/checks/bridge_v10_health.json
+--- openpatch_agent_gateway_v9_candidate/checks/bridge_v10_health.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/checks/bridge_v10_health.json	2026-05-06 01:34:11.630007892 +0000
+@@ -0,0 +1,41 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_health.v10",
++  "service": "openpatch-local-bridge",
++  "root": "/mnt/data/openpatch_v10_bridge_test2",
++  "capabilities": [
++    "routes",
++    "resolve_route",
++    "receipts",
++    "latest",
++    "sha_index",
++    "queue",
++    "config_status",
++    "archive_base64",
++    "bridge_side_github_upload",
++    "agent_summary",
++    "receipt_query",
++    "queue_claim",
++    "queue_retry",
++    "auto_continue_plan",
++    "events",
++    "compact_summary",
++    "recent_receipts",
++    "queue_stats",
++    "queue_claim_batch",
++    "queue_release",
++    "lease_reclaim",
++    "github_rate_backoff",
++    "events_compact",
++    "archive_size_guard",
++    "stress_test_ready",
++    "route_conflict_detector",
++    "queue_reclaim_expired",
++    "route_ambiguity_report",
++    "route_visual_map",
++    "route_fix_suggestions",
++    "route_resolution_stress",
++    "multi_browser_planning"
++  ],
++  "time": "2026-05-06T01:34:11.628Z"
++}
+diff -ruN openpatch_agent_gateway_v9_candidate/checks/bridge_v10_route_stress_150.json openpatch_agent_gateway_v10_candidate/checks/bridge_v10_route_stress_150.json
+--- openpatch_agent_gateway_v9_candidate/checks/bridge_v10_route_stress_150.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/checks/bridge_v10_route_stress_150.json	2026-05-06 01:34:11.773246475 +0000
+@@ -0,0 +1,72 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.route_stress.v10",
++  "count": 150,
++  "ambiguous": 150,
++  "unresolved": 0,
++  "resolved": 150,
++  "recommended_agent_action": "inspect_route_profiles_before_live_upload",
++  "sample": [
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    },
++    {
++      "status": "resolved",
++      "project": "webai-transfer",
++      "route_profile": "webai-transfer-chatgpt",
++      "ambiguity": "ambiguous"
++    }
++  ],
++  "generated_at": "2026-05-06T01:34:11.772Z"
++}
+diff -ruN openpatch_agent_gateway_v9_candidate/checks/bridge_v10_routes_fix_suggestions.json openpatch_agent_gateway_v10_candidate/checks/bridge_v10_routes_fix_suggestions.json
+--- openpatch_agent_gateway_v9_candidate/checks/bridge_v10_routes_fix_suggestions.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/checks/bridge_v10_routes_fix_suggestions.json	2026-05-06 01:34:11.690597414 +0000
+@@ -0,0 +1,8 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.route_fix_suggestions.v10",
++  "suggestion_count": 0,
++  "suggestions": [],
++  "recommended_agent_action": "no_route_fix_needed",
++  "generated_at": "2026-05-06T01:34:11.690Z"
++}
+diff -ruN openpatch_agent_gateway_v9_candidate/checks/bridge_v10_routes_visual.json openpatch_agent_gateway_v10_candidate/checks/bridge_v10_routes_visual.json
+--- openpatch_agent_gateway_v9_candidate/checks/bridge_v10_routes_visual.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/checks/bridge_v10_routes_visual.json	2026-05-06 01:34:11.660769679 +0000
+@@ -0,0 +1,119 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.route_visual_map.v10",
++  "route_file": "/mnt/data/openpatch_v10_bridge_test2/route_profiles.json",
++  "total_profiles": 3,
++  "nodes": [
++    {
++      "profile_id": "webai-transfer-chatgpt",
++      "project": "webai-transfer",
++      "repo_alias": "archive-a",
++      "key_alias": "key-a",
++      "priority": 10,
++      "default": false,
++      "match_fingerprint": "e69ac47663afd004",
++      "browser_profile": "chrome-dev-ai-collab",
++      "chat_group": "designer",
++      "agent_group": "",
++      "mode": "roundpack_archive",
++      "archive_root": "rounds",
++      "index_root": "index",
++      "match": {
++        "url_contains": [
++          "chatgpt.com"
++        ],
++        "title_contains": [
++          "webai transfer"
++        ],
++        "host_contains": [],
++        "url_regex_count": 0
++      },
++      "route_label": "webai-transfer -> archive-a / key-a"
++    },
++    {
++      "profile_id": "webai-transfer-reviewer",
++      "project": "webai-transfer",
++      "repo_alias": "archive-a",
++      "key_alias": "key-a",
++      "priority": 8,
++      "default": false,
++      "match_fingerprint": "0c8e8a9c31f7d60f",
++      "browser_profile": "chrome-dev-ai-collab",
++      "chat_group": "reviewer",
++      "agent_group": "",
++      "mode": "roundpack_archive",
++      "archive_root": "rounds",
++      "index_root": "index",
++      "match": {
++        "url_contains": [
++          "chatgpt.com"
++        ],
++        "title_contains": [
++          "reviewer"
++        ],
++        "host_contains": [],
++        "url_regex_count": 0
++      },
++      "route_label": "webai-transfer -> archive-a / key-a"
++    },
++    {
++      "profile_id": "default-archive",
++      "project": "default",
++      "repo_alias": "archive-a",
++      "key_alias": "key-a",
++      "priority": 0,
++      "default": true,
++      "match_fingerprint": "ac211a2f1f1d22b1",
++      "browser_profile": "",
++      "chat_group": "",
++      "agent_group": "",
++      "mode": "roundpack_archive",
++      "archive_root": "rounds",
++      "index_root": "index",
++      "match": {
++        "url_contains": [],
++        "title_contains": [],
++        "host_contains": [
++          "chatgpt.com"
++        ],
++        "url_regex_count": 0
++      },
++      "route_label": "default -> archive-a / key-a"
++    }
++  ],
++  "edges": [
++    {
++      "from": "webai-transfer-chatgpt",
++      "to_repo_alias": "archive-a",
++      "to_key_alias": "key-a",
++      "repo_known": true,
++      "key_known": true,
++      "route_label": "webai-transfer -> archive-a / key-a"
++    },
++    {
++      "from": "webai-transfer-reviewer",
++      "to_repo_alias": "archive-a",
++      "to_key_alias": "key-a",
++      "repo_known": true,
++      "key_known": true,
++      "route_label": "webai-transfer -> archive-a / key-a"
++    },
++    {
++      "from": "default-archive",
++      "to_repo_alias": "archive-a",
++      "to_key_alias": "key-a",
++      "repo_known": true,
++      "key_known": true,
++      "route_label": "default -> archive-a / key-a"
++    }
++  ],
++  "missing_alias_refs": [],
++  "conflicts_summary": {
++    "issue_count": 0,
++    "has_blocking_conflict": false,
++    "recommended_agent_action": "route_profiles_ok"
++  },
++  "dynamic": null,
++  "recommended_agent_action": "route_visual_map_ok",
++  "generated_at": "2026-05-06T01:34:11.659Z"
++}
+diff -ruN openpatch_agent_gateway_v9_candidate/checks/bridge_v10_server.log openpatch_agent_gateway_v10_candidate/checks/bridge_v10_server.log
+--- openpatch_agent_gateway_v9_candidate/checks/bridge_v10_server.log	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/checks/bridge_v10_server.log	2026-05-06 01:34:10.896375908 +0000
+@@ -0,0 +1 @@
++{"ok":true,"service":"openpatch-local-bridge","port":17884,"root":"/mnt/data/openpatch_v10_bridge_test2"}
+diff -ruN openpatch_agent_gateway_v9_candidate/checks/bridge_v10_server.pid openpatch_agent_gateway_v10_candidate/checks/bridge_v10_server.pid
+--- openpatch_agent_gateway_v9_candidate/checks/bridge_v10_server.pid	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/checks/bridge_v10_server.pid	2026-05-06 01:34:10.585660569 +0000
+@@ -0,0 +1 @@
++62945
+diff -ruN openpatch_agent_gateway_v9_candidate/checks/npm_run_check_v10.log openpatch_agent_gateway_v10_candidate/checks/npm_run_check_v10.log
+--- openpatch_agent_gateway_v9_candidate/checks/npm_run_check_v10.log	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/checks/npm_run_check_v10.log	2026-05-06 01:35:05.514631144 +0000
+@@ -0,0 +1,99 @@
++
++> openpatch@0.2.0 check
++> node --test && node --check src/*.js && node -e "JSON.parse(require('fs').readFileSync('manifest.json','utf8')); console.log('manifest ok')"
++
++TAP version 13
++# Subtest: encodeGitHubPath preserves path separators and escapes segments
++ok 1 - encodeGitHubPath preserves path separators and escapes segments
++  ---
++  duration_ms: 0.724746
++  type: 'test'
++  ...
++# Subtest: buildContentsApiUrl encodes repository and path
++ok 2 - buildContentsApiUrl encodes repository and path
++  ---
++  duration_ms: 0.188659
++  type: 'test'
++  ...
++# Subtest: uploadPatchText uploads metadata first then patch to target branch
++ok 3 - uploadPatchText uploads metadata first then patch to target branch
++  ---
++  duration_ms: 5.007495
++  type: 'test'
++  ...
++# Subtest: uploadPatchText resolves missing owner from GitHub token user
++ok 4 - uploadPatchText resolves missing owner from GitHub token user
++  ---
++  duration_ms: 0.658477
++  type: 'test'
++  ...
++# Subtest: uploadPatchFile uploads zip as binary content
++ok 5 - uploadPatchFile uploads zip as binary content
++  ---
++  duration_ms: 0.583428
++  type: 'test'
++  ...
++# Subtest: uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++ok 6 - uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++  ---
++  duration_ms: 7.880238
++  type: 'test'
++  ...
++# Subtest: parseRepositoryInput accepts owner/repo and GitHub URLs
++ok 7 - parseRepositoryInput accepts owner/repo and GitHub URLs
++  ---
++  duration_ms: 2.793754
++  type: 'test'
++  ...
++# Subtest: looksLikePatchDownloadText detects loose Chinese diff labels
++ok 8 - looksLikePatchDownloadText detects loose Chinese diff labels
++  ---
++  duration_ms: 0.976869
++  type: 'test'
++  ...
++# Subtest: buildPatchUploadPath creates safe unique paths
++ok 9 - buildPatchUploadPath creates safe unique paths
++  ---
++  duration_ms: 1.352236
++  type: 'test'
++  ...
++# Subtest: zip upload paths and metadata paths are supported
++ok 10 - zip upload paths and metadata paths are supported
++  ---
++  duration_ms: 0.427324
++  type: 'test'
++  ...
++# Subtest: buildDefaultCommitTitle distinguishes zip packages
++ok 11 - buildDefaultCommitTitle distinguishes zip packages
++  ---
++  duration_ms: 0.153929
++  type: 'test'
++  ...
++# Subtest: encodeBase64Bytes encodes binary data
++ok 12 - encodeBase64Bytes encodes binary data
++  ---
++  duration_ms: 0.191061
++  type: 'test'
++  ...
++# Subtest: sanitizePatchName keeps fallback usable
++ok 13 - sanitizePatchName keeps fallback usable
++  ---
++  duration_ms: 0.167697
++  type: 'test'
++  ...
++# Subtest: roundpack helpers detect archive artifacts and build safe paths
++ok 14 - roundpack helpers detect archive artifacts and build safe paths
++  ---
++  duration_ms: 0.833254
++  type: 'test'
++  ...
++1..14
++# tests 14
++# suites 0
++# pass 14
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 182.106879
++manifest ok
+diff -ruN openpatch_agent_gateway_v9_candidate/checks/npm_test_v10.log openpatch_agent_gateway_v10_candidate/checks/npm_test_v10.log
+--- openpatch_agent_gateway_v9_candidate/checks/npm_test_v10.log	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/checks/npm_test_v10.log	2026-05-06 01:35:04.906419345 +0000
+@@ -0,0 +1,98 @@
++
++> openpatch@0.2.0 test
++> node --test
++
++TAP version 13
++# Subtest: encodeGitHubPath preserves path separators and escapes segments
++ok 1 - encodeGitHubPath preserves path separators and escapes segments
++  ---
++  duration_ms: 0.834598
++  type: 'test'
++  ...
++# Subtest: buildContentsApiUrl encodes repository and path
++ok 2 - buildContentsApiUrl encodes repository and path
++  ---
++  duration_ms: 0.235439
++  type: 'test'
++  ...
++# Subtest: uploadPatchText uploads metadata first then patch to target branch
++ok 3 - uploadPatchText uploads metadata first then patch to target branch
++  ---
++  duration_ms: 5.53156
++  type: 'test'
++  ...
++# Subtest: uploadPatchText resolves missing owner from GitHub token user
++ok 4 - uploadPatchText resolves missing owner from GitHub token user
++  ---
++  duration_ms: 0.634928
++  type: 'test'
++  ...
++# Subtest: uploadPatchFile uploads zip as binary content
++ok 5 - uploadPatchFile uploads zip as binary content
++  ---
++  duration_ms: 0.496492
++  type: 'test'
++  ...
++# Subtest: uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++ok 6 - uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++  ---
++  duration_ms: 6.977272
++  type: 'test'
++  ...
++# Subtest: parseRepositoryInput accepts owner/repo and GitHub URLs
++ok 7 - parseRepositoryInput accepts owner/repo and GitHub URLs
++  ---
++  duration_ms: 3.113403
++  type: 'test'
++  ...
++# Subtest: looksLikePatchDownloadText detects loose Chinese diff labels
++ok 8 - looksLikePatchDownloadText detects loose Chinese diff labels
++  ---
++  duration_ms: 0.757247
++  type: 'test'
++  ...
++# Subtest: buildPatchUploadPath creates safe unique paths
++ok 9 - buildPatchUploadPath creates safe unique paths
++  ---
++  duration_ms: 1.227024
++  type: 'test'
++  ...
++# Subtest: zip upload paths and metadata paths are supported
++ok 10 - zip upload paths and metadata paths are supported
++  ---
++  duration_ms: 0.603832
++  type: 'test'
++  ...
++# Subtest: buildDefaultCommitTitle distinguishes zip packages
++ok 11 - buildDefaultCommitTitle distinguishes zip packages
++  ---
++  duration_ms: 0.243817
++  type: 'test'
++  ...
++# Subtest: encodeBase64Bytes encodes binary data
++ok 12 - encodeBase64Bytes encodes binary data
++  ---
++  duration_ms: 0.245348
++  type: 'test'
++  ...
++# Subtest: sanitizePatchName keeps fallback usable
++ok 13 - sanitizePatchName keeps fallback usable
++  ---
++  duration_ms: 0.113455
++  type: 'test'
++  ...
++# Subtest: roundpack helpers detect archive artifacts and build safe paths
++ok 14 - roundpack helpers detect archive artifacts and build safe paths
++  ---
++  duration_ms: 0.971304
++  type: 'test'
++  ...
++1..14
++# tests 14
++# suites 0
++# pass 14
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 212.868185
+diff -ruN openpatch_agent_gateway_v9_candidate/docs/23_V9_IMPLEMENTATION_REPORT.md openpatch_agent_gateway_v10_candidate/docs/23_V9_IMPLEMENTATION_REPORT.md
+--- openpatch_agent_gateway_v9_candidate/docs/23_V9_IMPLEMENTATION_REPORT.md	2026-05-06 00:53:33.187301110 +0000
++++ openpatch_agent_gateway_v10_candidate/docs/23_V9_IMPLEMENTATION_REPORT.md	1970-01-01 00:00:00.000000000 +0000
+@@ -1,34 +0,0 @@
+-# OPENPATCH Agent Gateway v9 Implementation Report
+-
+-## 本轮目标
+-
+-✅ 加速进入真实试跑前状态，而不是继续扩写概念。  
+-✅ 重点补多页面/多浏览器/多 key 场景最容易误传的 route profile 冲突检测。  
+-✅ 继续便利 Codex：增加 CLI/API 查询、队列过期回收、动态路由歧义报告。  
+-✅ 保持聊天低冗余：代码、schema、测试日志全部放包内。
+-
+-## 新增能力
+-
+-- `GET /routes/conflicts`：静态检查 route profile 配置。
+-- `POST /routes/conflicts`：按当前页面 URL/title/project_hint 做动态歧义检测。
+-- `resolve-route` 返回 top candidates 与 ambiguity 信息。
+-- `POST /queue/reclaim-expired`：回收过期 lease，避免多 agent 抢任务后卡死。
+-- Codex CLI 新增 `routes-conflicts` 与 `queue-reclaim-expired`。
+-- 页面 API 新增 `openpatch:api:get-route-conflicts` / `openpatch:api:route-conflicts`。
+-- 按钮 marker 升级到 `openpatch.agent_button.v9`，增加 `routeConflictHint`。
+-- 增加真实 GitHub 单测试仓上传任务卡、Chrome Dev profile smoke 任务卡、Auto Continue live 接入任务卡。
+-
+-## 当前状态
+-
+-✅ 候选实现已自检。  
+-✅ 可交给 Codex 做隔离 smoke / 测试仓真实上传准备。  
+-⚠️ 尚未在真实 Chrome Dev profile 安装。  
+-⚠️ 尚未使用真实 fine-grained PAT 上传。  
+-⚠️ 尚未接入用户当前 live Auto Continue 脚本实测。
+-
+-## 下一步 fast-track
+-
+-1. 用 `browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V9.md` 做插件加载 smoke。
+-2. 用 `task_cards/FOR_GITHUB_TEST_UPLOAD_V9.md` 做单测试仓 archive-only 上传。
+-3. 用 `auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V9.md` 接入当前 Auto Continue。
+-4. 运行 `stress-archive --count 300 --parallel 20` 做更高轮次 dry-run。
+diff -ruN openpatch_agent_gateway_v9_candidate/docs/23_V9_IMPLEMENTATION_REPORT.md.bak openpatch_agent_gateway_v10_candidate/docs/23_V9_IMPLEMENTATION_REPORT.md.bak
+--- openpatch_agent_gateway_v9_candidate/docs/23_V9_IMPLEMENTATION_REPORT.md.bak	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/docs/23_V9_IMPLEMENTATION_REPORT.md.bak	2026-05-06 00:53:33.187301110 +0000
+@@ -0,0 +1,34 @@
++# OPENPATCH Agent Gateway v9 Implementation Report
++
++## 本轮目标
++
++✅ 加速进入真实试跑前状态，而不是继续扩写概念。  
++✅ 重点补多页面/多浏览器/多 key 场景最容易误传的 route profile 冲突检测。  
++✅ 继续便利 Codex：增加 CLI/API 查询、队列过期回收、动态路由歧义报告。  
++✅ 保持聊天低冗余：代码、schema、测试日志全部放包内。
++
++## 新增能力
++
++- `GET /routes/conflicts`：静态检查 route profile 配置。
++- `POST /routes/conflicts`：按当前页面 URL/title/project_hint 做动态歧义检测。
++- `resolve-route` 返回 top candidates 与 ambiguity 信息。
++- `POST /queue/reclaim-expired`：回收过期 lease，避免多 agent 抢任务后卡死。
++- Codex CLI 新增 `routes-conflicts` 与 `queue-reclaim-expired`。
++- 页面 API 新增 `openpatch:api:get-route-conflicts` / `openpatch:api:route-conflicts`。
++- 按钮 marker 升级到 `openpatch.agent_button.v9`，增加 `routeConflictHint`。
++- 增加真实 GitHub 单测试仓上传任务卡、Chrome Dev profile smoke 任务卡、Auto Continue live 接入任务卡。
++
++## 当前状态
++
++✅ 候选实现已自检。  
++✅ 可交给 Codex 做隔离 smoke / 测试仓真实上传准备。  
++⚠️ 尚未在真实 Chrome Dev profile 安装。  
++⚠️ 尚未使用真实 fine-grained PAT 上传。  
++⚠️ 尚未接入用户当前 live Auto Continue 脚本实测。
++
++## 下一步 fast-track
++
++1. 用 `browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V9.md` 做插件加载 smoke。
++2. 用 `task_cards/FOR_GITHUB_TEST_UPLOAD_V9.md` 做单测试仓 archive-only 上传。
++3. 用 `auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V9.md` 接入当前 Auto Continue。
++4. 运行 `stress-archive --count 300 --parallel 20` 做更高轮次 dry-run。
+diff -ruN openpatch_agent_gateway_v9_candidate/local-bridge/openpatch-ledger-cli.mjs openpatch_agent_gateway_v10_candidate/local-bridge/openpatch-ledger-cli.mjs
+--- openpatch_agent_gateway_v9_candidate/local-bridge/openpatch-ledger-cli.mjs	2026-05-06 00:53:33.184945188 +0000
++++ openpatch_agent_gateway_v10_candidate/local-bridge/openpatch-ledger-cli.mjs	2026-05-06 01:30:58.574378047 +0000
+@@ -9,6 +9,9 @@
+   config-status
+   routes
+   routes-conflicts [--url <page_url>] [--title <title>] [--project <project>]
++  routes-visual [--url <page_url>] [--title <title>] [--project <project>]
++  routes-fix-suggestions [--url <page_url>] [--title <title>] [--project <project>]
++  stress-routes --project <project> [--count <n>]
+   repos
+   keys
+   status
+@@ -74,6 +77,23 @@
+     }
+     return print(await request("/routes/conflicts"));
+   }
++  if (command === "routes-visual") {
++    const url = getArg("--url", "");
++    if (url || getArg("--title", "") || getArg("--project", "")) {
++      return print(await request("/routes/visual-map", { method: "POST", body: { page_url: url, title: getArg("--title", ""), project_hint: getArg("--project", "") } }));
++    }
++    return print(await request("/routes/visual-map"));
++  }
++  if (command === "routes-fix-suggestions") {
++    const url = getArg("--url", "");
++    if (url || getArg("--title", "") || getArg("--project", "")) {
++      return print(await request("/routes/fix-suggestions", { method: "POST", body: { page_url: url, title: getArg("--title", ""), project_hint: getArg("--project", "") } }));
++    }
++    return print(await request("/routes/fix-suggestions"));
++  }
++  if (command === "stress-routes") {
++    return print(await request("/stress/routes", { method: "POST", body: { project: getArg("--project", "stress-route"), count: Number(getArg("--count", "100")) } }));
++  }
+   if (command === "repos") return print(await request("/repos"));
+   if (command === "keys") return print(await request("/keys"));
+   if (command === "status") return print(await request("/status"));
+@@ -175,7 +195,7 @@
+       }
+     }
+     await Promise.all(Array.from({ length: parallel }, (_, i) => worker(i + 1)));
+-    return print({ ok: true, schema_version: "openpatch.stress_archive.v9", project, count, parallel, results_count: results.length, sample: results.slice(0, 5) });
++    return print({ ok: true, schema_version: "openpatch.stress_archive.v10", project, count, parallel, results_count: results.length, sample: results.slice(0, 5) });
+   }
+   throw new Error(`unknown command: ${command}`);
+ }
+diff -ruN openpatch_agent_gateway_v9_candidate/local-bridge/openpatch-local-bridge.mjs openpatch_agent_gateway_v10_candidate/local-bridge/openpatch-local-bridge.mjs
+--- openpatch_agent_gateway_v9_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-06 00:53:33.184565470 +0000
++++ openpatch_agent_gateway_v10_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-06 01:32:38.598679969 +0000
+@@ -55,7 +55,7 @@
+     ]
+   });
+   await ensureJsonFile(STATUS_FILE, {
+-    schema_version: "openpatch.bridge_status.v7",
++    schema_version: "openpatch.bridge_status.v10",
+     receipts: [],
+     updated_at: new Date().toISOString()
+   });
+@@ -325,7 +325,7 @@
+ 
+   return {
+     ok: true,
+-    schema_version: 'openpatch.route_conflicts.v9',
++    schema_version: 'openpatch.route_conflicts.v10',
+     total_profiles: profiles.length,
+     issue_count: issues.length,
+     has_blocking_conflict: issues.some((issue) => issue.severity === 'error'),
+@@ -336,6 +336,132 @@
+   };
+ }
+ 
++
++function profileMatchSummary(profile) {
++  const match = profile.match || {};
++  return {
++    url_contains: Array.isArray(match.url_contains) ? match.url_contains.slice(0, 8) : [],
++    title_contains: Array.isArray(match.title_contains) ? match.title_contains.slice(0, 8) : [],
++    host_contains: Array.isArray(match.host_contains) ? match.host_contains.slice(0, 8) : [],
++    url_regex_count: Array.isArray(match.url_regex) ? match.url_regex.length : 0
++  };
++}
++
++function routeVisualNode(profile, index = 0) {
++  const summary = summarizeProfile(profile, index);
++  return {
++    ...summary,
++    browser_profile: safeString(profile.browser_profile || profile.browserProfile || '', 160),
++    chat_group: safeString(profile.chat_group || profile.chatGroup || '', 160),
++    agent_group: safeString(profile.agent_group || profile.agentGroup || '', 160),
++    mode: safeString(profile.mode || 'roundpack_archive', 80),
++    archive_root: safeString(profile.archive_root || 'rounds', 120),
++    index_root: safeString(profile.index_root || 'index', 120),
++    match: profileMatchSummary(profile),
++    route_label: `${summary.project || 'default'} -> ${summary.repo_alias || 'repo?'} / ${summary.key_alias || 'key?'}`.slice(0, 240)
++  };
++}
++
++async function buildRouteVisualMap(body = {}) {
++  const routes = await readJson(ROUTES_FILE, { profiles: [] });
++  const repos = await readJson(REPOS_FILE, { repos: [] });
++  const keys = await readJson(KEYS_FILE, { keys: [] });
++  const conflicts = await detectRouteConflicts(body && Object.keys(body).length ? body : {});
++  const profiles = Array.isArray(routes.profiles) ? routes.profiles : [];
++  const nodes = profiles.map((profile, index) => routeVisualNode(profile, index));
++  const repoAliases = new Set((repos.repos || []).map((repo) => repo.repo_alias).filter(Boolean));
++  const keyAliases = new Set((keys.keys || []).map((key) => key.key_alias).filter(Boolean));
++  const edges = nodes.map((node) => ({
++    from: node.profile_id,
++    to_repo_alias: node.repo_alias,
++    to_key_alias: node.key_alias,
++    repo_known: repoAliases.has(node.repo_alias),
++    key_known: keyAliases.has(node.key_alias),
++    route_label: node.route_label
++  }));
++  const missing = edges.filter((edge) => !edge.repo_known || !edge.key_known);
++  return {
++    ok: true,
++    schema_version: 'openpatch.route_visual_map.v10',
++    route_file: ROUTES_FILE,
++    total_profiles: nodes.length,
++    nodes,
++    edges,
++    missing_alias_refs: missing,
++    conflicts_summary: {
++      issue_count: conflicts.issue_count,
++      has_blocking_conflict: conflicts.has_blocking_conflict,
++      recommended_agent_action: conflicts.recommended_agent_action
++    },
++    dynamic: conflicts.dynamic || null,
++    recommended_agent_action: conflicts.has_blocking_conflict ? 'fix_route_profiles_before_upload' : (missing.length ? 'fix_missing_repo_or_key_aliases' : 'route_visual_map_ok'),
++    generated_at: nowIso()
++  };
++}
++
++async function suggestRouteFixes(body = {}) {
++  const conflicts = await detectRouteConflicts(body);
++  const visual = await buildRouteVisualMap(body);
++  const suggestions = [];
++  for (const issue of conflicts.issues || []) {
++    if (issue.type === 'duplicate_profile_id') {
++      suggestions.push({ severity: 'error', action: 'rename_duplicate_profile_id', reason: 'profile_id must be unique so agents do not confuse routes', profiles: issue.profiles });
++    } else if (issue.type === 'multiple_default_profiles') {
++      suggestions.push({ severity: 'error', action: 'keep_single_default_profile', reason: 'only one default route should exist across browser contexts', count: issue.count });
++    } else if (issue.type === 'missing_repo_alias') {
++      suggestions.push({ severity: 'warning', action: 'add_repo_alias_or_fix_profile', reason: 'route cannot upload without a repo_alias', profile: issue.profile });
++    } else if (issue.type === 'missing_key_alias') {
++      suggestions.push({ severity: 'warning', action: 'add_key_alias_or_fix_profile', reason: 'bridge cannot select a key alias without this field', profile: issue.profile });
++    } else if (issue.type === 'ambiguous_route_resolution') {
++      suggestions.push({ severity: 'warning', action: 'add_browser_profile_chat_group_or_more_specific_match', reason: 'two or more routes score too closely for this page', candidates: issue.candidates });
++    } else {
++      suggestions.push({ severity: issue.severity || 'warning', action: `review_${issue.type || 'route_issue'}`, reason: 'manual review recommended', issue });
++    }
++  }
++  for (const edge of visual.missing_alias_refs || []) {
++    if (!edge.repo_known) suggestions.push({ severity: 'warning', action: 'create_repo_alias_entry', repo_alias: edge.to_repo_alias, profile_id: edge.from });
++    if (!edge.key_known) suggestions.push({ severity: 'warning', action: 'create_key_alias_entry', key_alias: edge.to_key_alias, profile_id: edge.from });
++  }
++  return {
++    ok: true,
++    schema_version: 'openpatch.route_fix_suggestions.v10',
++    suggestion_count: suggestions.length,
++    suggestions,
++    recommended_agent_action: suggestions.some((s) => s.severity === 'error') ? 'apply_or_request_route_profile_fix' : (suggestions.length ? 'review_suggestions_then_continue' : 'no_route_fix_needed'),
++    generated_at: nowIso()
++  };
++}
++
++async function stressResolveRoutes(body = {}) {
++  const count = Math.max(1, Math.min(1000, Number(body.count || 100)));
++  const project = safeId(body.project || body.project_hint || 'stress-route', 'stress-route');
++  const samples = Array.isArray(body.samples) && body.samples.length ? body.samples : Array.from({ length: count }, (_, index) => ({
++    page_url: `https://chatgpt.com/c/stress-${index}`,
++    title: `${project} round ${index}`,
++    project_hint: project
++  }));
++  const results = [];
++  let ambiguous = 0;
++  let unresolved = 0;
++  for (const sample of samples.slice(0, count)) {
++    const result = await resolveRoute(sample);
++    if (!result.ok) unresolved += 1;
++    if (result.route_context?.ambiguity?.status === 'ambiguous') ambiguous += 1;
++    results.push({ status: result.status, project: result.route_context?.project || '', route_profile: result.route_context?.route_profile || '', ambiguity: result.route_context?.ambiguity?.status || 'none' });
++  }
++  return {
++    ok: true,
++    schema_version: 'openpatch.route_stress.v10',
++    count: results.length,
++    ambiguous,
++    unresolved,
++    resolved: results.length - unresolved,
++    recommended_agent_action: unresolved || ambiguous ? 'inspect_route_profiles_before_live_upload' : 'route_resolution_stress_ok',
++    sample: results.slice(0, 10),
++    generated_at: nowIso()
++  };
++}
++
+ async function resolveRoute(body) {
+   const routes = await readJson(ROUTES_FILE, { profiles: [] });
+   const profiles = Array.isArray(routes.profiles) ? routes.profiles : [];
+@@ -359,7 +485,7 @@
+     ok: true,
+     status: "resolved",
+     route_context: {
+-      schema_version: "openpatch.route_context.v7",
++      schema_version: "openpatch.route_context.v10",
+       route_profile: safeString(selected.profile_id || selected.route_profile || "", 120),
+       project: safeId(selected.project || body.project_hint || "default", "default"),
+       repo_alias: safeString(selected.repo_alias || body.repo_alias || "", 120),
+@@ -496,7 +622,7 @@
+     };
+     await writeJsonAtomic(latestFile, latest);
+ 
+-    const status = await readJson(STATUS_FILE, { schema_version: "openpatch.bridge_status.v7", receipts: [] });
++    const status = await readJson(STATUS_FILE, { schema_version: "openpatch.bridge_status.v10", receipts: [] });
+     const receipts = Array.isArray(status.receipts) ? status.receipts : [];
+     status.receipts = [item, ...receipts.filter((existing) => existing.round_id !== roundId || existing.project !== project)].slice(0, 500);
+     status.latest_by_project = { ...(status.latest_by_project || {}), [project]: roundId };
+@@ -754,7 +880,7 @@
+ async function recentReceipts(params) {
+   const project = params.get("project") ? safeId(params.get("project"), "default") : "";
+   const limit = Math.max(1, Math.min(200, Number(params.get("limit") || 20)));
+-  const status = await readJson(STATUS_FILE, { schema_version: "openpatch.bridge_status.v7", receipts: [] });
++  const status = await readJson(STATUS_FILE, { schema_version: "openpatch.bridge_status.v10", receipts: [] });
+   const receipts = (Array.isArray(status.receipts) ? status.receipts : []).filter((item) => project ? item.project === project : true).slice(0, limit);
+   return { ok: true, schema_version: "openpatch.recent_receipts.v1", project: project || "all", count: receipts.length, receipts, updated_at: status.updated_at || nowIso() };
+ }
+@@ -834,7 +960,7 @@
+   const project = safeId(projectInput || "default", "default");
+   const latest = await readJson(path.join(LATEST_DIR, `${project}.json`), { schema_version: "openpatch.bridge_latest.v7", project, status: "missing", latest_round: "" });
+   const queue = await readJson(QUEUE_FILE, { schema_version: "openpatch.bridge_queue.v2", items: [] });
+-  const status = await readJson(STATUS_FILE, { schema_version: "openpatch.bridge_status.v7", receipts: [] });
++  const status = await readJson(STATUS_FILE, { schema_version: "openpatch.bridge_status.v10", receipts: [] });
+   const shaIndex = await readJson(SHA_INDEX_FILE, { schema_version: "openpatch.sha_index.v1", entries: [] });
+   const projectQueue = (queue.items || []).filter((item) => item.project === project).slice(0, 20);
+   const projectSha = (shaIndex.entries || []).filter((item) => item.project === project).slice(0, 10);
+@@ -884,11 +1010,16 @@
+   if (req.method === "OPTIONS") return jsonResponse(res, 200, { ok: true });
+   const url = new URL(req.url || "/", `http://${req.headers.host || "127.0.0.1"}`);
+ 
+-  if (req.method === "GET" && url.pathname === "/health") return jsonResponse(res, 200, { ok: true, schema_version: "openpatch.bridge_health.v9", service: "openpatch-local-bridge", root: ROOT, capabilities: ["routes", "resolve_route", "receipts", "latest", "sha_index", "queue", "config_status", "archive_base64", "bridge_side_github_upload", "agent_summary", "receipt_query", "queue_claim", "queue_retry", "auto_continue_plan", "events", "compact_summary", "recent_receipts", "queue_stats", "queue_claim_batch", "queue_release", "lease_reclaim", "github_rate_backoff", "events_compact", "archive_size_guard", "stress_test_ready", "route_conflict_detector", "queue_reclaim_expired", "route_ambiguity_report"], time: nowIso() });
++  if (req.method === "GET" && url.pathname === "/health") return jsonResponse(res, 200, { ok: true, schema_version: "openpatch.bridge_health.v10", service: "openpatch-local-bridge", root: ROOT, capabilities: ["routes", "resolve_route", "receipts", "latest", "sha_index", "queue", "config_status", "archive_base64", "bridge_side_github_upload", "agent_summary", "receipt_query", "queue_claim", "queue_retry", "auto_continue_plan", "events", "compact_summary", "recent_receipts", "queue_stats", "queue_claim_batch", "queue_release", "lease_reclaim", "github_rate_backoff", "events_compact", "archive_size_guard", "stress_test_ready", "route_conflict_detector", "queue_reclaim_expired", "route_ambiguity_report", "route_visual_map", "route_fix_suggestions", "route_resolution_stress", "multi_browser_planning"], time: nowIso() });
+   if (req.method === "GET" && url.pathname === "/config-status") return jsonResponse(res, 200, await sanitizedConfigStatus());
+   if (req.method === "GET" && url.pathname === "/routes") return jsonResponse(res, 200, await readJson(ROUTES_FILE, { profiles: [] }));
+   if (req.method === "GET" && url.pathname === "/routes/conflicts") return jsonResponse(res, 200, await detectRouteConflicts({}));
+   if (req.method === "POST" && url.pathname === "/routes/conflicts") return jsonResponse(res, 200, await detectRouteConflicts(await collectBody(req)));
++  if (req.method === "GET" && url.pathname === "/routes/visual-map") return jsonResponse(res, 200, await buildRouteVisualMap({}));
++  if (req.method === "POST" && url.pathname === "/routes/visual-map") return jsonResponse(res, 200, await buildRouteVisualMap(await collectBody(req)));
++  if (req.method === "GET" && url.pathname === "/routes/fix-suggestions") return jsonResponse(res, 200, await suggestRouteFixes({}));
++  if (req.method === "POST" && url.pathname === "/routes/fix-suggestions") return jsonResponse(res, 200, await suggestRouteFixes(await collectBody(req)));
++  if (req.method === "POST" && url.pathname === "/stress/routes") return jsonResponse(res, 200, await stressResolveRoutes(await collectBody(req)));
+   if (req.method === "GET" && url.pathname === "/repos") return jsonResponse(res, 200, (await sanitizedConfigStatus()).repos);
+   if (req.method === "GET" && url.pathname === "/keys") return jsonResponse(res, 200, (await sanitizedConfigStatus()).keys);
+   if (req.method === "POST" && url.pathname === "/resolve-route") return jsonResponse(res, 200, await resolveRoute(await collectBody(req)));
+diff -ruN openpatch_agent_gateway_v9_candidate/openpatch-main/src/background.js openpatch_agent_gateway_v10_candidate/openpatch-main/src/background.js
+--- openpatch_agent_gateway_v9_candidate/openpatch-main/src/background.js	2026-05-06 00:53:33.185383545 +0000
++++ openpatch_agent_gateway_v10_candidate/openpatch-main/src/background.js	2026-05-06 01:31:35.887261810 +0000
+@@ -164,6 +164,16 @@
+     });
+   }
+ 
++
++  if (message?.type === "GET_OPENPATCH_ROUTE_VISUAL") {
++    const config = await getConfig();
++    return postBridge(config, "/routes/visual-map", {
++      page_url: message.pageUrl || message.page_url || "",
++      title: message.title || "",
++      project_hint: message.project || message.projectHint || ""
++    });
++  }
++
+   if (message?.type === "GET_OPENPATCH_BRIDGE_STATUS") {
+     const config = await getConfig();
+     return getBridgeJson(config, "/health");
+diff -ruN openpatch_agent_gateway_v9_candidate/openpatch-main/src/content-script.js openpatch_agent_gateway_v10_candidate/openpatch-main/src/content-script.js
+--- openpatch_agent_gateway_v9_candidate/openpatch-main/src/content-script.js	2026-05-06 00:53:33.186482857 +0000
++++ openpatch_agent_gateway_v10_candidate/openpatch-main/src/content-script.js	2026-05-06 01:31:35.886596277 +0000
+@@ -27,6 +27,8 @@
+   const AGENT_COMPACT_SUMMARY_RESPONSE_EVENT = "openpatch:api:compact-summary";
+   const AGENT_ROUTE_CONFLICTS_EVENT = "openpatch:api:get-route-conflicts";
+   const AGENT_ROUTE_CONFLICTS_RESPONSE_EVENT = "openpatch:api:route-conflicts";
++  const AGENT_ROUTE_VISUAL_EVENT = "openpatch:api:get-route-visual";
++  const AGENT_ROUTE_VISUAL_RESPONSE_EVENT = "openpatch:api:route-visual";
+   const BUTTON_STALE_AFTER_MS = 10 * 60 * 1000;
+   const PAGE_SESSION_ID = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+   let routeContext = {
+@@ -261,7 +263,7 @@
+   function buildAgentMarker({ sourceButton, suggestedName, label, archiveMode = false }) {
+     const href = sourceButton.getAttribute("href") || "";
+     return {
+-      schemaVersion: "openpatch.agent_button.v9",
++      schemaVersion: "openpatch.agent_button.v10",
+       marker: "openpatch-inline-upload",
+       status: "ready",
+       mode: archiveMode ? "roundpack_archive" : "patch_upload",
+@@ -283,6 +285,7 @@
+       bridgeStatusHint: "unknown",
+       queueStatusHint: "not_enqueued",
+       routeConflictHint: "unknown",
++      routeVisualHint: "available_via_bridge",
+       compactStatus: "ready",
+       uiBadge: archiveMode ? "ARCHIVE" : "PATCH",
+       stalenessStatus: "fresh",
+@@ -442,6 +445,7 @@
+     button.dataset.openpatchBridgeStatusHint = String(next.bridgeStatusHint || "unknown");
+     button.dataset.openpatchQueueStatusHint = String(next.queueStatusHint || "unknown");
+     button.dataset.openpatchRouteConflictHint = String(next.routeConflictHint || "unknown");
++    button.dataset.openpatchRouteVisualHint = String(next.routeVisualHint || "available_via_bridge");
+     button.dataset.openpatchCompactStatus = String(next.compactStatus || next.status || "unknown");
+     button.dataset.openpatchUiBadge = String(next.uiBadge || buildUiBadge(next));
+     button.dataset.openpatchExtension = String(next.extension || "");
+@@ -725,6 +729,37 @@
+         requestId: detail.requestId || detail.request_id || "",
+         result,
+         routeContext: sanitizeRouteContext(routeContext),
++        createdAt: new Date().toISOString()
++      }
++    }));
++  });
++
++
++
++  window.addEventListener(AGENT_ROUTE_VISUAL_EVENT, async (event) => {
++    const detail = event?.detail || {};
++    let result;
++    try {
++      const response = await chrome.runtime.sendMessage({
++        type: "GET_OPENPATCH_ROUTE_VISUAL",
++        pageUrl: detail.pageUrl || detail.page_url || window.location.href,
++        title: detail.title || document.title || "",
++        projectHint: detail.project || detail.project_hint || routeContext.project || ""
++      });
++      result = response?.result || { ok: false, error: "route_visual_unavailable" };
++      const hint = result.recommended_agent_action || "route_visual_available";
++      for (const button of document.querySelectorAll(`.${BUTTON_CLASS}`)) {
++        setButtonMarker(button, { routeVisualHint: hint }, { quiet: true });
++      }
++    } catch (error) {
++      result = { ok: false, error: error?.message || "route_visual_failed" };
++    }
++    window.dispatchEvent(new CustomEvent(AGENT_ROUTE_VISUAL_RESPONSE_EVENT, {
++      detail: {
++        schemaVersion: "openpatch.route_visual_response.v10",
++        requestId: detail.requestId || detail.request_id || "",
++        result,
++        routeContext: sanitizeRouteContext(routeContext),
+         createdAt: new Date().toISOString()
+       }
+     }));
+diff -ruN openpatch_agent_gateway_v9_candidate/schemas/openpatch.agent_button.v10.schema.json openpatch_agent_gateway_v10_candidate/schemas/openpatch.agent_button.v10.schema.json
+--- openpatch_agent_gateway_v9_candidate/schemas/openpatch.agent_button.v10.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/schemas/openpatch.agent_button.v10.schema.json	2026-05-06 01:30:58.575658618 +0000
+@@ -0,0 +1,6 @@
++{
++  "schema": "openpatch.agent_button.v10",
++  "description": "Compact DOM marker for OpenPatch Agent Gateway buttons. v10 adds routeVisualHint for route map/debug integration.",
++  "required_fields": ["schemaVersion", "status", "mode", "buttonId", "pageSessionId", "recommendedAgentAction", "routeContext"],
++  "new_fields": ["routeVisualHint"]
++}
+diff -ruN openpatch_agent_gateway_v9_candidate/schemas/openpatch.route_fix_suggestions.v10.schema.json openpatch_agent_gateway_v10_candidate/schemas/openpatch.route_fix_suggestions.v10.schema.json
+--- openpatch_agent_gateway_v9_candidate/schemas/openpatch.route_fix_suggestions.v10.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/schemas/openpatch.route_fix_suggestions.v10.schema.json	2026-05-06 01:30:58.576099077 +0000
+@@ -0,0 +1,5 @@
++{
++  "schema": "openpatch.route_fix_suggestions.v10",
++  "description": "Machine-readable route profile fix suggestions for Codex/agents.",
++  "top_level_fields": ["suggestions", "recommended_agent_action"]
++}
+diff -ruN openpatch_agent_gateway_v9_candidate/schemas/openpatch.route_visual_map.v10.schema.json openpatch_agent_gateway_v10_candidate/schemas/openpatch.route_visual_map.v10.schema.json
+--- openpatch_agent_gateway_v9_candidate/schemas/openpatch.route_visual_map.v10.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v10_candidate/schemas/openpatch.route_visual_map.v10.schema.json	2026-05-06 01:30:58.575829925 +0000
+@@ -0,0 +1,5 @@
++{
++  "schema": "openpatch.route_visual_map.v10",
++  "description": "Route profile map for multi-page/multi-browser/multi-key debugging.",
++  "top_level_fields": ["nodes", "edges", "missing_alias_refs", "conflicts_summary", "recommended_agent_action"]
++}

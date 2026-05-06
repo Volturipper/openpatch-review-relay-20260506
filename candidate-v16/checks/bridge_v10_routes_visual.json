@@ -1,0 +1,119 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.route_visual_map.v10",
+  "route_file": "/mnt/data/openpatch_v10_bridge_test2/route_profiles.json",
+  "total_profiles": 3,
+  "nodes": [
+    {
+      "profile_id": "webai-transfer-chatgpt",
+      "project": "webai-transfer",
+      "repo_alias": "archive-a",
+      "key_alias": "key-a",
+      "priority": 10,
+      "default": false,
+      "match_fingerprint": "e69ac47663afd004",
+      "browser_profile": "chrome-dev-ai-collab",
+      "chat_group": "designer",
+      "agent_group": "",
+      "mode": "roundpack_archive",
+      "archive_root": "rounds",
+      "index_root": "index",
+      "match": {
+        "url_contains": [
+          "chatgpt.com"
+        ],
+        "title_contains": [
+          "webai transfer"
+        ],
+        "host_contains": [],
+        "url_regex_count": 0
+      },
+      "route_label": "webai-transfer -> archive-a / key-a"
+    },
+    {
+      "profile_id": "webai-transfer-reviewer",
+      "project": "webai-transfer",
+      "repo_alias": "archive-a",
+      "key_alias": "key-a",
+      "priority": 8,
+      "default": false,
+      "match_fingerprint": "0c8e8a9c31f7d60f",
+      "browser_profile": "chrome-dev-ai-collab",
+      "chat_group": "reviewer",
+      "agent_group": "",
+      "mode": "roundpack_archive",
+      "archive_root": "rounds",
+      "index_root": "index",
+      "match": {
+        "url_contains": [
+          "chatgpt.com"
+        ],
+        "title_contains": [
+          "reviewer"
+        ],
+        "host_contains": [],
+        "url_regex_count": 0
+      },
+      "route_label": "webai-transfer -> archive-a / key-a"
+    },
+    {
+      "profile_id": "default-archive",
+      "project": "default",
+      "repo_alias": "archive-a",
+      "key_alias": "key-a",
+      "priority": 0,
+      "default": true,
+      "match_fingerprint": "ac211a2f1f1d22b1",
+      "browser_profile": "",
+      "chat_group": "",
+      "agent_group": "",
+      "mode": "roundpack_archive",
+      "archive_root": "rounds",
+      "index_root": "index",
+      "match": {
+        "url_contains": [],
+        "title_contains": [],
+        "host_contains": [
+          "chatgpt.com"
+        ],
+        "url_regex_count": 0
+      },
+      "route_label": "default -> archive-a / key-a"
+    }
+  ],
+  "edges": [
+    {
+      "from": "webai-transfer-chatgpt",
+      "to_repo_alias": "archive-a",
+      "to_key_alias": "key-a",
+      "repo_known": true,
+      "key_known": true,
+      "route_label": "webai-transfer -> archive-a / key-a"
+    },
+    {
+      "from": "webai-transfer-reviewer",
+      "to_repo_alias": "archive-a",
+      "to_key_alias": "key-a",
+      "repo_known": true,
+      "key_known": true,
+      "route_label": "webai-transfer -> archive-a / key-a"
+    },
+    {
+      "from": "default-archive",
+      "to_repo_alias": "archive-a",
+      "to_key_alias": "key-a",
+      "repo_known": true,
+      "key_known": true,
+      "route_label": "default -> archive-a / key-a"
+    }
+  ],
+  "missing_alias_refs": [],
+  "conflicts_summary": {
+    "issue_count": 0,
+    "has_blocking_conflict": false,
+    "recommended_agent_action": "route_profiles_ok"
+  },
+  "dynamic": null,
+  "recommended_agent_action": "route_visual_map_ok",
+  "generated_at": "2026-05-06T01:34:11.659Z"
+}

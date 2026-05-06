@@ -1,0 +1,15 @@
+{
+  "schema_version": "openpatch.sha_index.v1",
+  "entries": [
+    {
+      "project": "webai-transfer",
+      "file_sha256": "abc123",
+      "first_round_id": "r001",
+      "latest_round_id": "r001",
+      "count": 1,
+      "created_at": "2026-05-05T23:31:10.998Z",
+      "updated_at": "2026-05-05T23:31:10.998Z"
+    }
+  ],
+  "updated_at": "2026-05-05T23:31:10.998Z"
+}

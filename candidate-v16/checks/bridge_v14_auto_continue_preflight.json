@@ -1,0 +1,55 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.auto_continue_preflight.v14",
+  "project": "openpatch-smoke",
+  "should_pause": false,
+  "should_request_roundpack": false,
+  "plan": {
+    "ok": true,
+    "schema_version": "openpatch.auto_continue_plan.v1",
+    "project": "openpatch-smoke",
+    "should_request_roundpack": false,
+    "should_pause_until_archive_receipt": false,
+    "reason": "continue_allowed",
+    "required_marker": "[ROUND_PACK_READY]",
+    "preferred_file_name": "webai-roundpack-openpatch-smoke.zip",
+    "prompt_hint": "use_openpatch_roundpack_prompt",
+    "next_agent_action": "continue_iteration",
+    "created_at": "2026-05-06T02:57:05.874Z"
+  },
+  "compact_summary": {
+    "ok": true,
+    "schema_version": "openpatch.compact_summary.v1",
+    "project": "openpatch-smoke",
+    "latest_round": "",
+    "status": "missing",
+    "archive_only": true,
+    "allow_execution": false,
+    "file_sha256": "",
+    "queue_counts": {},
+    "recommended_agent_action": "request_or_archive_roundpack",
+    "codex_next": "node local-bridge/openpatch-ledger-cli.mjs auto-continue-plan --project openpatch-smoke --message-count 0 --force",
+    "updated_at": "2026-05-06T02:57:05.877Z"
+  },
+  "instances_compact": {
+    "ok": true,
+    "schema_version": "openpatch.instances_compact.v14",
+    "total_instances": 0,
+    "active_count": 0,
+    "stale_count": 0,
+    "by_project": {},
+    "by_route_profile": {},
+    "duplicate_route_groups": [],
+    "active_sample": [],
+    "stale_sample": [],
+    "recommended_agent_action": "instances_ok",
+    "checked_at": "2026-05-06T02:57:05.877Z"
+  },
+  "route_conflicts": {
+    "issue_count": 0,
+    "has_blocking_conflict": false,
+    "recommended_agent_action": "route_profiles_ok"
+  },
+  "recommended_agent_action": "continue_auto_flow",
+  "checked_at": "2026-05-06T02:57:05.878Z"
+}

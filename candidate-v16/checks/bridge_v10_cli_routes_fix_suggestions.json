@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.route_fix_suggestions.v10",
+  "suggestion_count": 1,
+  "suggestions": [
+    {
+      "severity": "warning",
+      "action": "add_browser_profile_chat_group_or_more_specific_match",
+      "reason": "two or more routes score too closely for this page",
+      "candidates": [
+        {
+          "profile": {
+            "profile_id": "webai-transfer-chatgpt",
+            "project": "webai-transfer",
+            "repo_alias": "archive-a",
+            "key_alias": "key-a",
+            "priority": 10,
+            "default": false,
+            "match_fingerprint": "e69ac47663afd004"
+          },
+          "score": 35
+        },
+        {
+          "profile": {
+            "profile_id": "webai-transfer-reviewer",
+            "project": "webai-transfer",
+            "repo_alias": "archive-a",
+            "key_alias": "key-a",
+            "priority": 8,
+            "default": false,
+            "match_fingerprint": "0c8e8a9c31f7d60f"
+          },
+          "score": 33
+        }
+      ]
+    }
+  ],
+  "recommended_agent_action": "review_suggestions_then_continue",
+  "generated_at": "2026-05-06T01:34:11.981Z"
+}

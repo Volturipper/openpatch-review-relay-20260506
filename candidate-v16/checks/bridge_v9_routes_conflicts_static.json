@@ -1,0 +1,49 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.route_conflicts.v9",
+  "total_profiles": 3,
+  "issue_count": 2,
+  "has_blocking_conflict": false,
+  "recommended_agent_action": "review_route_warnings_or_continue",
+  "issues": [
+    {
+      "severity": "warning",
+      "type": "same_project_same_match_fingerprint",
+      "profiles": [
+        {
+          "profile_id": "webai-transfer-main",
+          "project": "webai-transfer",
+          "repo_alias": "webai-archive-dry",
+          "key_alias": "dry-key",
+          "priority": 10,
+          "default": true,
+          "match_fingerprint": "fed75ba25bec2ec8"
+        },
+        {
+          "profile_id": "webai-transfer-review",
+          "project": "webai-transfer",
+          "repo_alias": "webai-review-dry",
+          "key_alias": "dry-key",
+          "priority": 9,
+          "default": false,
+          "match_fingerprint": "fed75ba25bec2ec8"
+        }
+      ]
+    },
+    {
+      "severity": "warning",
+      "type": "missing_key_alias",
+      "profile": {
+        "profile_id": "missing-key-test",
+        "project": "other",
+        "repo_alias": "other-repo",
+        "key_alias": "",
+        "priority": 1,
+        "default": false,
+        "match_fingerprint": "88a4db94fe433775"
+      }
+    }
+  ],
+  "dynamic": null,
+  "checked_at": "2026-05-06T00:56:36.976Z"
+}

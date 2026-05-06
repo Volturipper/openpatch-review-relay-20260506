@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.bridge_health.v2",
+  "service": "openpatch-local-bridge",
+  "root": "/mnt/data/openpatch_v4_bridge_test",
+  "capabilities": [
+    "routes",
+    "resolve_route",
+    "receipts",
+    "latest",
+    "sha_index",
+    "queue"
+  ],
+  "time": "2026-05-05T23:31:09.912Z"
+}

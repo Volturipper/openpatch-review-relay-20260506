@@ -1,0 +1,10 @@
+{
+  "schema_version": "openpatch.keys.local.v1",
+  "keys": [
+    {
+      "key_alias": "example-gh-token-env",
+      "provider": "github",
+      "token_env": "GITHUB_TOKEN_FOR_OPENPATCH_ARCHIVE"
+    }
+  ]
+}

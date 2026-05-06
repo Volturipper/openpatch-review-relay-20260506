@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.events_compact.v8",
+  "before": 50,
+  "after": 50,
+  "max_events": 100,
+  "compacted_at": "2026-05-06T00:49:01.584Z"
+}

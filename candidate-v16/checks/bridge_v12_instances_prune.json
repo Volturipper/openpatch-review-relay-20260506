@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.instances_prune.v12",
+  "before": 1,
+  "after": 1,
+  "pruned": 0,
+  "updated_at": "2026-05-06T02:14:36.623Z"
+}

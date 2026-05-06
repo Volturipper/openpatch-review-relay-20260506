@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OpenPatch</title>
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+  <body class="popup">
+    <main class="card">
+      <header class="compact-header">
+        <div>
+          <h1>OpenPatch</h1>
+          <p><span id="repository">Not configured</span> · <span id="branch">main</span></p>
+        </div>
+        <div class="actions compact-actions">
+          <a class="button-link" href="about.html" target="_blank">About</a>
+          <button id="settings" type="button" title="Settings">Settings</button>
+        </div>
+      </header>
+
+      <section class="stack">
+        <label>
+          Select file
+          <input id="patch-file" type="file" accept=".zip,.diff,.patch">
+        </label>
+        <p id="file-meta" class="muted"></p>
+        <p class="notice">ZIP packages overwrite files at matching repository paths. For repeated edits, generate from the latest code.</p>
+
+        <label>
+          Commit title
+          <input id="commit-title" type="text" placeholder="ai: apply patch">
+        </label>
+
+        <button id="upload" class="primary" type="button" disabled>Upload</button>
+        <p id="status" class="status"></p>
+      </section>
+
+      <section class="recent">
+        <h2>Recent detected files</h2>
+        <ul id="recent"></ul>
+      </section>
+    </main>
+
+    <script type="module" src="../src/popup.js"></script>
+  </body>
+</html>

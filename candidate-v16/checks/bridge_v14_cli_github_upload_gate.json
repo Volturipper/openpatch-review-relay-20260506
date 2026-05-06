@@ -1,0 +1,21 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.github_upload_gate.v14",
+  "project": "openpatch-smoke",
+  "gate": "blocked",
+  "can_upload": false,
+  "route_profile": "",
+  "repo_alias": "",
+  "key_alias": "",
+  "repo_summary": null,
+  "key_summary": null,
+  "blockers": [
+    "repo_alias_missing",
+    "key_alias_missing",
+    "repo_alias_not_found",
+    "key_alias_not_found"
+  ],
+  "warnings": [],
+  "recommended_agent_action": "fix_gate_blockers_before_real_upload",
+  "checked_at": "2026-05-06T02:57:06.905Z"
+}

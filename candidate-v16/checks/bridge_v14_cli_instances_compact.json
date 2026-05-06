@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.instances_compact.v14",
+  "total_instances": 0,
+  "active_count": 0,
+  "stale_count": 0,
+  "by_project": {},
+  "by_route_profile": {},
+  "duplicate_route_groups": [],
+  "active_sample": [],
+  "stale_sample": [],
+  "recommended_agent_action": "instances_ok",
+  "checked_at": "2026-05-06T02:57:08.090Z"
+}

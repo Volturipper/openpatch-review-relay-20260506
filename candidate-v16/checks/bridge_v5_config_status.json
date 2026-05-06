@@ -1,0 +1,47 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.bridge_config_status.v5",
+  "root": "/mnt/data/openpatch_v5_bridge_test",
+  "files": {
+    "routes_file": "/mnt/data/openpatch_v5_bridge_test/route_profiles.json",
+    "repos_file": "/mnt/data/openpatch_v5_bridge_test/repo_aliases.json",
+    "keys_file": "/mnt/data/openpatch_v5_bridge_test/keys.local.json"
+  },
+  "routes": [
+    {
+      "profile_id": "webai-transfer-designer-chat",
+      "project": "webai-transfer",
+      "repo_alias": "dry-run-archive",
+      "key_alias": "gh-dry-run",
+      "default": false
+    },
+    {
+      "profile_id": "default-archive",
+      "project": "default",
+      "repo_alias": "dry-run-archive",
+      "key_alias": "gh-dry-run",
+      "default": true
+    }
+  ],
+  "repos": [
+    {
+      "repo_alias": "dry-run-archive",
+      "provider": "github",
+      "owner": "example-owner",
+      "repo": "example-archive-repo",
+      "branch": "webai-archive",
+      "archive_root": "rounds",
+      "index_root": "index",
+      "dry_run": true
+    }
+  ],
+  "keys": [
+    {
+      "key_alias": "gh-dry-run",
+      "provider": "github",
+      "token_env": "OPENPATCH_DRY_RUN_TOKEN",
+      "has_token": false
+    }
+  ],
+  "updated_at": "2026-05-05T23:36:30.193Z"
+}

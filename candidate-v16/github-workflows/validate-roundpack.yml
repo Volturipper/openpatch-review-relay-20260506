@@ -1,0 +1,76 @@
+name: Validate OpenPatch RoundPack Archive
+
+on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "rounds/**/*.zip"
+      - "rounds/**/archive_manifest.json"
+      - "rounds/**/upload_receipt.json"
+      - "index/latest/*.json"
+
+permissions:
+  contents: read
+
+env:
+  MAX_ROUNDPACK_BYTES: "52428800"
+
+jobs:
+  validate-roundpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate archive-only files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p validation-results
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, sys, zipfile
+          root = pathlib.Path('.')
+          problems = []
+          warnings = []
+          max_bytes = int(os.environ.get('MAX_ROUNDPACK_BYTES', '52428800'))
+          zips = sorted(root.glob('rounds/**/*.zip'))
+          for zp in zips:
+            if zp.stat().st_size > max_bytes:
+              problems.append(f'{zp}: too large: {zp.stat().st_size}')
+            try:
+              with zipfile.ZipFile(zp) as zf:
+                names = zf.namelist()
+                bad = [n for n in names if n.startswith('/') or '..' in pathlib.PurePosixPath(n).parts or n.startswith('.git/') or 'node_modules/' in n or 'browser-profile' in n.lower()]
+                if bad:
+                  problems.append(f'{zp}: unsafe entries: {bad[:10]}')
+                required = {'README.md', 'ROUND_SUMMARY.md', 'NEXT_FOR_CODEX.md', 'FILES_MANIFEST.json', 'SHA256SUMS.txt'}
+                missing = sorted(required - set(names))
+                if missing:
+                  warnings.append(f'{zp}: missing recommended entries: {missing}')
+            except zipfile.BadZipFile:
+              problems.append(f'{zp}: bad zip')
+          for manifest in root.glob('rounds/**/archive_manifest.json'):
+            try:
+              data = json.loads(manifest.read_text(encoding='utf-8'))
+              if data.get('allow_execution') is not False:
+                problems.append(f'{manifest}: allow_execution must be false')
+              if data.get('archive_only') is not True:
+                problems.append(f'{manifest}: archive_only must be true')
+            except Exception as exc:
+              problems.append(f'{manifest}: invalid json: {exc}')
+          result = {
+            'schema_version': 'openpatch.validate_roundpack.result.v1',
+            'passed': not problems,
+            'problems': problems,
+            'warnings': warnings,
+            'zip_count': len(zips),
+          }
+          pathlib.Path('validation-results/validate_result.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
+          print(json.dumps(result, indent=2))
+          if problems:
+            sys.exit(1)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validate-roundpack-result
+          path: validation-results/validate_result.json

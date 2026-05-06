@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.route_profiles.v1.schema.json",
+  "type": "object",
+  "required": ["schema_version", "profiles"],
+  "properties": {
+    "schema_version": { "const": "openpatch.route_profiles.v1" },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["route_profile_id", "project", "repo_alias", "key_alias"],
+        "properties": {
+          "route_profile_id": { "type": "string" },
+          "project": { "type": "string" },
+          "repo_alias": { "type": "string" },
+          "key_alias": { "type": "string" },
+          "archive_root": { "type": "string" },
+          "index_root": { "type": "string" },
+          "default_mode": { "type": "string" },
+          "browser_hint": { "type": "string" },
+          "chat_hint": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": "openpatch.agent_gateway.audit_decision.v16",
+  "version": "v16-candidate",
+  "decision": "candidate_for_review_and_bridge_only_smoke",
+  "go_no_go": "go_for_bridge_only_smoke",
+  "production_release": false,
+  "real_github_upload_approved": false,
+  "real_chrome_profile_approved": false,
+  "auto_continue_live_patch_approved": false,
+  "completed": [
+    "v16 next-hop API",
+    "Chrome smoke handoff API",
+    "GitHub test upload handoff API",
+    "Auto Continue live handoff API",
+    "evidence-pack API",
+    "npm tests and bridge-only smoke checks"
+  ],
+  "remaining": [
+    "real Chrome Dev profile unpacked extension smoke",
+    "single test-repo fine-grained PAT archive-only upload",
+    "live Auto Continue adapter integration smoke",
+    "multi-browser long-run validation"
+  ],
+  "recommended_next_action": "Codex should run task_cards/FOR_CODEX_MINIMAL_V16.md bridge-only smoke and return JSON evidence."
+}

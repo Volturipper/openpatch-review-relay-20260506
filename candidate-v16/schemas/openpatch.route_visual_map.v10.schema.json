@@ -1,0 +1,5 @@
+{
+  "schema": "openpatch.route_visual_map.v10",
+  "description": "Route profile map for multi-page/multi-browser/multi-key debugging.",
+  "top_level_fields": ["nodes", "edges", "missing_alias_refs", "conflicts_summary", "recommended_agent_action"]
+}

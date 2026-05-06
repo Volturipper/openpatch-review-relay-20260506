@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.agent_button.v6.schema.json",
+  "type": "object",
+  "required": ["schemaVersion", "status", "mode", "buttonId", "pageSessionId", "fileName", "recommendedAgentAction"],
+  "properties": {
+    "schemaVersion": { "const": "openpatch.agent_button.v6" },
+    "marker": { "type": "string" },
+    "status": { "type": "string" },
+    "mode": { "type": "string" },
+    "action": { "type": "string" },
+    "fileName": { "type": "string" },
+    "buttonId": { "type": "string" },
+    "pageSessionId": { "type": "string" },
+    "routeContext": { "type": "object" },
+    "stalenessStatus": { "type": "string" },
+    "recommendedAgentAction": { "type": "string" },
+    "targetSummary": { "type": "string" },
+    "bridgeStatusHint": { "type": "string" },
+    "queueStatusHint": { "type": "string" },
+    "result": { "type": ["object", "null"] },
+    "error": { "type": "string" }
+  },
+  "additionalProperties": true
+}

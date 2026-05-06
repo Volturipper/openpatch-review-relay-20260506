@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.bridge_health.v7",
+  "service": "openpatch-local-bridge",
+  "root": "/mnt/data/openpatch_v7_bridge_test",
+  "capabilities": [
+    "routes",
+    "resolve_route",
+    "receipts",
+    "latest",
+    "sha_index",
+    "queue",
+    "config_status",
+    "archive_base64",
+    "bridge_side_github_upload",
+    "agent_summary",
+    "receipt_query",
+    "queue_claim",
+    "queue_retry",
+    "auto_continue_plan",
+    "events",
+    "compact_summary",
+    "recent_receipts",
+    "queue_stats",
+    "queue_claim_batch",
+    "queue_release",
+    "lease_reclaim"
+  ],
+  "time": "2026-05-06T00:13:26.461Z"
+}

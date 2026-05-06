@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.sha_index.v1",
+  "type": "object",
+  "required": ["schema_version", "entries", "updated_at"],
+  "properties": {
+    "schema_version": { "const": "openpatch.sha_index.v1" },
+    "entries": { "type": "array", "items": { "type": "object" } },
+    "updated_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}

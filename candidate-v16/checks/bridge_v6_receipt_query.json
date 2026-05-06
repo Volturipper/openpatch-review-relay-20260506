@@ -1,0 +1,102 @@
+{
+  "ok": true,
+  "status": "found",
+  "project": "webai-transfer",
+  "round_id": "round-v6-001",
+  "receipt_path": "/mnt/data/openpatch_v6_bridge_test/receipts/webai-transfer/round-v6-001.json",
+  "receipt": {
+    "schema_version": "openpatch.bridge_archive_receipt.v6",
+    "source": "local-bridge",
+    "local_receipt_path": "/mnt/data/openpatch_v6_bridge_test/receipts/webai-transfer/round-v6-001.json",
+    "receipt": {
+      "schema_version": "openpatch.upload_receipt.v6",
+      "status": "dry_run_planned",
+      "archive_only": true,
+      "allow_execution": false,
+      "project": "webai-transfer",
+      "round_id": "round-v6-001",
+      "file_name": "webai-roundpack.zip",
+      "file_sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
+      "route_context": {
+        "project": "webai-transfer",
+        "repo_alias": "example-dry-run-archive",
+        "key_alias": "example-gh-token-env",
+        "archive_root": "rounds",
+        "index_root": "index",
+        "route_profile": "manual"
+      },
+      "github": {
+        "owner": "example-owner",
+        "repo": "example-archive-repo",
+        "branch": "webai-archive",
+        "archive_path": "rounds/webai-transfer/2026/05/05/round-v6-001/webai-roundpack.zip",
+        "manifest_path": "rounds/webai-transfer/2026/05/05/round-v6-001/archive_manifest.json",
+        "receipt_path": "rounds/webai-transfer/2026/05/05/round-v6-001/upload_receipt.json",
+        "latest_path": "index/latest/webai-transfer.json",
+        "dry_run": true
+      },
+      "created_at": "2026-05-05T23:41:28.569Z",
+      "next_actions": [
+        "read_latest",
+        "fetch_roundpack",
+        "read_receipt",
+        "continue_agent_workflow"
+      ]
+    },
+    "manifest": {
+      "schema_version": "openpatch.archive_manifest.v6",
+      "archive_only": true,
+      "allow_execution": false,
+      "project": "webai-transfer",
+      "round_id": "round-v6-001",
+      "title": "",
+      "files": [
+        {
+          "name": "webai-roundpack.zip",
+          "sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
+          "role": "roundpack_or_artifact",
+          "path": "rounds/webai-transfer/2026/05/05/round-v6-001/webai-roundpack.zip"
+        }
+      ],
+      "receipt_path": "rounds/webai-transfer/2026/05/05/round-v6-001/upload_receipt.json",
+      "latest_path": "index/latest/webai-transfer.json",
+      "route_context": {
+        "project": "webai-transfer",
+        "repo_alias": "example-dry-run-archive",
+        "key_alias": "example-gh-token-env",
+        "archive_root": "rounds",
+        "index_root": "index",
+        "route_profile": "manual"
+      },
+      "created_at": "2026-05-05T23:41:28.569Z"
+    },
+    "latest": {
+      "schema_version": "openpatch.latest.v6",
+      "project": "webai-transfer",
+      "latest_round": "round-v6-001",
+      "status": "dry_run_planned",
+      "archive_only": true,
+      "allow_execution": false,
+      "latest": {
+        "round_id": "round-v6-001",
+        "project": "webai-transfer",
+        "status": "dry_run_planned",
+        "file_name": "webai-roundpack.zip",
+        "file_sha256": "e12e115acf4552b2568b55e93cbd39394c4ef81c82447fafc997882a02d23677",
+        "archive_path": "rounds/webai-transfer/2026/05/05/round-v6-001/webai-roundpack.zip",
+        "receipt_path": "rounds/webai-transfer/2026/05/05/round-v6-001/upload_receipt.json",
+        "created_at": "2026-05-05T23:41:28.569Z"
+      },
+      "recent_rounds": [],
+      "codex_should_read": [
+        "upload_receipt.json",
+        "archive_manifest.json",
+        "NEXT_FOR_CODEX.md",
+        "ROUND_SUMMARY.md"
+      ],
+      "next_actor": "codex_or_reviewer",
+      "updated_at": "2026-05-05T23:41:28.569Z"
+    },
+    "commit_sha": ""
+  }
+}

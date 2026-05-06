@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenPatch route conflicts v9",
+  "type": "object",
+  "required": ["schema_version", "ok", "issue_count", "has_blocking_conflict"],
+  "properties": {
+    "schema_version": { "const": "openpatch.route_conflicts.v9" },
+    "ok": { "type": "boolean" },
+    "total_profiles": { "type": "integer" },
+    "issue_count": { "type": "integer" },
+    "has_blocking_conflict": { "type": "boolean" },
+    "recommended_agent_action": { "type": "string" },
+    "issues": { "type": "array" },
+    "dynamic": { "type": ["object", "null"] },
+    "checked_at": { "type": "string" }
+  }
+}

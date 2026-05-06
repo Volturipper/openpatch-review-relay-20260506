@@ -1,0 +1,1463 @@
+diff -ruN openpatch_agent_gateway_v8_candidate/auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V9.md openpatch_agent_gateway_v9_candidate/auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V9.md
+--- openpatch_agent_gateway_v8_candidate/auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V9.md	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V9.md	2026-05-06 00:53:33.189335431 +0000
+@@ -0,0 +1,12 @@
++# Auto Continue Live Adapter V9
++
++目标：让 Auto Continue 在多轮生成时知道什么时候要求 RoundPack、什么时候暂停等归档、什么时候继续。
++
++接入点：
++- 每 N 轮调用 `openpatch:api:get-compact-summary`。
++- 需要归档时调用 `openpatch:api:get-roundpack-prompt`，把 prompt 发给 Web AI。
++- 检测 `[ROUND_PACK_READY]` marker 后调用 `openpatch:api:get-buttons`。
++- 若按钮 `routeConflictHint=clear|warnings`，可触发 `openpatch:api:trigger-upload`。
++- 若 `ambiguous|blocking_conflict`，先调用 `openpatch:api:get-route-conflicts` 并暂停。
++
++不要把 GitHub token 放进 Auto Continue；Auto Continue 只驱动页面和读取状态。
+diff -ruN openpatch_agent_gateway_v8_candidate/auto-continue-integration/roundpack_scheduler_adapter_v9.js openpatch_agent_gateway_v9_candidate/auto-continue-integration/roundpack_scheduler_adapter_v9.js
+--- openpatch_agent_gateway_v8_candidate/auto-continue-integration/roundpack_scheduler_adapter_v9.js	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/auto-continue-integration/roundpack_scheduler_adapter_v9.js	2026-05-06 00:53:33.189449065 +0000
+@@ -0,0 +1,17 @@
++// OPENPATCH Auto Continue adapter v9 candidate.
++// Purpose: small page-level bridge; no GitHub token; no direct upload implementation.
++export function requestOpenPatchRouteConflicts(project = '') {
++  const requestId = `op-v9-conflicts-${Date.now()}`;
++  window.dispatchEvent(new CustomEvent('openpatch:api:get-route-conflicts', { detail: { requestId, project } }));
++  return requestId;
++}
++export function requestOpenPatchCompactSummary(project = '') {
++  const requestId = `op-v9-summary-${Date.now()}`;
++  window.dispatchEvent(new CustomEvent('openpatch:api:get-compact-summary', { detail: { requestId, project } }));
++  return requestId;
++}
++export function triggerOpenPatchUploadByButton(buttonId) {
++  const requestId = `op-v9-trigger-${Date.now()}`;
++  window.dispatchEvent(new CustomEvent('openpatch:api:trigger-upload', { detail: { requestId, buttonId } }));
++  return requestId;
++}
+diff -ruN openpatch_agent_gateway_v8_candidate/browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V9.md openpatch_agent_gateway_v9_candidate/browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V9.md
+--- openpatch_agent_gateway_v8_candidate/browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V9.md	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V9.md	2026-05-06 00:53:33.189048657 +0000
+@@ -0,0 +1,17 @@
++# Chrome Dev Profile Smoke Test V9
++
++目标：在专用 Chrome Dev profile 加载 unpacked 插件，检查 UI/marker/API，不使用真实 token。
++
++步骤：
++1. 启动 local bridge，设置 dry-run repo_alias。
++2. Chrome Dev 使用专用 profile 加载 `openpatch-main/` unpacked extension。
++3. 打开测试 ChatGPT 页面或本地 fixture 页面。
++4. 检查按钮旁 marker：`data-openpatch-marker=openpatch.agent_button.v9`。
++5. 触发 `openpatch:api:get-route-conflicts`，确认返回 route conflicts 结果。
++6. 触发 archive dry-run，确认 receipt/latest 写入 bridge data。
++
++失败即停：
++- 页面明显卡顿。
++- marker 丢失 project/repo_alias/key_alias。
++- routeConflictHint 长期 unknown 且 bridge 已可用。
++- dry-run 后没有 receipt/latest。
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_cli_routes_conflicts.json openpatch_agent_gateway_v9_candidate/checks/bridge_v9_cli_routes_conflicts.json
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_cli_routes_conflicts.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_cli_routes_conflicts.json	2026-05-06 00:56:39.165840135 +0000
+@@ -0,0 +1,140 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.route_conflicts.v9",
++  "total_profiles": 3,
++  "issue_count": 3,
++  "has_blocking_conflict": false,
++  "recommended_agent_action": "review_route_warnings_or_continue",
++  "issues": [
++    {
++      "severity": "warning",
++      "type": "same_project_same_match_fingerprint",
++      "profiles": [
++        {
++          "profile_id": "webai-transfer-main",
++          "project": "webai-transfer",
++          "repo_alias": "webai-archive-dry",
++          "key_alias": "dry-key",
++          "priority": 10,
++          "default": true,
++          "match_fingerprint": "fed75ba25bec2ec8"
++        },
++        {
++          "profile_id": "webai-transfer-review",
++          "project": "webai-transfer",
++          "repo_alias": "webai-review-dry",
++          "key_alias": "dry-key",
++          "priority": 9,
++          "default": false,
++          "match_fingerprint": "fed75ba25bec2ec8"
++        }
++      ]
++    },
++    {
++      "severity": "warning",
++      "type": "missing_key_alias",
++      "profile": {
++        "profile_id": "missing-key-test",
++        "project": "other",
++        "repo_alias": "other-repo",
++        "key_alias": "",
++        "priority": 1,
++        "default": false,
++        "match_fingerprint": "88a4db94fe433775"
++      }
++    },
++    {
++      "severity": "warning",
++      "type": "ambiguous_route_resolution",
++      "top_score": 70,
++      "second_score": 69,
++      "score_gap": 1,
++      "candidates": [
++        {
++          "profile": {
++            "profile_id": "webai-transfer-main",
++            "project": "webai-transfer",
++            "repo_alias": "webai-archive-dry",
++            "key_alias": "dry-key",
++            "priority": 10,
++            "default": true,
++            "match_fingerprint": "fed75ba25bec2ec8"
++          },
++          "score": 70
++        },
++        {
++          "profile": {
++            "profile_id": "webai-transfer-review",
++            "project": "webai-transfer",
++            "repo_alias": "webai-review-dry",
++            "key_alias": "dry-key",
++            "priority": 9,
++            "default": false,
++            "match_fingerprint": "fed75ba25bec2ec8"
++          },
++          "score": 69
++        },
++        {
++          "profile": {
++            "profile_id": "missing-key-test",
++            "project": "other",
++            "repo_alias": "other-repo",
++            "key_alias": "",
++            "priority": 1,
++            "default": false,
++            "match_fingerprint": "88a4db94fe433775"
++          },
++          "score": 1
++        }
++      ]
++    }
++  ],
++  "dynamic": {
++    "input": {
++      "project_hint": "webai-transfer",
++      "page_url_host": "chatgpt.com",
++      "title": "WebAI Transfer review"
++    },
++    "top_candidates": [
++      {
++        "profile": {
++          "profile_id": "webai-transfer-main",
++          "project": "webai-transfer",
++          "repo_alias": "webai-archive-dry",
++          "key_alias": "dry-key",
++          "priority": 10,
++          "default": true,
++          "match_fingerprint": "fed75ba25bec2ec8"
++        },
++        "score": 70
++      },
++      {
++        "profile": {
++          "profile_id": "webai-transfer-review",
++          "project": "webai-transfer",
++          "repo_alias": "webai-review-dry",
++          "key_alias": "dry-key",
++          "priority": 9,
++          "default": false,
++          "match_fingerprint": "fed75ba25bec2ec8"
++        },
++        "score": 69
++      },
++      {
++        "profile": {
++          "profile_id": "missing-key-test",
++          "project": "other",
++          "repo_alias": "other-repo",
++          "key_alias": "",
++          "priority": 1,
++          "default": false,
++          "match_fingerprint": "88a4db94fe433775"
++        },
++        "score": 1
++      }
++    ],
++    "score_gap": 1,
++    "ambiguous": true
++  },
++  "checked_at": "2026-05-06T00:56:38.967Z"
++}
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_health.json openpatch_agent_gateway_v9_candidate/checks/bridge_v9_health.json
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_health.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_health.json	2026-05-06 00:56:36.765780060 +0000
+@@ -0,0 +1,37 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_health.v9",
++  "service": "openpatch-local-bridge",
++  "root": "/mnt/data/openpatch_v9_bridge_test",
++  "capabilities": [
++    "routes",
++    "resolve_route",
++    "receipts",
++    "latest",
++    "sha_index",
++    "queue",
++    "config_status",
++    "archive_base64",
++    "bridge_side_github_upload",
++    "agent_summary",
++    "receipt_query",
++    "queue_claim",
++    "queue_retry",
++    "auto_continue_plan",
++    "events",
++    "compact_summary",
++    "recent_receipts",
++    "queue_stats",
++    "queue_claim_batch",
++    "queue_release",
++    "lease_reclaim",
++    "github_rate_backoff",
++    "events_compact",
++    "archive_size_guard",
++    "stress_test_ready",
++    "route_conflict_detector",
++    "queue_reclaim_expired",
++    "route_ambiguity_report"
++  ],
++  "time": "2026-05-06T00:56:36.677Z"
++}
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_queue_claim.json openpatch_agent_gateway_v9_candidate/checks/bridge_v9_queue_claim.json
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_queue_claim.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_queue_claim.json	2026-05-06 00:58:12.783907761 +0000
+@@ -0,0 +1,19 @@
++{
++  "ok": true,
++  "status": "claimed",
++  "lease_until": "2026-05-06T00:59:12.774Z",
++  "task": {
++    "schema_version": "openpatch.bridge_queue_item.v1",
++    "idempotency_key": "v9-queue-r1-abc",
++    "project": "v9-queue",
++    "round_id": "r1",
++    "file_sha256": "abc",
++    "status": "claimed",
++    "action": "archive_roundpack",
++    "route_context": {},
++    "created_at": "2026-05-06T00:56:58.370Z",
++    "updated_at": "2026-05-06T00:58:12.774Z",
++    "claimed_by": "test-agent",
++    "lease_until": "2026-05-06T00:59:12.774Z"
++  }
++}
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_queue_enqueue.json openpatch_agent_gateway_v9_candidate/checks/bridge_v9_queue_enqueue.json
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_queue_enqueue.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_queue_enqueue.json	2026-05-06 00:58:12.480412663 +0000
+@@ -0,0 +1,18 @@
++{
++  "ok": true,
++  "status": "duplicate",
++  "task": {
++    "schema_version": "openpatch.bridge_queue_item.v1",
++    "idempotency_key": "v9-queue-r1-abc",
++    "project": "v9-queue",
++    "round_id": "r1",
++    "file_sha256": "abc",
++    "status": "claimed",
++    "action": "archive_roundpack",
++    "route_context": {},
++    "created_at": "2026-05-06T00:56:58.370Z",
++    "updated_at": "2026-05-06T00:56:58.674Z",
++    "claimed_by": "test-agent",
++    "lease_until": "2026-05-06T00:57:58.674Z"
++  }
++}
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_queue_health.json openpatch_agent_gateway_v9_candidate/checks/bridge_v9_queue_health.json
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_queue_health.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_queue_health.json	2026-05-06 00:58:12.275401413 +0000
+@@ -0,0 +1,37 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_health.v9",
++  "service": "openpatch-local-bridge",
++  "root": "/mnt/data/openpatch_v9_bridge_test",
++  "capabilities": [
++    "routes",
++    "resolve_route",
++    "receipts",
++    "latest",
++    "sha_index",
++    "queue",
++    "config_status",
++    "archive_base64",
++    "bridge_side_github_upload",
++    "agent_summary",
++    "receipt_query",
++    "queue_claim",
++    "queue_retry",
++    "auto_continue_plan",
++    "events",
++    "compact_summary",
++    "recent_receipts",
++    "queue_stats",
++    "queue_claim_batch",
++    "queue_release",
++    "lease_reclaim",
++    "github_rate_backoff",
++    "events_compact",
++    "archive_size_guard",
++    "stress_test_ready",
++    "route_conflict_detector",
++    "queue_reclaim_expired",
++    "route_ambiguity_report"
++  ],
++  "time": "2026-05-06T00:58:12.273Z"
++}
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_queue_reclaim_expired.json openpatch_agent_gateway_v9_candidate/checks/bridge_v9_queue_reclaim_expired.json
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_queue_reclaim_expired.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_queue_reclaim_expired.json	2026-05-06 00:58:22.087270243 +0000
+@@ -0,0 +1,24 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.queue_reclaim_expired.v9",
++  "project": "v9-queue",
++  "count": 1,
++  "tasks": [
++    {
++      "schema_version": "openpatch.bridge_queue_item.v1",
++      "idempotency_key": "v9-queue-r1-abc",
++      "project": "v9-queue",
++      "round_id": "r1",
++      "file_sha256": "abc",
++      "status": "retry_requested",
++      "action": "archive_roundpack",
++      "route_context": {},
++      "created_at": "2026-05-06T00:56:58.370Z",
++      "updated_at": "2026-05-06T00:58:22.082Z",
++      "claimed_by": "",
++      "lease_until": "",
++      "reclaimed_reason": "smoke_expired"
++    }
++  ],
++  "reclaimed_at": "2026-05-06T00:58:22.082Z"
++}
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_queue_server.log openpatch_agent_gateway_v9_candidate/checks/bridge_v9_queue_server.log
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_queue_server.log	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_queue_server.log	2026-05-06 00:58:11.487586326 +0000
+@@ -0,0 +1 @@
++{"ok":true,"service":"openpatch-local-bridge","port":17880,"root":"/mnt/data/openpatch_v9_bridge_test"}
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_queue_server.pid openpatch_agent_gateway_v9_candidate/checks/bridge_v9_queue_server.pid
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_queue_server.pid	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_queue_server.pid	2026-05-06 00:58:11.073235323 +0000
+@@ -0,0 +1 @@
++8463
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_resolve_route.json openpatch_agent_gateway_v9_candidate/checks/bridge_v9_resolve_route.json
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_resolve_route.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_resolve_route.json	2026-05-06 00:56:37.482566137 +0000
+@@ -0,0 +1,103 @@
++{
++  "ok": true,
++  "status": "resolved",
++  "route_context": {
++    "schema_version": "openpatch.route_context.v7",
++    "route_profile": "webai-transfer-main",
++    "project": "webai-transfer",
++    "repo_alias": "webai-archive-dry",
++    "key_alias": "dry-key",
++    "archive_root": "rounds",
++    "index_root": "index",
++    "mode": "roundpack_archive",
++    "confidence": 70,
++    "ambiguity": {
++      "status": "ambiguous",
++      "score_gap": 1,
++      "candidates": [
++        {
++          "rank": 1,
++          "score": 70,
++          "profile": {
++            "profile_id": "webai-transfer-main",
++            "project": "webai-transfer",
++            "repo_alias": "webai-archive-dry",
++            "key_alias": "dry-key",
++            "priority": 10,
++            "default": true,
++            "match_fingerprint": "fed75ba25bec2ec8"
++          }
++        },
++        {
++          "rank": 2,
++          "score": 69,
++          "profile": {
++            "profile_id": "webai-transfer-review",
++            "project": "webai-transfer",
++            "repo_alias": "webai-review-dry",
++            "key_alias": "dry-key",
++            "priority": 9,
++            "default": false,
++            "match_fingerprint": "fed75ba25bec2ec8"
++          }
++        },
++        {
++          "rank": 3,
++          "score": 1,
++          "profile": {
++            "profile_id": "missing-key-test",
++            "project": "other",
++            "repo_alias": "other-repo",
++            "key_alias": "",
++            "priority": 1,
++            "default": false,
++            "match_fingerprint": "88a4db94fe433775"
++          }
++        }
++      ]
++    },
++    "resolved_at": "2026-05-06T00:56:37.482Z"
++  },
++  "candidates": [
++    {
++      "rank": 1,
++      "score": 70,
++      "profile": {
++        "profile_id": "webai-transfer-main",
++        "project": "webai-transfer",
++        "repo_alias": "webai-archive-dry",
++        "key_alias": "dry-key",
++        "priority": 10,
++        "default": true,
++        "match_fingerprint": "fed75ba25bec2ec8"
++      }
++    },
++    {
++      "rank": 2,
++      "score": 69,
++      "profile": {
++        "profile_id": "webai-transfer-review",
++        "project": "webai-transfer",
++        "repo_alias": "webai-review-dry",
++        "key_alias": "dry-key",
++        "priority": 9,
++        "default": false,
++        "match_fingerprint": "fed75ba25bec2ec8"
++      }
++    },
++    {
++      "rank": 3,
++      "score": 1,
++      "profile": {
++        "profile_id": "missing-key-test",
++        "project": "other",
++        "repo_alias": "other-repo",
++        "key_alias": "",
++        "priority": 1,
++        "default": false,
++        "match_fingerprint": "88a4db94fe433775"
++      }
++    }
++  ],
++  "recommended_agent_action": "confirm_route_or_set_route_context_before_upload"
++}
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_routes_conflicts_dynamic.json openpatch_agent_gateway_v9_candidate/checks/bridge_v9_routes_conflicts_dynamic.json
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_routes_conflicts_dynamic.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_routes_conflicts_dynamic.json	2026-05-06 00:56:37.272583260 +0000
+@@ -0,0 +1,140 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.route_conflicts.v9",
++  "total_profiles": 3,
++  "issue_count": 3,
++  "has_blocking_conflict": false,
++  "recommended_agent_action": "review_route_warnings_or_continue",
++  "issues": [
++    {
++      "severity": "warning",
++      "type": "same_project_same_match_fingerprint",
++      "profiles": [
++        {
++          "profile_id": "webai-transfer-main",
++          "project": "webai-transfer",
++          "repo_alias": "webai-archive-dry",
++          "key_alias": "dry-key",
++          "priority": 10,
++          "default": true,
++          "match_fingerprint": "fed75ba25bec2ec8"
++        },
++        {
++          "profile_id": "webai-transfer-review",
++          "project": "webai-transfer",
++          "repo_alias": "webai-review-dry",
++          "key_alias": "dry-key",
++          "priority": 9,
++          "default": false,
++          "match_fingerprint": "fed75ba25bec2ec8"
++        }
++      ]
++    },
++    {
++      "severity": "warning",
++      "type": "missing_key_alias",
++      "profile": {
++        "profile_id": "missing-key-test",
++        "project": "other",
++        "repo_alias": "other-repo",
++        "key_alias": "",
++        "priority": 1,
++        "default": false,
++        "match_fingerprint": "88a4db94fe433775"
++      }
++    },
++    {
++      "severity": "warning",
++      "type": "ambiguous_route_resolution",
++      "top_score": 70,
++      "second_score": 69,
++      "score_gap": 1,
++      "candidates": [
++        {
++          "profile": {
++            "profile_id": "webai-transfer-main",
++            "project": "webai-transfer",
++            "repo_alias": "webai-archive-dry",
++            "key_alias": "dry-key",
++            "priority": 10,
++            "default": true,
++            "match_fingerprint": "fed75ba25bec2ec8"
++          },
++          "score": 70
++        },
++        {
++          "profile": {
++            "profile_id": "webai-transfer-review",
++            "project": "webai-transfer",
++            "repo_alias": "webai-review-dry",
++            "key_alias": "dry-key",
++            "priority": 9,
++            "default": false,
++            "match_fingerprint": "fed75ba25bec2ec8"
++          },
++          "score": 69
++        },
++        {
++          "profile": {
++            "profile_id": "missing-key-test",
++            "project": "other",
++            "repo_alias": "other-repo",
++            "key_alias": "",
++            "priority": 1,
++            "default": false,
++            "match_fingerprint": "88a4db94fe433775"
++          },
++          "score": 1
++        }
++      ]
++    }
++  ],
++  "dynamic": {
++    "input": {
++      "project_hint": "webai-transfer",
++      "page_url_host": "chatgpt.com",
++      "title": "WebAI Transfer review"
++    },
++    "top_candidates": [
++      {
++        "profile": {
++          "profile_id": "webai-transfer-main",
++          "project": "webai-transfer",
++          "repo_alias": "webai-archive-dry",
++          "key_alias": "dry-key",
++          "priority": 10,
++          "default": true,
++          "match_fingerprint": "fed75ba25bec2ec8"
++        },
++        "score": 70
++      },
++      {
++        "profile": {
++          "profile_id": "webai-transfer-review",
++          "project": "webai-transfer",
++          "repo_alias": "webai-review-dry",
++          "key_alias": "dry-key",
++          "priority": 9,
++          "default": false,
++          "match_fingerprint": "fed75ba25bec2ec8"
++        },
++        "score": 69
++      },
++      {
++        "profile": {
++          "profile_id": "missing-key-test",
++          "project": "other",
++          "repo_alias": "other-repo",
++          "key_alias": "",
++          "priority": 1,
++          "default": false,
++          "match_fingerprint": "88a4db94fe433775"
++        },
++        "score": 1
++      }
++    ],
++    "score_gap": 1,
++    "ambiguous": true
++  },
++  "checked_at": "2026-05-06T00:56:37.271Z"
++}
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_routes_conflicts_static.json openpatch_agent_gateway_v9_candidate/checks/bridge_v9_routes_conflicts_static.json
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_routes_conflicts_static.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_routes_conflicts_static.json	2026-05-06 00:56:36.976976336 +0000
+@@ -0,0 +1,49 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.route_conflicts.v9",
++  "total_profiles": 3,
++  "issue_count": 2,
++  "has_blocking_conflict": false,
++  "recommended_agent_action": "review_route_warnings_or_continue",
++  "issues": [
++    {
++      "severity": "warning",
++      "type": "same_project_same_match_fingerprint",
++      "profiles": [
++        {
++          "profile_id": "webai-transfer-main",
++          "project": "webai-transfer",
++          "repo_alias": "webai-archive-dry",
++          "key_alias": "dry-key",
++          "priority": 10,
++          "default": true,
++          "match_fingerprint": "fed75ba25bec2ec8"
++        },
++        {
++          "profile_id": "webai-transfer-review",
++          "project": "webai-transfer",
++          "repo_alias": "webai-review-dry",
++          "key_alias": "dry-key",
++          "priority": 9,
++          "default": false,
++          "match_fingerprint": "fed75ba25bec2ec8"
++        }
++      ]
++    },
++    {
++      "severity": "warning",
++      "type": "missing_key_alias",
++      "profile": {
++        "profile_id": "missing-key-test",
++        "project": "other",
++        "repo_alias": "other-repo",
++        "key_alias": "",
++        "priority": 1,
++        "default": false,
++        "match_fingerprint": "88a4db94fe433775"
++      }
++    }
++  ],
++  "dynamic": null,
++  "checked_at": "2026-05-06T00:56:36.976Z"
++}
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_server.log openpatch_agent_gateway_v9_candidate/checks/bridge_v9_server.log
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_server.log	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_server.log	2026-05-06 00:56:35.674140669 +0000
+@@ -0,0 +1 @@
++{"ok":true,"service":"openpatch-local-bridge","port":17879,"root":"/mnt/data/openpatch_v9_bridge_test"}
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_server.pid openpatch_agent_gateway_v9_candidate/checks/bridge_v9_server.pid
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_server.pid	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_server.pid	2026-05-06 00:56:34.974453749 +0000
+@@ -0,0 +1 @@
++2314
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/bridge_v9_stress_archive_300.json openpatch_agent_gateway_v9_candidate/checks/bridge_v9_stress_archive_300.json
+--- openpatch_agent_gateway_v8_candidate/checks/bridge_v9_stress_archive_300.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/bridge_v9_stress_archive_300.json	2026-05-06 00:56:57.870276064 +0000
+@@ -0,0 +1,35 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.stress_archive.v9",
++  "project": "v9-stress",
++  "count": 300,
++  "parallel": 20,
++  "results_count": 300,
++  "sample": [
++    {
++      "round_id": "stress-0000",
++      "status": "dry_run_planned",
++      "sha256": "15a73480559884143373ed360080942071a126809c2d3658b61c38baa33fbd36"
++    },
++    {
++      "round_id": "stress-0001",
++      "status": "dry_run_planned",
++      "sha256": "497a9346f6327e6c2bf6227329a5d86a8d3a88160e117b288ffa515f0bfeeb31"
++    },
++    {
++      "round_id": "stress-0002",
++      "status": "dry_run_planned",
++      "sha256": "34aad7c83e63d0a90d1a224e78d9fc321a0a871ca8bbd2e1e988a670c1f041ca"
++    },
++    {
++      "round_id": "stress-0003",
++      "status": "dry_run_planned",
++      "sha256": "67b01c81c3d8cab80c3d04eb586d0902d085b49a5f9ac87d95883b672e755b05"
++    },
++    {
++      "round_id": "stress-0004",
++      "status": "dry_run_planned",
++      "sha256": "0723600f0b09cb84e2679ea6aac585ac045b9276d4ac6d9e0127af1b7c19bfa7"
++    }
++  ]
++}
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/npm_run_check_v9.log openpatch_agent_gateway_v9_candidate/checks/npm_run_check_v9.log
+--- openpatch_agent_gateway_v8_candidate/checks/npm_run_check_v9.log	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/npm_run_check_v9.log	2026-05-06 00:56:08.876563774 +0000
+@@ -0,0 +1,99 @@
++
++> openpatch@0.2.0 check
++> node --test && node --check src/*.js && node -e "JSON.parse(require('fs').readFileSync('manifest.json','utf8')); console.log('manifest ok')"
++
++TAP version 13
++# Subtest: encodeGitHubPath preserves path separators and escapes segments
++ok 1 - encodeGitHubPath preserves path separators and escapes segments
++  ---
++  duration_ms: 0.945322
++  type: 'test'
++  ...
++# Subtest: buildContentsApiUrl encodes repository and path
++ok 2 - buildContentsApiUrl encodes repository and path
++  ---
++  duration_ms: 0.198376
++  type: 'test'
++  ...
++# Subtest: uploadPatchText uploads metadata first then patch to target branch
++ok 3 - uploadPatchText uploads metadata first then patch to target branch
++  ---
++  duration_ms: 89.424182
++  type: 'test'
++  ...
++# Subtest: uploadPatchText resolves missing owner from GitHub token user
++ok 4 - uploadPatchText resolves missing owner from GitHub token user
++  ---
++  duration_ms: 0.778961
++  type: 'test'
++  ...
++# Subtest: uploadPatchFile uploads zip as binary content
++ok 5 - uploadPatchFile uploads zip as binary content
++  ---
++  duration_ms: 0.588519
++  type: 'test'
++  ...
++# Subtest: uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++ok 6 - uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++  ---
++  duration_ms: 9.053881
++  type: 'test'
++  ...
++# Subtest: parseRepositoryInput accepts owner/repo and GitHub URLs
++ok 7 - parseRepositoryInput accepts owner/repo and GitHub URLs
++  ---
++  duration_ms: 3.669697
++  type: 'test'
++  ...
++# Subtest: looksLikePatchDownloadText detects loose Chinese diff labels
++ok 8 - looksLikePatchDownloadText detects loose Chinese diff labels
++  ---
++  duration_ms: 0.826876
++  type: 'test'
++  ...
++# Subtest: buildPatchUploadPath creates safe unique paths
++ok 9 - buildPatchUploadPath creates safe unique paths
++  ---
++  duration_ms: 85.892056
++  type: 'test'
++  ...
++# Subtest: zip upload paths and metadata paths are supported
++ok 10 - zip upload paths and metadata paths are supported
++  ---
++  duration_ms: 0.521838
++  type: 'test'
++  ...
++# Subtest: buildDefaultCommitTitle distinguishes zip packages
++ok 11 - buildDefaultCommitTitle distinguishes zip packages
++  ---
++  duration_ms: 0.187517
++  type: 'test'
++  ...
++# Subtest: encodeBase64Bytes encodes binary data
++ok 12 - encodeBase64Bytes encodes binary data
++  ---
++  duration_ms: 0.218206
++  type: 'test'
++  ...
++# Subtest: sanitizePatchName keeps fallback usable
++ok 13 - sanitizePatchName keeps fallback usable
++  ---
++  duration_ms: 0.11184
++  type: 'test'
++  ...
++# Subtest: roundpack helpers detect archive artifacts and build safe paths
++ok 14 - roundpack helpers detect archive artifacts and build safe paths
++  ---
++  duration_ms: 0.841303
++  type: 'test'
++  ...
++1..14
++# tests 14
++# suites 0
++# pass 14
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 1794.647504
++manifest ok
+diff -ruN openpatch_agent_gateway_v8_candidate/checks/npm_test_v9.log openpatch_agent_gateway_v9_candidate/checks/npm_test_v9.log
+--- openpatch_agent_gateway_v8_candidate/checks/npm_test_v9.log	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/checks/npm_test_v9.log	2026-05-06 00:56:03.368439342 +0000
+@@ -0,0 +1,98 @@
++
++> openpatch@0.2.0 test
++> node --test
++
++TAP version 13
++# Subtest: encodeGitHubPath preserves path separators and escapes segments
++ok 1 - encodeGitHubPath preserves path separators and escapes segments
++  ---
++  duration_ms: 0.728551
++  type: 'test'
++  ...
++# Subtest: buildContentsApiUrl encodes repository and path
++ok 2 - buildContentsApiUrl encodes repository and path
++  ---
++  duration_ms: 0.17463
++  type: 'test'
++  ...
++# Subtest: uploadPatchText uploads metadata first then patch to target branch
++ok 3 - uploadPatchText uploads metadata first then patch to target branch
++  ---
++  duration_ms: 5.607477
++  type: 'test'
++  ...
++# Subtest: uploadPatchText resolves missing owner from GitHub token user
++ok 4 - uploadPatchText resolves missing owner from GitHub token user
++  ---
++  duration_ms: 0.628308
++  type: 'test'
++  ...
++# Subtest: uploadPatchFile uploads zip as binary content
++ok 5 - uploadPatchFile uploads zip as binary content
++  ---
++  duration_ms: 0.582583
++  type: 'test'
++  ...
++# Subtest: uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++ok 6 - uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++  ---
++  duration_ms: 181.915193
++  type: 'test'
++  ...
++# Subtest: parseRepositoryInput accepts owner/repo and GitHub URLs
++ok 7 - parseRepositoryInput accepts owner/repo and GitHub URLs
++  ---
++  duration_ms: 96.64513
++  type: 'test'
++  ...
++# Subtest: looksLikePatchDownloadText detects loose Chinese diff labels
++ok 8 - looksLikePatchDownloadText detects loose Chinese diff labels
++  ---
++  duration_ms: 0.853881
++  type: 'test'
++  ...
++# Subtest: buildPatchUploadPath creates safe unique paths
++ok 9 - buildPatchUploadPath creates safe unique paths
++  ---
++  duration_ms: 1.890211
++  type: 'test'
++  ...
++# Subtest: zip upload paths and metadata paths are supported
++ok 10 - zip upload paths and metadata paths are supported
++  ---
++  duration_ms: 0.492321
++  type: 'test'
++  ...
++# Subtest: buildDefaultCommitTitle distinguishes zip packages
++ok 11 - buildDefaultCommitTitle distinguishes zip packages
++  ---
++  duration_ms: 0.173712
++  type: 'test'
++  ...
++# Subtest: encodeBase64Bytes encodes binary data
++ok 12 - encodeBase64Bytes encodes binary data
++  ---
++  duration_ms: 0.232166
++  type: 'test'
++  ...
++# Subtest: sanitizePatchName keeps fallback usable
++ok 13 - sanitizePatchName keeps fallback usable
++  ---
++  duration_ms: 0.137241
++  type: 'test'
++  ...
++# Subtest: roundpack helpers detect archive artifacts and build safe paths
++ok 14 - roundpack helpers detect archive artifacts and build safe paths
++  ---
++  duration_ms: 93.161974
++  type: 'test'
++  ...
++1..14
++# tests 14
++# suites 0
++# pass 14
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 1290.404124
+diff -ruN openpatch_agent_gateway_v8_candidate/docs/23_V9_IMPLEMENTATION_REPORT.md openpatch_agent_gateway_v9_candidate/docs/23_V9_IMPLEMENTATION_REPORT.md
+--- openpatch_agent_gateway_v8_candidate/docs/23_V9_IMPLEMENTATION_REPORT.md	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/docs/23_V9_IMPLEMENTATION_REPORT.md	2026-05-06 00:53:33.187301110 +0000
+@@ -0,0 +1,34 @@
++# OPENPATCH Agent Gateway v9 Implementation Report
++
++## 本轮目标
++
++✅ 加速进入真实试跑前状态，而不是继续扩写概念。  
++✅ 重点补多页面/多浏览器/多 key 场景最容易误传的 route profile 冲突检测。  
++✅ 继续便利 Codex：增加 CLI/API 查询、队列过期回收、动态路由歧义报告。  
++✅ 保持聊天低冗余：代码、schema、测试日志全部放包内。
++
++## 新增能力
++
++- `GET /routes/conflicts`：静态检查 route profile 配置。
++- `POST /routes/conflicts`：按当前页面 URL/title/project_hint 做动态歧义检测。
++- `resolve-route` 返回 top candidates 与 ambiguity 信息。
++- `POST /queue/reclaim-expired`：回收过期 lease，避免多 agent 抢任务后卡死。
++- Codex CLI 新增 `routes-conflicts` 与 `queue-reclaim-expired`。
++- 页面 API 新增 `openpatch:api:get-route-conflicts` / `openpatch:api:route-conflicts`。
++- 按钮 marker 升级到 `openpatch.agent_button.v9`，增加 `routeConflictHint`。
++- 增加真实 GitHub 单测试仓上传任务卡、Chrome Dev profile smoke 任务卡、Auto Continue live 接入任务卡。
++
++## 当前状态
++
++✅ 候选实现已自检。  
++✅ 可交给 Codex 做隔离 smoke / 测试仓真实上传准备。  
++⚠️ 尚未在真实 Chrome Dev profile 安装。  
++⚠️ 尚未使用真实 fine-grained PAT 上传。  
++⚠️ 尚未接入用户当前 live Auto Continue 脚本实测。
++
++## 下一步 fast-track
++
++1. 用 `browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V9.md` 做插件加载 smoke。
++2. 用 `task_cards/FOR_GITHUB_TEST_UPLOAD_V9.md` 做单测试仓 archive-only 上传。
++3. 用 `auto-continue-integration/AUTO_CONTINUE_LIVE_ADAPTER_V9.md` 接入当前 Auto Continue。
++4. 运行 `stress-archive --count 300 --parallel 20` 做更高轮次 dry-run。
+diff -ruN openpatch_agent_gateway_v8_candidate/docs/24_V9_AGENT_API_QUICK_REFERENCE.md openpatch_agent_gateway_v9_candidate/docs/24_V9_AGENT_API_QUICK_REFERENCE.md
+--- openpatch_agent_gateway_v8_candidate/docs/24_V9_AGENT_API_QUICK_REFERENCE.md	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/docs/24_V9_AGENT_API_QUICK_REFERENCE.md	2026-05-06 00:53:33.187573402 +0000
+@@ -0,0 +1,36 @@
++# V9 Agent API Quick Reference
++
++## Codex 常用命令
++
++```text
++node local-bridge/openpatch-ledger-cli.mjs health
++node local-bridge/openpatch-ledger-cli.mjs routes-conflicts
++node local-bridge/openpatch-ledger-cli.mjs routes-conflicts --url <chat_url> --title <title> --project <project>
++node local-bridge/openpatch-ledger-cli.mjs compact-summary --project <project>
++node local-bridge/openpatch-ledger-cli.mjs queue-reclaim-expired --project <project>
++node local-bridge/openpatch-ledger-cli.mjs stress-archive --project <project> --count 300 --parallel 20
++```
++
++## 页面事件 API
++
++```text
++openpatch:api:get-route-conflicts
++openpatch:api:route-conflicts
++```
++
++Agent 读取按钮时重点看：
++
++```text
++data-openpatch-project
++data-openpatch-repo-alias
++data-openpatch-key-alias
++data-openpatch-route-conflict-hint
++data-openpatch-recommended-agent-action
++```
++
++## 决策建议
++
++- `routeConflictHint=clear`：可继续归档。
++- `routeConflictHint=warnings`：可由 Codex 记录 warning 后继续。
++- `routeConflictHint=ambiguous`：先 set-route-context 或指定 route_profile。
++- `routeConflictHint=blocking_conflict`：先修 route_profiles，避免误传仓库/key。
+diff -ruN openpatch_agent_gateway_v8_candidate/docs/25_V9_ROUTE_CONFLICT_AND_REAL_SMOKE_PLAN.md openpatch_agent_gateway_v9_candidate/docs/25_V9_ROUTE_CONFLICT_AND_REAL_SMOKE_PLAN.md
+--- openpatch_agent_gateway_v8_candidate/docs/25_V9_ROUTE_CONFLICT_AND_REAL_SMOKE_PLAN.md	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/docs/25_V9_ROUTE_CONFLICT_AND_REAL_SMOKE_PLAN.md	2026-05-06 00:53:33.187982107 +0000
+@@ -0,0 +1,21 @@
++# V9 Route Conflict + Real Smoke Plan
++
++## 为什么要做
++
++多页面、多浏览器、多 key、多仓库时，真正高频风险不是上传 API 本身，而是 route profile 误匹配：设计者页面、审核者页面、不同项目页面可能把同名 RoundPack 传到错误仓库或错误分支。
++
++## V9 处理方式
++
++- 静态检查 duplicate profile id、多个 default、缺 repo_alias/key_alias、同 project 同匹配指纹。
++- 动态检查当前页面 URL/title/project_hint 的 top route candidates。
++- 若 top 与 second 分数差距小于 `OPENPATCH_ROUTE_AMBIGUITY_GAP`，返回 ambiguous。
++- 按钮 marker 写入 `routeConflictHint`，让 Auto Continue 或 Codex 直接决策。
++
++## 真实 smoke 顺序
++
++1. 只启动 local bridge，跑 `routes-conflicts`。
++2. Chrome Dev profile 加载 unpacked 插件。
++3. 打开一个测试 ChatGPT 页面，检查按钮 marker。
++4. 使用 dry-run archive。
++5. 使用单测试仓 fine-grained PAT 做真实上传。
++6. Codex 读取 latest/receipt，不读完整 transcript。
+diff -ruN openpatch_agent_gateway_v8_candidate/local-bridge/openpatch-ledger-cli.mjs openpatch_agent_gateway_v9_candidate/local-bridge/openpatch-ledger-cli.mjs
+--- openpatch_agent_gateway_v8_candidate/local-bridge/openpatch-ledger-cli.mjs	2026-05-06 00:47:54.555376079 +0000
++++ openpatch_agent_gateway_v9_candidate/local-bridge/openpatch-ledger-cli.mjs	2026-05-06 00:53:33.184945188 +0000
+@@ -8,6 +8,7 @@
+   health
+   config-status
+   routes
++  routes-conflicts [--url <page_url>] [--title <title>] [--project <project>]
+   repos
+   keys
+   status
+@@ -24,6 +25,7 @@
+   queue-claim [--project <project>] [--agent <name>]
+   queue-claim-batch [--project <project>] [--agent <name>] [--max <n>]
+   queue-release --project <project> --round <round_id> [--reason <text>]
++  queue-reclaim-expired [--project <project>] [--reason <text>]
+   queue-retry --project <project> --round <round_id> [--reason <text>]
+   auto-continue-plan --project <project> --message-count <n> [--interval <n>] [--force]
+   sha-index
+@@ -65,6 +67,13 @@
+   if (command === "health") return print(await request("/health"));
+   if (command === "config-status") return print(await request("/config-status"));
+   if (command === "routes") return print(await request("/routes"));
++  if (command === "routes-conflicts") {
++    const url = getArg("--url", "");
++    if (url || getArg("--title", "") || getArg("--project", "")) {
++      return print(await request("/routes/conflicts", { method: "POST", body: { page_url: url, title: getArg("--title", ""), project_hint: getArg("--project", "") } }));
++    }
++    return print(await request("/routes/conflicts"));
++  }
+   if (command === "repos") return print(await request("/repos"));
+   if (command === "keys") return print(await request("/keys"));
+   if (command === "status") return print(await request("/status"));
+@@ -104,6 +113,12 @@
+       body: { project: getArg("--project", "default"), round_id: getArg("--round", getArg("--round-id", "")), reason: getArg("--reason", "manual_release") }
+     }));
+   }
++  if (command === "queue-reclaim-expired") {
++    return print(await request("/queue/reclaim-expired", {
++      method: "POST",
++      body: { project: getArg("--project", ""), reason: getArg("--reason", "manual_reclaim") }
++    }));
++  }
+   if (command === "queue-retry") {
+     return print(await request("/queue/retry", {
+       method: "POST",
+@@ -160,7 +175,7 @@
+       }
+     }
+     await Promise.all(Array.from({ length: parallel }, (_, i) => worker(i + 1)));
+-    return print({ ok: true, schema_version: "openpatch.stress_archive.v8", project, count, parallel, results_count: results.length, sample: results.slice(0, 5) });
++    return print({ ok: true, schema_version: "openpatch.stress_archive.v9", project, count, parallel, results_count: results.length, sample: results.slice(0, 5) });
+   }
+   throw new Error(`unknown command: ${command}`);
+ }
+diff -ruN openpatch_agent_gateway_v8_candidate/local-bridge/openpatch-local-bridge.mjs openpatch_agent_gateway_v9_candidate/local-bridge/openpatch-local-bridge.mjs
+--- openpatch_agent_gateway_v8_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-06 00:47:40.595966876 +0000
++++ openpatch_agent_gateway_v9_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-06 00:53:33.184565470 +0000
+@@ -22,6 +22,7 @@
+ const GITHUB_RETRY_BASE_MS = Math.max(100, Number(process.env.OPENPATCH_GITHUB_RETRY_BASE_MS || 750));
+ const MAX_ARCHIVE_BYTES = Math.max(1_000_000, Number(process.env.OPENPATCH_MAX_ARCHIVE_BYTES || 95 * 1024 * 1024));
+ const MAX_EVENTS = Math.max(100, Number(process.env.OPENPATCH_MAX_EVENTS || 2000));
++const ROUTE_AMBIGUITY_GAP = Math.max(0, Number(process.env.OPENPATCH_ROUTE_AMBIGUITY_GAP || 10));
+ const GITHUB_RATE_STATE = { last_request_at: 0, in_flight: 0, total_requests: 0, retry_count: 0, last_status: 0, last_error: '', rate_limit: null, updated_at: '' };
+ 
+ async function ensureRoot() {
+@@ -255,6 +256,86 @@
+   return score;
+ }
+ 
++
++function normalizeProfileId(profile, index = 0) {
++  return safeString(profile.profile_id || profile.route_profile || `profile-${index}`, 160);
++}
++
++function summarizeProfile(profile, index = 0) {
++  const match = profile.match || {};
++  return {
++    profile_id: normalizeProfileId(profile, index),
++    project: safeId(profile.project || '', ''),
++    repo_alias: safeString(profile.repo_alias || '', 120),
++    key_alias: safeString(profile.key_alias || '', 120),
++    priority: Number(profile.priority || 0),
++    default: Boolean(profile.default),
++    match_fingerprint: sha256Text(JSON.stringify({
++      url_contains: match.url_contains || [],
++      title_contains: match.title_contains || [],
++      host_contains: match.host_contains || [],
++      url_regex: match.url_regex || []
++    })).slice(0, 16)
++  };
++}
++
++async function detectRouteConflicts(body = {}) {
++  const routes = await readJson(ROUTES_FILE, { profiles: [] });
++  const profiles = Array.isArray(routes.profiles) ? routes.profiles : [];
++  const issues = [];
++  const seenIds = new Map();
++  const seenFingerprints = new Map();
++  let defaultCount = 0;
++
++  profiles.forEach((profile, index) => {
++    const summary = summarizeProfile(profile, index);
++    if (summary.default) defaultCount += 1;
++    if (!summary.repo_alias) issues.push({ severity: 'warning', type: 'missing_repo_alias', profile: summary });
++    if (!summary.key_alias) issues.push({ severity: 'warning', type: 'missing_key_alias', profile: summary });
++    if (seenIds.has(summary.profile_id)) {
++      issues.push({ severity: 'error', type: 'duplicate_profile_id', profiles: [seenIds.get(summary.profile_id), summary] });
++    } else {
++      seenIds.set(summary.profile_id, summary);
++    }
++    const fpKey = `${summary.project || 'any'}:${summary.match_fingerprint}`;
++    if (seenFingerprints.has(fpKey)) {
++      issues.push({ severity: 'warning', type: 'same_project_same_match_fingerprint', profiles: [seenFingerprints.get(fpKey), summary] });
++    } else {
++      seenFingerprints.set(fpKey, summary);
++    }
++  });
++
++  if (defaultCount > 1) issues.push({ severity: 'error', type: 'multiple_default_profiles', count: defaultCount });
++
++  let dynamic = null;
++  if (body && Object.keys(body).length) {
++    const scored = profiles
++      .map((profile, index) => ({ profile: summarizeProfile(profile, index), score: profileScore(profile, body) }))
++      .filter((item) => item.score > 0)
++      .sort((a, b) => b.score - a.score);
++    const top = scored[0] || null;
++    const second = scored[1] || null;
++    const scoreGap = top && second ? top.score - second.score : null;
++    const ambiguous = Boolean(top && second && scoreGap <= ROUTE_AMBIGUITY_GAP);
++    if (ambiguous) {
++      issues.push({ severity: 'warning', type: 'ambiguous_route_resolution', top_score: top.score, second_score: second.score, score_gap: scoreGap, candidates: scored.slice(0, 5) });
++    }
++    dynamic = { input: { project_hint: safeString(body.project_hint || body.project || '', 120), page_url_host: hostOnly(body.page_url || body.url || ''), title: safeString(body.title || body.page_title || '', 160) }, top_candidates: scored.slice(0, 5), score_gap: scoreGap, ambiguous };
++  }
++
++  return {
++    ok: true,
++    schema_version: 'openpatch.route_conflicts.v9',
++    total_profiles: profiles.length,
++    issue_count: issues.length,
++    has_blocking_conflict: issues.some((issue) => issue.severity === 'error'),
++    recommended_agent_action: issues.some((issue) => issue.severity === 'error') ? 'fix_route_profiles_before_upload' : (issues.length ? 'review_route_warnings_or_continue' : 'route_profiles_ok'),
++    issues,
++    dynamic,
++    checked_at: nowIso()
++  };
++}
++
+ async function resolveRoute(body) {
+   const routes = await readJson(ROUTES_FILE, { profiles: [] });
+   const profiles = Array.isArray(routes.profiles) ? routes.profiles : [];
+@@ -263,6 +344,9 @@
+     .filter((item) => item.score > 0)
+     .sort((a, b) => b.score - a.score);
+   const selected = scored[0]?.profile || profiles.find((profile) => profile.default === true) || null;
++  const second = scored[1] || null;
++  const scoreGap = scored[0] && second ? scored[0].score - second.score : null;
++  const ambiguity = Boolean(scored[0] && second && scoreGap <= ROUTE_AMBIGUITY_GAP);
+   if (!selected) {
+     return {
+       ok: false,
+@@ -284,8 +368,11 @@
+       index_root: safeString(selected.index_root || "index", 120),
+       mode: safeString(selected.mode || "roundpack_archive", 60),
+       confidence: scored[0]?.score || 1,
++      ambiguity: ambiguity ? { status: 'ambiguous', score_gap: scoreGap, candidates: scored.slice(0, 5).map((item, index) => ({ rank: index + 1, score: item.score, profile: summarizeProfile(item.profile, index) })) } : { status: 'clear', score_gap: scoreGap },
+       resolved_at: nowIso()
+-    }
++    },
++    candidates: scored.slice(0, 5).map((item, index) => ({ rank: index + 1, score: item.score, profile: summarizeProfile(item.profile, index) })),
++    recommended_agent_action: ambiguity ? 'confirm_route_or_set_route_context_before_upload' : 'continue_with_resolved_route'
+   };
+ }
+ 
+@@ -629,6 +716,29 @@
+   return Boolean(item?.status === "claimed" && leaseUntil && leaseUntil < nowMs);
+ }
+ 
++
++async function reclaimExpiredQueueTasks(body = {}) {
++  return withLock('queue', async () => {
++    const queue = await readJson(QUEUE_FILE, { schema_version: 'openpatch.bridge_queue.v2', items: [] });
++    const items = Array.isArray(queue.items) ? queue.items : [];
++    const project = body.project ? safeId(body.project, 'default') : '';
++    const now = nowIso();
++    const reclaimed = [];
++    queue.items = items.map((item) => {
++      if ((project ? item.project === project : true) && isLeaseExpired(item)) {
++        const next = { ...item, status: 'retry_requested', reclaimed_reason: safeString(body.reason || 'lease_expired_reclaim', 200), claimed_by: '', lease_until: '', updated_at: now };
++        reclaimed.push(next);
++        return next;
++      }
++      return item;
++    });
++    queue.updated_at = now;
++    await writeJsonAtomic(QUEUE_FILE, queue);
++    if (reclaimed.length) await appendEvent('queue_expired_reclaimed', { project: project || 'all', count: reclaimed.length });
++    return { ok: true, schema_version: 'openpatch.queue_reclaim_expired.v9', project: project || 'all', count: reclaimed.length, tasks: reclaimed.slice(0, 50), reclaimed_at: now };
++  });
++}
++
+ async function queueStats(projectInput = "") {
+   const queue = await readJson(QUEUE_FILE, { schema_version: "openpatch.bridge_queue.v2", items: [] });
+   const project = projectInput ? safeId(projectInput, "default") : "";
+@@ -774,9 +884,11 @@
+   if (req.method === "OPTIONS") return jsonResponse(res, 200, { ok: true });
+   const url = new URL(req.url || "/", `http://${req.headers.host || "127.0.0.1"}`);
+ 
+-  if (req.method === "GET" && url.pathname === "/health") return jsonResponse(res, 200, { ok: true, schema_version: "openpatch.bridge_health.v8", service: "openpatch-local-bridge", root: ROOT, capabilities: ["routes", "resolve_route", "receipts", "latest", "sha_index", "queue", "config_status", "archive_base64", "bridge_side_github_upload", "agent_summary", "receipt_query", "queue_claim", "queue_retry", "auto_continue_plan", "events", "compact_summary", "recent_receipts", "queue_stats", "queue_claim_batch", "queue_release", "lease_reclaim", "github_rate_backoff", "events_compact", "archive_size_guard", "stress_test_ready"], time: nowIso() });
++  if (req.method === "GET" && url.pathname === "/health") return jsonResponse(res, 200, { ok: true, schema_version: "openpatch.bridge_health.v9", service: "openpatch-local-bridge", root: ROOT, capabilities: ["routes", "resolve_route", "receipts", "latest", "sha_index", "queue", "config_status", "archive_base64", "bridge_side_github_upload", "agent_summary", "receipt_query", "queue_claim", "queue_retry", "auto_continue_plan", "events", "compact_summary", "recent_receipts", "queue_stats", "queue_claim_batch", "queue_release", "lease_reclaim", "github_rate_backoff", "events_compact", "archive_size_guard", "stress_test_ready", "route_conflict_detector", "queue_reclaim_expired", "route_ambiguity_report"], time: nowIso() });
+   if (req.method === "GET" && url.pathname === "/config-status") return jsonResponse(res, 200, await sanitizedConfigStatus());
+   if (req.method === "GET" && url.pathname === "/routes") return jsonResponse(res, 200, await readJson(ROUTES_FILE, { profiles: [] }));
++  if (req.method === "GET" && url.pathname === "/routes/conflicts") return jsonResponse(res, 200, await detectRouteConflicts({}));
++  if (req.method === "POST" && url.pathname === "/routes/conflicts") return jsonResponse(res, 200, await detectRouteConflicts(await collectBody(req)));
+   if (req.method === "GET" && url.pathname === "/repos") return jsonResponse(res, 200, (await sanitizedConfigStatus()).repos);
+   if (req.method === "GET" && url.pathname === "/keys") return jsonResponse(res, 200, (await sanitizedConfigStatus()).keys);
+   if (req.method === "POST" && url.pathname === "/resolve-route") return jsonResponse(res, 200, await resolveRoute(await collectBody(req)));
+@@ -797,6 +909,7 @@
+   if (req.method === "POST" && url.pathname === "/queue/claim") return jsonResponse(res, 200, await claimQueueTask(await collectBody(req)));
+   if (req.method === "POST" && url.pathname === "/queue/claim-batch") return jsonResponse(res, 200, await claimQueueBatch(await collectBody(req)));
+   if (req.method === "POST" && url.pathname === "/queue/release") return jsonResponse(res, 200, await releaseQueueTask(await collectBody(req)));
++  if (req.method === "POST" && url.pathname === "/queue/reclaim-expired") return jsonResponse(res, 200, await reclaimExpiredQueueTasks(await collectBody(req)));
+   if (req.method === "POST" && url.pathname === "/queue/retry") return jsonResponse(res, 200, await retryQueueTask(await collectBody(req)));
+   if (req.method === "POST" && url.pathname === "/queue/complete") return jsonResponse(res, 200, await updateQueueTask(await collectBody(req), "completed"));
+   if (req.method === "POST" && url.pathname === "/queue/fail") return jsonResponse(res, 200, await updateQueueTask(await collectBody(req), "failed"));
+diff -ruN openpatch_agent_gateway_v8_candidate/openpatch-main/src/background.js openpatch_agent_gateway_v9_candidate/openpatch-main/src/background.js
+--- openpatch_agent_gateway_v8_candidate/openpatch-main/src/background.js	2026-05-06 00:12:23.483614866 +0000
++++ openpatch_agent_gateway_v9_candidate/openpatch-main/src/background.js	2026-05-06 00:53:33.185383545 +0000
+@@ -145,6 +145,15 @@
+     return result;
+   }
+ 
++  if (message?.type === "GET_OPENPATCH_ROUTE_CONFLICTS") {
++    const config = await getConfig();
++    return postBridge(config, "/routes/conflicts", {
++      page_url: message.pageUrl || message.page_url || "",
++      title: message.title || "",
++      project_hint: message.project || message.projectHint || ""
++    });
++  }
++
+   if (message?.type === "RESOLVE_OPENPATCH_ROUTE") {
+     const config = await getConfig();
+     return postBridge(config, "/resolve-route", {
+diff -ruN openpatch_agent_gateway_v8_candidate/openpatch-main/src/content-script.js openpatch_agent_gateway_v9_candidate/openpatch-main/src/content-script.js
+--- openpatch_agent_gateway_v8_candidate/openpatch-main/src/content-script.js	2026-05-06 00:48:09.389171910 +0000
++++ openpatch_agent_gateway_v9_candidate/openpatch-main/src/content-script.js	2026-05-06 00:53:33.186482857 +0000
+@@ -25,6 +25,8 @@
+   const AGENT_AGENT_SUMMARY_RESPONSE_EVENT = "openpatch:api:agent-summary";
+   const AGENT_COMPACT_SUMMARY_EVENT = "openpatch:api:get-compact-summary";
+   const AGENT_COMPACT_SUMMARY_RESPONSE_EVENT = "openpatch:api:compact-summary";
++  const AGENT_ROUTE_CONFLICTS_EVENT = "openpatch:api:get-route-conflicts";
++  const AGENT_ROUTE_CONFLICTS_RESPONSE_EVENT = "openpatch:api:route-conflicts";
+   const BUTTON_STALE_AFTER_MS = 10 * 60 * 1000;
+   const PAGE_SESSION_ID = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+   let routeContext = {
+@@ -259,7 +261,7 @@
+   function buildAgentMarker({ sourceButton, suggestedName, label, archiveMode = false }) {
+     const href = sourceButton.getAttribute("href") || "";
+     return {
+-      schemaVersion: "openpatch.agent_button.v8",
++      schemaVersion: "openpatch.agent_button.v9",
+       marker: "openpatch-inline-upload",
+       status: "ready",
+       mode: archiveMode ? "roundpack_archive" : "patch_upload",
+@@ -280,6 +282,7 @@
+       targetSummary: buildTargetSummary(sanitizeRouteContext(routeContext)),
+       bridgeStatusHint: "unknown",
+       queueStatusHint: "not_enqueued",
++      routeConflictHint: "unknown",
+       compactStatus: "ready",
+       uiBadge: archiveMode ? "ARCHIVE" : "PATCH",
+       stalenessStatus: "fresh",
+@@ -438,6 +441,7 @@
+     button.dataset.openpatchTargetSummary = String(next.targetSummary || buildTargetSummary(next.routeContext || routeContext));
+     button.dataset.openpatchBridgeStatusHint = String(next.bridgeStatusHint || "unknown");
+     button.dataset.openpatchQueueStatusHint = String(next.queueStatusHint || "unknown");
++    button.dataset.openpatchRouteConflictHint = String(next.routeConflictHint || "unknown");
+     button.dataset.openpatchCompactStatus = String(next.compactStatus || next.status || "unknown");
+     button.dataset.openpatchUiBadge = String(next.uiBadge || buildUiBadge(next));
+     button.dataset.openpatchExtension = String(next.extension || "");
+@@ -640,7 +644,8 @@
+           mode: marker.mode,
+           stalenessStatus: marker.stalenessStatus,
+           recommendedAgentAction: marker.recommendedAgentAction,
+-          targetSummary: marker.targetSummary
++          targetSummary: marker.targetSummary,
++          routeConflictHint: marker.routeConflictHint || "unknown"
+         })),
+         compactSummary,
+         createdAt: new Date().toISOString()
+@@ -672,9 +677,12 @@
+           updatedAt: new Date().toISOString()
+         });
+         for (const button of document.querySelectorAll(`.${BUTTON_CLASS}`)) {
++          const ambiguityStatus = resolved.ambiguity?.status || result.route_context?.ambiguity?.status || result.ambiguity?.status || "clear";
+           setButtonMarker(button, {
+             routeContext: sanitizeRouteContext(routeContext),
+-            decisionHint: "route_resolved_by_bridge"
++            routeConflictHint: ambiguityStatus,
++            decisionHint: ambiguityStatus === "ambiguous" ? "route_resolution_ambiguous_confirm_before_upload" : "route_resolved_by_bridge",
++            recommendedAgentAction: ambiguityStatus === "ambiguous" ? "confirm_route_context_before_upload" : "continue_with_resolved_route"
+           }, { quiet: true });
+         }
+       }
+@@ -687,6 +695,36 @@
+         requestId: detail.requestId || detail.request_id || "",
+         result,
+         routeContext: sanitizeRouteContext(routeContext),
++        createdAt: new Date().toISOString()
++      }
++    }));
++  });
++
++
++  window.addEventListener(AGENT_ROUTE_CONFLICTS_EVENT, async (event) => {
++    const detail = event?.detail || {};
++    let result;
++    try {
++      const response = await chrome.runtime.sendMessage({
++        type: "GET_OPENPATCH_ROUTE_CONFLICTS",
++        pageUrl: detail.pageUrl || detail.page_url || window.location.href,
++        title: detail.title || document.title || "",
++        projectHint: detail.project || detail.project_hint || routeContext.project || ""
++      });
++      result = response?.result || { ok: false, error: "route_conflicts_unavailable" };
++      const hint = result.has_blocking_conflict ? "blocking_conflict" : (result.dynamic?.ambiguous ? "ambiguous" : (result.issue_count ? "warnings" : "clear"));
++      for (const button of document.querySelectorAll(`.${BUTTON_CLASS}`)) {
++        setButtonMarker(button, { routeConflictHint: hint, decisionHint: hint === "clear" ? "route_conflicts_clear" : "route_conflict_or_warning_detected" }, { quiet: true });
++      }
++    } catch (error) {
++      result = { ok: false, error: error?.message || "route_conflicts_failed" };
++    }
++    window.dispatchEvent(new CustomEvent(AGENT_ROUTE_CONFLICTS_RESPONSE_EVENT, {
++      detail: {
++        schemaVersion: "openpatch.route_conflicts_response.v1",
++        requestId: detail.requestId || detail.request_id || "",
++        result,
++        routeContext: sanitizeRouteContext(routeContext),
+         createdAt: new Date().toISOString()
+       }
+     }));
+diff -ruN openpatch_agent_gateway_v8_candidate/schemas/openpatch.agent_button.v9.schema.json openpatch_agent_gateway_v9_candidate/schemas/openpatch.agent_button.v9.schema.json
+--- openpatch_agent_gateway_v8_candidate/schemas/openpatch.agent_button.v9.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/schemas/openpatch.agent_button.v9.schema.json	2026-05-06 00:53:33.186949283 +0000
+@@ -0,0 +1,16 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "title": "OpenPatch agent button marker v9",
++  "type": "object",
++  "required": ["schemaVersion", "status", "mode", "buttonId", "pageSessionId"],
++  "properties": {
++    "schemaVersion": { "const": "openpatch.agent_button.v9" },
++    "status": { "type": "string" },
++    "mode": { "type": "string" },
++    "buttonId": { "type": "string" },
++    "pageSessionId": { "type": "string" },
++    "routeConflictHint": { "type": "string" },
++    "recommendedAgentAction": { "type": "string" },
++    "targetSummary": { "type": "string" }
++  }
++}
+diff -ruN openpatch_agent_gateway_v8_candidate/schemas/openpatch.route_conflicts.v9.schema.json openpatch_agent_gateway_v9_candidate/schemas/openpatch.route_conflicts.v9.schema.json
+--- openpatch_agent_gateway_v8_candidate/schemas/openpatch.route_conflicts.v9.schema.json	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/schemas/openpatch.route_conflicts.v9.schema.json	2026-05-06 00:53:33.186715052 +0000
+@@ -0,0 +1,17 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "title": "OpenPatch route conflicts v9",
++  "type": "object",
++  "required": ["schema_version", "ok", "issue_count", "has_blocking_conflict"],
++  "properties": {
++    "schema_version": { "const": "openpatch.route_conflicts.v9" },
++    "ok": { "type": "boolean" },
++    "total_profiles": { "type": "integer" },
++    "issue_count": { "type": "integer" },
++    "has_blocking_conflict": { "type": "boolean" },
++    "recommended_agent_action": { "type": "string" },
++    "issues": { "type": "array" },
++    "dynamic": { "type": ["object", "null"] },
++    "checked_at": { "type": "string" }
++  }
++}
+diff -ruN openpatch_agent_gateway_v8_candidate/task_cards/FOR_CODEX_MINIMAL_V9.md openpatch_agent_gateway_v9_candidate/task_cards/FOR_CODEX_MINIMAL_V9.md
+--- openpatch_agent_gateway_v8_candidate/task_cards/FOR_CODEX_MINIMAL_V9.md	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/task_cards/FOR_CODEX_MINIMAL_V9.md	2026-05-06 00:53:33.188357028 +0000
+@@ -0,0 +1,21 @@
++# FOR_CODEX_MINIMAL_V9
++
++任务：只读/本地 smoke OPENPATCH Agent Gateway v9。
++
++默认可做：
++✅ 启动 local bridge。  
++✅ 查询 health、routes-conflicts、compact-summary。  
++✅ 运行 dry-run stress archive。  
++✅ 回传 JSON 证据、命令、退出码、失败摘要。
++
++优先命令：
++
++```text
++node local-bridge/openpatch-local-bridge.mjs
++node local-bridge/openpatch-ledger-cli.mjs health
++node local-bridge/openpatch-ledger-cli.mjs routes-conflicts
++node local-bridge/openpatch-ledger-cli.mjs stress-archive --project v9-smoke --count 300 --parallel 20
++```
++
++输出：
++`evidence/openpatch_v9_smoke_result.json`，包含 health/routes_conflicts/stress_summary/exit_codes。
+diff -ruN openpatch_agent_gateway_v8_candidate/task_cards/FOR_GITHUB_TEST_UPLOAD_V9.md openpatch_agent_gateway_v9_candidate/task_cards/FOR_GITHUB_TEST_UPLOAD_V9.md
+--- openpatch_agent_gateway_v8_candidate/task_cards/FOR_GITHUB_TEST_UPLOAD_V9.md	1970-01-01 00:00:00.000000000 +0000
++++ openpatch_agent_gateway_v9_candidate/task_cards/FOR_GITHUB_TEST_UPLOAD_V9.md	2026-05-06 00:53:33.188635446 +0000
+@@ -0,0 +1,21 @@
++# FOR_GITHUB_TEST_UPLOAD_V9
++
++目标：单测试仓 archive-only 真实上传，不接主项目。
++
++准备：
++✅ 一个空 GitHub 测试仓库。  
++✅ 一个 fine-grained PAT，只授予该测试仓 Contents read/write。  
++✅ repo_alias 指向测试仓；key_alias 指向本地环境变量。  
++✅ bridgeHandlesUpload=true。
++
++测试动作：
++1. 生成极小 `webai-roundpack-test.zip`。
++2. 调用 bridge `/archive/base64`，非 dry-run。
++3. 查询 `/latest?project=<project>` 与 `/receipt`。
++4. 检查 GitHub 仓库是否出现 roundpack、manifest、receipt、latest。
++
++成功标准：
++✅ 不触发 apply。  
++✅ 不写主项目。  
++✅ receipt 包含 file_sha256/github paths。  
++✅ Codex 可用 CLI 读取 latest/receipt。

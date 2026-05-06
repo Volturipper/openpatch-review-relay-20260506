@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpatch.upload_receipt.v1.schema.json",
+  "type": "object",
+  "required": ["schema_version", "status", "archive_only", "allow_execution", "project", "round_id", "file_name", "file_sha256", "github", "created_at"],
+  "properties": {
+    "schema_version": { "const": "openpatch.upload_receipt.v1" },
+    "status": { "enum": ["uploaded", "failed", "blocked", "validated"] },
+    "archive_only": { "const": true },
+    "allow_execution": { "const": false },
+    "project": { "type": "string" },
+    "round_id": { "type": "string" },
+    "file_name": { "type": "string" },
+    "file_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "github": { "type": "object" },
+    "route_context": { "type": "object" },
+    "created_at": { "type": "string" },
+    "next_actions": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": true
+}

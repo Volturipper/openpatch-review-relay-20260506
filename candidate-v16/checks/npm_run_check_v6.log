@@ -1,0 +1,99 @@
+
+> openpatch@0.2.0 check
+> node --test && node --check src/*.js && node -e "JSON.parse(require('fs').readFileSync('manifest.json','utf8')); console.log('manifest ok')"
+
+TAP version 13
+# Subtest: encodeGitHubPath preserves path separators and escapes segments
+ok 1 - encodeGitHubPath preserves path separators and escapes segments
+  ---
+  duration_ms: 0.728398
+  type: 'test'
+  ...
+# Subtest: buildContentsApiUrl encodes repository and path
+ok 2 - buildContentsApiUrl encodes repository and path
+  ---
+  duration_ms: 0.182792
+  type: 'test'
+  ...
+# Subtest: uploadPatchText uploads metadata first then patch to target branch
+ok 3 - uploadPatchText uploads metadata first then patch to target branch
+  ---
+  duration_ms: 5.81939
+  type: 'test'
+  ...
+# Subtest: uploadPatchText resolves missing owner from GitHub token user
+ok 4 - uploadPatchText resolves missing owner from GitHub token user
+  ---
+  duration_ms: 0.643365
+  type: 'test'
+  ...
+# Subtest: uploadPatchFile uploads zip as binary content
+ok 5 - uploadPatchFile uploads zip as binary content
+  ---
+  duration_ms: 0.530622
+  type: 'test'
+  ...
+# Subtest: uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
+ok 6 - uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
+  ---
+  duration_ms: 7.217092
+  type: 'test'
+  ...
+# Subtest: parseRepositoryInput accepts owner/repo and GitHub URLs
+ok 7 - parseRepositoryInput accepts owner/repo and GitHub URLs
+  ---
+  duration_ms: 2.938966
+  type: 'test'
+  ...
+# Subtest: looksLikePatchDownloadText detects loose Chinese diff labels
+ok 8 - looksLikePatchDownloadText detects loose Chinese diff labels
+  ---
+  duration_ms: 0.891018
+  type: 'test'
+  ...
+# Subtest: buildPatchUploadPath creates safe unique paths
+ok 9 - buildPatchUploadPath creates safe unique paths
+  ---
+  duration_ms: 1.145645
+  type: 'test'
+  ...
+# Subtest: zip upload paths and metadata paths are supported
+ok 10 - zip upload paths and metadata paths are supported
+  ---
+  duration_ms: 0.503378
+  type: 'test'
+  ...
+# Subtest: buildDefaultCommitTitle distinguishes zip packages
+ok 11 - buildDefaultCommitTitle distinguishes zip packages
+  ---
+  duration_ms: 0.181129
+  type: 'test'
+  ...
+# Subtest: encodeBase64Bytes encodes binary data
+ok 12 - encodeBase64Bytes encodes binary data
+  ---
+  duration_ms: 0.202906
+  type: 'test'
+  ...
+# Subtest: sanitizePatchName keeps fallback usable
+ok 13 - sanitizePatchName keeps fallback usable
+  ---
+  duration_ms: 0.129826
+  type: 'test'
+  ...
+# Subtest: roundpack helpers detect archive artifacts and build safe paths
+ok 14 - roundpack helpers detect archive artifacts and build safe paths
+  ---
+  duration_ms: 0.826405
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 367.404052
+manifest ok

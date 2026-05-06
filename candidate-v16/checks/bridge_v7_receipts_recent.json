@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.recent_receipts.v1",
+  "project": "webai-transfer",
+  "count": 1,
+  "receipts": [
+    {
+      "project": "webai-transfer",
+      "round_id": "r001",
+      "status": "dry_run_planned",
+      "file_sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+      "receipt_path": "/mnt/data/openpatch_v7_bridge_test/receipts/webai-transfer/r001.json",
+      "received_at": "2026-05-06T00:13:26.770Z"
+    }
+  ],
+  "updated_at": "2026-05-06T00:13:26.776Z"
+}

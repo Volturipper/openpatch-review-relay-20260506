@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Upload OpenPatch File</title>
+    <link rel="stylesheet" href="../styles.css">
+  </head>
+  <body class="page">
+    <main class="shell narrow">
+      <header class="header">
+        <div>
+          <h1>Upload OpenPatch File</h1>
+          <p id="hint">请选择需要上传的 .zip、.diff 或 .patch 文件。</p>
+        </div>
+        <a class="button-link" href="about.html">About</a>
+      </header>
+
+      <section class="panel stack">
+        <label>
+          OpenPatch 文件
+          <input id="patch-file" type="file" accept=".zip,.diff,.patch">
+        </label>
+        <p class="notice">ZIP 会直接覆盖仓库里的同路径文件。连续多次修改时，请确认它基于最新代码生成。</p>
+
+        <label>
+          提交标题
+          <input id="commit-title" type="text" placeholder="ai: apply patch">
+        </label>
+
+        <button id="upload" class="primary" type="button" disabled>Upload</button>
+        <p id="status" class="status"></p>
+      </section>
+    </main>
+
+    <script type="module" src="../src/submit.js"></script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "openpatch",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --test && node --check src/*.js && node -e \"JSON.parse(require('fs').readFileSync('manifest.json','utf8')); console.log('manifest ok')\""
+  }
+}

@@ -1,0 +1,2133 @@
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/README.md diff_v15/openpatch_agent_gateway_v15_candidate/README.md
+--- diff_v14/openpatch_agent_gateway_v14_candidate/README.md	2026-05-06 02:58:26.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/README.md	2026-05-06 09:16:31.535243037 +0000
+@@ -1,123 +1,26 @@
+-# OPENPATCH Agent Gateway v14 Candidate
++# OPENPATCH Agent Gateway v15 Candidate
+ 
+-This package advances v13 with Codex-friendly preflight APIs before real smoke tests. It adds a compact `/preflight` bundle, `/github/upload-gate`, `/auto-continue/preflight`, and `/instances/compact`.
++本包是 v15 候选版，重点是给 Codex / Auto Continue / 其他 agent 提供更短、更方便的控制与反馈入口。
+ 
+-New v14 entry points:
++## 本轮新增
+ 
+-```text
+-POST /preflight
+-POST /github/upload-gate
+-POST /auto-continue/preflight
+-GET /instances/compact
+-CLI: preflight / github-upload-gate / auto-continue-preflight / instances-compact
+-```
+-
+-Recommended first read:
+-
+-```text
+-docs/39_V14_IMPLEMENTATION_REPORT.md
+-docs/40_V14_AGENT_API_QUICK_REFERENCE.md
+-docs/41_V14_PREFLIGHT_GATE_AND_SMOKE_PATH.md
+-checks/SELF_TEST_REPORT_V14.md
+-task_cards/FOR_CODEX_MINIMAL_V14.md
+-```
+-
+-Status:
+-
+-```text
+-✅ Ready for Codex bridge-only smoke
+-⚠️ Not a production install
+-⬜ Real Chrome Dev profile smoke not yet performed
+-⬜ Real GitHub fine-grained PAT upload not yet performed
+-⬜ Live Auto Continue script integration not yet performed
+-```
+-
+----
++✅ `/codex/brief` 低 token 决策摘要。
++✅ `/operation/brief` 综合操作摘要。
++✅ `/smoke/bridge-only/run` 一键 bridge-only smoke runner。
++✅ CLI：`codex-brief`、`operation-brief`、`bridge-smoke-run`。
++✅ 插件 marker 升级到 `openpatch.agent_button.v15`。
+ 
+-# OPENPATCH Agent Gateway v13 Candidate
++## 当前状态
+ 
+-This package advances v12 with multi-key / multi-repo alias binding checks and a Codex-friendly next-action API.
++✅ 可交给 Codex 做 bridge-only smoke。
++⚠️ 不是生产安装版。
++⬜ 未做真实 Chrome Dev profile 安装测试。
++⬜ 未做真实 GitHub fine-grained PAT 上传测试。
++⬜ 未接入 live Auto Continue 脚本实测。
+ 
+-New v13 entry points:
++## 最短入口
+ 
+ ```text
+-GET /config/snapshot
+-GET /projects
+-POST /agent/next-action
+-CLI: config-snapshot / projects / next-action
++node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project openpatch-smoke
+ ```
+ 
+-Recommended first read:
+-
+-```text
+-docs/36_V13_IMPLEMENTATION_REPORT.md
+-docs/37_V13_AGENT_API_QUICK_REFERENCE.md
+-checks/SELF_TEST_REPORT_V13.md
+-task_cards/FOR_CODEX_MINIMAL_V13.md
+-```
+-
+----
+-
+-# OPENPATCH Agent Gateway v12 Candidate
+-
+-本包是 v12 候选版：在 v11 的真实 smoke 准备基础上，新增 Codex-friendly readiness / handoff / evidence-template 控制面。聊天正文不承载代码明文；代码、diff、schema、docs、自检日志均在包内。
+-
+-## v12 新增入口
+-
+-- `docs/33_V12_IMPLEMENTATION_REPORT.md`
+-- `docs/34_V12_CODEX_API_QUICK_REFERENCE.md`
+-- `docs/35_V12_REAL_SMOKE_GATE.md`
+-- `task_cards/FOR_CODEX_MINIMAL_V12.md`
+-- `task_cards/FOR_AUTO_CONTINUE_V12.md`
+-- `task_cards/FOR_GITHUB_TEST_UPLOAD_V12.md`
+-- `checks/SELF_TEST_REPORT_V12.md`
+-- `PATCH_FROM_V11_TO_V12.diff`
+-
+-## 当前结论
+-
+-✅ 可继续交给 Codex 做 bridge-only smoke。  
+-⚠️ 仍未做真实 Chrome Dev profile / 真实 GitHub PAT / live Auto Continue 实测。
+-
+----
+-
+-# OPENPATCH Agent Gateway v9 Candidate
+-
+-V9 adds route profile conflict detection, dynamic route ambiguity reporting, queue expired-lease reclaim, v9 agent button markers, Codex CLI route-conflict commands, and 300-round dry-run stress evidence. This remains a candidate package for controlled smoke/testing, not a production release.
+-
+-# OPENPATCH Agent Gateway v8 Candidate
+-
+-Private/local-use candidate for turning OPENPATCH into an agent-friendly WebAI Artifact Gateway.
+-
+-## v8 focus
+-
+-✅ GitHub rate-limit/backoff support in local bridge.
+-✅ Event compaction for long Auto Continue runs.
+-✅ Archive size guard.
+-✅ Codex CLI `stress-archive` dry-run pressure test.
+-✅ Auto Continue v8 scheduler adapter.
+-✅ Button marker schema target v8 with compact performance/API hints.
+-
+-## Fast entry
+-
+-Read:
+-
+-```text
+-docs/20_V8_IMPLEMENTATION_REPORT.md
+-docs/21_V8_AGENT_API_QUICK_REFERENCE.md
+-checks/SELF_TEST_REPORT_V8.md
+-task_cards/FOR_CODEX_MINIMAL_V8.md
+-```
+-
+-## Status
+-
+-Candidate for review and isolated smoke testing. Not final production install. No real token or real browser profile test was performed in this sandbox.
+-
+-
+-## v10 update
+-
+-Adds route visual map, route fix suggestions, route-resolution stress API/CLI, and `openpatch.agent_button.v10` marker with `routeVisualHint`. This is intended to prevent wrong repo/key/project routing across many pages, browsers, and agents.
+-
+-
+-## V11 update
+-
+-V11 adds real-smoke readiness APIs: `/config-lint`, `/smoke/plan`, `/instances`, and CLI commands for Codex-friendly bridge-only smoke. It also upgrades button markers to `openpatch.agent_button.v11` with smoke/bridge instance hints.
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/audit_decision.json diff_v15/openpatch_agent_gateway_v15_candidate/audit_decision.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/audit_decision.json	2026-05-06 02:57:48.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/audit_decision.json	2026-05-06 09:16:31.534104236 +0000
+@@ -1,24 +1,24 @@
+ {
+-  "schema_version": "openpatch.audit_decision.v14",
+-  "candidate": "openpatch_agent_gateway_v14_candidate",
+-  "decision": "candidate_for_bridge_only_smoke",
++  "schema_version": "openpatch.audit_decision.v15",
++  "package": "openpatch_agent_gateway_v15_candidate",
++  "decision": "candidate_continue_iteration",
++  "go_for_codex_bridge_only_smoke": true,
+   "production_release": false,
+-  "real_github_upload_approved": false,
+-  "real_chrome_profile_install_approved": false,
+-  "summary": "v14 adds compact preflight, GitHub upload gate, Auto Continue preflight, and instance compaction APIs. It is ready for bridge-only Codex smoke, not production install.",
++  "real_github_upload_tested": false,
++  "chrome_dev_profile_tested": false,
++  "live_auto_continue_tested": false,
+   "completed": [
+-    "preflight bundle API",
+-    "GitHub upload gate API",
+-    "Auto Continue preflight API",
+-    "instances compact API",
+-    "CLI wrappers",
+-    "sandbox self-test"
++    "codex brief API",
++    "operation brief API",
++    "bridge-only smoke runner",
++    "CLI commands",
++    "v15 self-tests"
+   ],
+-  "not_completed": [
+-    "real Chrome Dev profile install test",
+-    "real GitHub fine-grained PAT upload test",
++  "remaining": [
++    "Chrome Dev profile smoke",
++    "single test repo fine-grained PAT upload smoke",
+     "live Auto Continue adapter integration",
+-    "multi-browser real long-run test"
++    "multi-browser long-run real test"
+   ],
+-  "next_task": "Codex bridge-only smoke using task_cards/FOR_CODEX_MINIMAL_V14.md"
++  "next_task": "Run FOR_CODEX_MINIMAL_V15.md bridge-only smoke and return evidence JSON."
+ }
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_cli_codex_brief.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_cli_codex_brief.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_cli_codex_brief.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_cli_codex_brief.json	2026-05-06 09:15:40.934566610 +0000
+@@ -0,0 +1,25 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.codex_brief.v15",
++  "project": "openpatch-smoke",
++  "target": "bridge-only",
++  "result": "go",
++  "latest_round": "v15-smoke-001",
++  "latest_status": "dry_run_planned",
++  "queue_counts": {},
++  "action_now": "read_latest_receipt_or_fetch_roundpack",
++  "next_command": "node local-bridge/openpatch-ledger-cli.mjs receipt --project openpatch-smoke --round v15-smoke-001",
++  "stop_if": [],
++  "warnings": [
++    {
++      "code": "no_browser_instances_registered",
++      "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
++    }
++  ],
++  "codex_should_read": [
++    "codex_brief",
++    "latest_or_receipt",
++    "bridge_smoke_evidence_when_requested"
++  ],
++  "checked_at": "2026-05-06T09:15:40.849Z"
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_cli_operation_brief.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_cli_operation_brief.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_cli_operation_brief.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_cli_operation_brief.json	2026-05-06 09:15:41.547994074 +0000
+@@ -0,0 +1,51 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.operation_brief.v15",
++  "project": "openpatch-smoke",
++  "intent": "continue",
++  "recommended_agent_action": "read_latest_receipt_or_fetch_roundpack",
++  "one_line": "openpatch-smoke: go; read_latest_receipt_or_fetch_roundpack",
++  "command_to_run": "node local-bridge/openpatch-ledger-cli.mjs receipt --project openpatch-smoke --round v15-smoke-001",
++  "can_continue_auto": true,
++  "should_pause_auto": false,
++  "queue_counts": {},
++  "active_instances": 0,
++  "stale_instances": 0,
++  "brief": {
++    "ok": true,
++    "schema_version": "openpatch.codex_brief.v15",
++    "project": "openpatch-smoke",
++    "target": "bridge-only",
++    "result": "go",
++    "latest_round": "v15-smoke-001",
++    "latest_status": "dry_run_planned",
++    "queue_counts": {},
++    "action_now": "read_latest_receipt_or_fetch_roundpack",
++    "next_command": "node local-bridge/openpatch-ledger-cli.mjs receipt --project openpatch-smoke --round v15-smoke-001",
++    "stop_if": [],
++    "warnings": [
++      {
++        "code": "no_browser_instances_registered",
++        "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
++      }
++    ],
++    "codex_should_read": [
++      "codex_brief",
++      "latest_or_receipt",
++      "bridge_smoke_evidence_when_requested"
++    ],
++    "checked_at": "2026-05-06T09:15:41.538Z"
++  },
++  "next_action": {
++    "priority": 10,
++    "action": "read_latest_receipt",
++    "command": "node local-bridge/openpatch-ledger-cli.mjs receipt --project openpatch-smoke --round v15-smoke-001",
++    "reason": "latest archived round exists"
++  },
++  "auto_continue": {
++    "should_pause": false,
++    "should_request_roundpack": false,
++    "action": "continue_auto_flow"
++  },
++  "generated_at": "2026-05-06T09:15:41.539Z"
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_cli_smoke_run.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_cli_smoke_run.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_cli_smoke_run.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_cli_smoke_run.json	2026-05-06 09:15:42.143353504 +0000
+@@ -0,0 +1,158 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_smoke_evidence.v15",
++  "project": "openpatch-smoke",
++  "round_id": "v15-cli-smoke-001",
++  "target": "bridge-only",
++  "status": "pass",
++  "pass": true,
++  "started_at": "2026-05-06T09:15:42.034Z",
++  "finished_at": "2026-05-06T09:15:42.058Z",
++  "checks": [
++    {
++      "id": "health",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:42.034Z",
++      "error": ""
++    },
++    {
++      "id": "config_lint",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:42.034Z",
++      "error": ""
++    },
++    {
++      "id": "readiness",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:42.039Z",
++      "error": ""
++    },
++    {
++      "id": "dry_run_archive",
++      "ok": true,
++      "status": "dry_run_planned",
++      "at": "2026-05-06T09:15:42.045Z",
++      "error": ""
++    },
++    {
++      "id": "latest",
++      "ok": true,
++      "status": "dry_run_planned",
++      "at": "2026-05-06T09:15:42.056Z",
++      "error": ""
++    },
++    {
++      "id": "events_recent",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:42.058Z",
++      "error": ""
++    }
++  ],
++  "blockers": [],
++  "warnings": [
++    {
++      "code": "no_browser_instances_registered",
++      "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
++    }
++  ],
++  "latest_round": "v15-cli-smoke-001",
++  "dry_run_receipt": {
++    "ok": true,
++    "status": "dry_run_planned",
++    "mode": "bridge_archive_base64",
++    "project": "openpatch-smoke",
++    "round_id": "v15-cli-smoke-001",
++    "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
++    "repo_alias": "",
++    "key_alias": "",
++    "paths": {
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/webai-roundpack-bridge-smoke.zip",
++      "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/archive_manifest.json",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/upload_receipt.json",
++      "latest_path": "index/latest/openpatch-smoke.json"
++    },
++    "github": {
++      "owner": "",
++      "repo": "",
++      "branch": "webai-archive",
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/webai-roundpack-bridge-smoke.zip",
++      "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/archive_manifest.json",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/upload_receipt.json",
++      "latest_path": "index/latest/openpatch-smoke.json",
++      "dry_run": true
++    },
++    "commit_sha": "",
++    "receipt": {
++      "schema_version": "openpatch.upload_receipt.v7",
++      "status": "dry_run_planned",
++      "archive_only": true,
++      "allow_execution": false,
++      "project": "openpatch-smoke",
++      "round_id": "v15-cli-smoke-001",
++      "file_name": "webai-roundpack-bridge-smoke.zip",
++      "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
++      "size_bytes": 71,
++      "route_context": {
++        "project": "openpatch-smoke",
++        "repo_alias": "",
++        "key_alias": "",
++        "archive_root": "rounds",
++        "index_root": "index",
++        "route_profile": "manual"
++      },
++      "github": {
++        "owner": "",
++        "repo": "",
++        "branch": "webai-archive",
++        "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/webai-roundpack-bridge-smoke.zip",
++        "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/archive_manifest.json",
++        "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/upload_receipt.json",
++        "latest_path": "index/latest/openpatch-smoke.json",
++        "dry_run": true
++      },
++      "created_at": "2026-05-06T09:15:42.047Z",
++      "next_actions": [
++        "read_latest",
++        "fetch_roundpack",
++        "read_receipt",
++        "continue_agent_workflow"
++      ]
++    },
++    "latest": {
++      "schema_version": "openpatch.latest.v7",
++      "project": "openpatch-smoke",
++      "latest_round": "v15-cli-smoke-001",
++      "status": "dry_run_planned",
++      "archive_only": true,
++      "allow_execution": false,
++      "latest": {
++        "round_id": "v15-cli-smoke-001",
++        "project": "openpatch-smoke",
++        "status": "dry_run_planned",
++        "file_name": "webai-roundpack-bridge-smoke.zip",
++        "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
++        "size_bytes": 71,
++        "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/webai-roundpack-bridge-smoke.zip",
++        "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/upload_receipt.json",
++        "created_at": "2026-05-06T09:15:42.047Z"
++      },
++      "recent_rounds": [],
++      "codex_should_read": [
++        "upload_receipt.json",
++        "archive_manifest.json",
++        "NEXT_FOR_CODEX.md",
++        "ROUND_SUMMARY.md"
++      ],
++      "next_actor": "codex_or_reviewer",
++      "updated_at": "2026-05-06T09:15:42.047Z"
++    },
++    "duplicate": null
++  },
++  "next_recommended_action": "proceed_to_chrome_dev_profile_smoke_or_github_test_upload_gate",
++  "codex_next_command": "node local-bridge/openpatch-ledger-cli.mjs codex-brief --project openpatch-smoke",
++  "evidence_path": "/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/evidence/openpatch-smoke/v15-cli-smoke-001.json"
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_codex_brief.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_codex_brief.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_codex_brief.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_codex_brief.json	2026-05-06 09:15:39.340243686 +0000
+@@ -0,0 +1,25 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.codex_brief.v15",
++  "project": "openpatch-smoke",
++  "target": "bridge-only",
++  "result": "go",
++  "latest_round": "",
++  "latest_status": "missing",
++  "queue_counts": {},
++  "action_now": "run_bridge_smoke_or_request_roundpack",
++  "next_command": "node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project openpatch-smoke",
++  "stop_if": [],
++  "warnings": [
++    {
++      "code": "no_browser_instances_registered",
++      "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
++    }
++  ],
++  "codex_should_read": [
++    "codex_brief",
++    "latest_or_receipt",
++    "bridge_smoke_evidence_when_requested"
++  ],
++  "checked_at": "2026-05-06T09:15:39.338Z"
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_health.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_health.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_health.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_health.json	2026-05-06 09:15:38.144787089 +0000
+@@ -0,0 +1,60 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_health.v15",
++  "service": "openpatch-local-bridge",
++  "root": "/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data",
++  "capabilities": [
++    "routes",
++    "resolve_route",
++    "receipts",
++    "latest",
++    "sha_index",
++    "queue",
++    "config_status",
++    "archive_base64",
++    "bridge_side_github_upload",
++    "agent_summary",
++    "receipt_query",
++    "queue_claim",
++    "queue_retry",
++    "auto_continue_plan",
++    "events",
++    "compact_summary",
++    "recent_receipts",
++    "queue_stats",
++    "queue_claim_batch",
++    "queue_release",
++    "lease_reclaim",
++    "github_rate_backoff",
++    "events_compact",
++    "archive_size_guard",
++    "stress_test_ready",
++    "route_conflict_detector",
++    "queue_reclaim_expired",
++    "route_ambiguity_report",
++    "route_visual_map",
++    "route_fix_suggestions",
++    "route_resolution_stress",
++    "multi_browser_planning",
++    "config_lint",
++    "smoke_plan",
++    "browser_instance_registry",
++    "real_smoke_handoff",
++    "readiness_report",
++    "codex_handoff",
++    "evidence_template",
++    "instances_prune_stale",
++    "config_snapshot",
++    "projects",
++    "agent_next_action",
++    "alias_binding_lint",
++    "preflight_bundle",
++    "github_upload_gate",
++    "auto_continue_preflight",
++    "instances_compact",
++    "codex_brief",
++    "bridge_smoke_run",
++    "operation_brief"
++  ],
++  "time": "2026-05-06T09:15:38.142Z"
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_operation_brief.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_operation_brief.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_operation_brief.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_operation_brief.json	2026-05-06 09:15:39.647753266 +0000
+@@ -0,0 +1,51 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.operation_brief.v15",
++  "project": "openpatch-smoke",
++  "intent": "continue",
++  "recommended_agent_action": "run_bridge_smoke_or_request_roundpack",
++  "one_line": "openpatch-smoke: go; run_bridge_smoke_or_request_roundpack",
++  "command_to_run": "node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project openpatch-smoke",
++  "can_continue_auto": true,
++  "should_pause_auto": false,
++  "queue_counts": {},
++  "active_instances": 0,
++  "stale_instances": 0,
++  "brief": {
++    "ok": true,
++    "schema_version": "openpatch.codex_brief.v15",
++    "project": "openpatch-smoke",
++    "target": "bridge-only",
++    "result": "go",
++    "latest_round": "",
++    "latest_status": "missing",
++    "queue_counts": {},
++    "action_now": "run_bridge_smoke_or_request_roundpack",
++    "next_command": "node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project openpatch-smoke",
++    "stop_if": [],
++    "warnings": [
++      {
++        "code": "no_browser_instances_registered",
++        "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
++      }
++    ],
++    "codex_should_read": [
++      "codex_brief",
++      "latest_or_receipt",
++      "bridge_smoke_evidence_when_requested"
++    ],
++    "checked_at": "2026-05-06T09:15:39.645Z"
++  },
++  "next_action": {
++    "priority": 10,
++    "action": "request_roundpack_then_archive",
++    "command": "node local-bridge/openpatch-ledger-cli.mjs auto-continue-plan --project openpatch-smoke --message-count 0 --force",
++    "reason": "no latest round for this project"
++  },
++  "auto_continue": {
++    "should_pause": false,
++    "should_request_roundpack": false,
++    "action": "continue_auto_flow"
++  },
++  "generated_at": "2026-05-06T09:15:39.647Z"
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_server.log diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_server.log
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_server.log	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_server.log	2026-05-06 09:15:37.335131707 +0000
+@@ -0,0 +1 @@
++{"ok":true,"service":"openpatch-local-bridge","port":17915,"root":"/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data"}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_server.pid diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_server.pid
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_server.pid	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_server.pid	2026-05-06 09:15:36.946578454 +0000
+@@ -0,0 +1 @@
++7390
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_smoke_run.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_smoke_run.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/bridge_v15_smoke_run.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/bridge_v15_smoke_run.json	2026-05-06 09:15:39.857825408 +0000
+@@ -0,0 +1,158 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_smoke_evidence.v15",
++  "project": "openpatch-smoke",
++  "round_id": "v15-smoke-001",
++  "target": "bridge-only",
++  "status": "pass",
++  "pass": true,
++  "started_at": "2026-05-06T09:15:39.763Z",
++  "finished_at": "2026-05-06T09:15:39.850Z",
++  "checks": [
++    {
++      "id": "health",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:39.763Z",
++      "error": ""
++    },
++    {
++      "id": "config_lint",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:39.763Z",
++      "error": ""
++    },
++    {
++      "id": "readiness",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:39.838Z",
++      "error": ""
++    },
++    {
++      "id": "dry_run_archive",
++      "ok": true,
++      "status": "dry_run_planned",
++      "at": "2026-05-06T09:15:39.841Z",
++      "error": ""
++    },
++    {
++      "id": "latest",
++      "ok": true,
++      "status": "dry_run_planned",
++      "at": "2026-05-06T09:15:39.848Z",
++      "error": ""
++    },
++    {
++      "id": "events_recent",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:39.850Z",
++      "error": ""
++    }
++  ],
++  "blockers": [],
++  "warnings": [
++    {
++      "code": "no_browser_instances_registered",
++      "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
++    }
++  ],
++  "latest_round": "v15-smoke-001",
++  "dry_run_receipt": {
++    "ok": true,
++    "status": "dry_run_planned",
++    "mode": "bridge_archive_base64",
++    "project": "openpatch-smoke",
++    "round_id": "v15-smoke-001",
++    "file_sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
++    "repo_alias": "",
++    "key_alias": "",
++    "paths": {
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/webai-roundpack-bridge-smoke.zip",
++      "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/archive_manifest.json",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/upload_receipt.json",
++      "latest_path": "index/latest/openpatch-smoke.json"
++    },
++    "github": {
++      "owner": "",
++      "repo": "",
++      "branch": "webai-archive",
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/webai-roundpack-bridge-smoke.zip",
++      "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/archive_manifest.json",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/upload_receipt.json",
++      "latest_path": "index/latest/openpatch-smoke.json",
++      "dry_run": true
++    },
++    "commit_sha": "",
++    "receipt": {
++      "schema_version": "openpatch.upload_receipt.v7",
++      "status": "dry_run_planned",
++      "archive_only": true,
++      "allow_execution": false,
++      "project": "openpatch-smoke",
++      "round_id": "v15-smoke-001",
++      "file_name": "webai-roundpack-bridge-smoke.zip",
++      "file_sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
++      "size_bytes": 67,
++      "route_context": {
++        "project": "openpatch-smoke",
++        "repo_alias": "",
++        "key_alias": "",
++        "archive_root": "rounds",
++        "index_root": "index",
++        "route_profile": "manual"
++      },
++      "github": {
++        "owner": "",
++        "repo": "",
++        "branch": "webai-archive",
++        "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/webai-roundpack-bridge-smoke.zip",
++        "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/archive_manifest.json",
++        "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/upload_receipt.json",
++        "latest_path": "index/latest/openpatch-smoke.json",
++        "dry_run": true
++      },
++      "created_at": "2026-05-06T09:15:39.844Z",
++      "next_actions": [
++        "read_latest",
++        "fetch_roundpack",
++        "read_receipt",
++        "continue_agent_workflow"
++      ]
++    },
++    "latest": {
++      "schema_version": "openpatch.latest.v7",
++      "project": "openpatch-smoke",
++      "latest_round": "v15-smoke-001",
++      "status": "dry_run_planned",
++      "archive_only": true,
++      "allow_execution": false,
++      "latest": {
++        "round_id": "v15-smoke-001",
++        "project": "openpatch-smoke",
++        "status": "dry_run_planned",
++        "file_name": "webai-roundpack-bridge-smoke.zip",
++        "file_sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
++        "size_bytes": 67,
++        "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/webai-roundpack-bridge-smoke.zip",
++        "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/upload_receipt.json",
++        "created_at": "2026-05-06T09:15:39.844Z"
++      },
++      "recent_rounds": [],
++      "codex_should_read": [
++        "upload_receipt.json",
++        "archive_manifest.json",
++        "NEXT_FOR_CODEX.md",
++        "ROUND_SUMMARY.md"
++      ],
++      "next_actor": "codex_or_reviewer",
++      "updated_at": "2026-05-06T09:15:39.844Z"
++    },
++    "duplicate": null
++  },
++  "next_recommended_action": "proceed_to_chrome_dev_profile_smoke_or_github_test_upload_gate",
++  "codex_next_command": "node local-bridge/openpatch-ledger-cli.mjs codex-brief --project openpatch-smoke",
++  "evidence_path": "/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/evidence/openpatch-smoke/v15-smoke-001.json"
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/npm_run_check_v15.log diff_v15/openpatch_agent_gateway_v15_candidate/checks/npm_run_check_v15.log
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/npm_run_check_v15.log	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/npm_run_check_v15.log	2026-05-06 09:15:22.647439758 +0000
+@@ -0,0 +1,99 @@
++
++> openpatch@0.2.0 check
++> node --test && node --check src/*.js && node -e "JSON.parse(require('fs').readFileSync('manifest.json','utf8')); console.log('manifest ok')"
++
++TAP version 13
++# Subtest: encodeGitHubPath preserves path separators and escapes segments
++ok 1 - encodeGitHubPath preserves path separators and escapes segments
++  ---
++  duration_ms: 0.7495
++  type: 'test'
++  ...
++# Subtest: buildContentsApiUrl encodes repository and path
++ok 2 - buildContentsApiUrl encodes repository and path
++  ---
++  duration_ms: 0.224261
++  type: 'test'
++  ...
++# Subtest: uploadPatchText uploads metadata first then patch to target branch
++ok 3 - uploadPatchText uploads metadata first then patch to target branch
++  ---
++  duration_ms: 4.57009
++  type: 'test'
++  ...
++# Subtest: uploadPatchText resolves missing owner from GitHub token user
++ok 4 - uploadPatchText resolves missing owner from GitHub token user
++  ---
++  duration_ms: 0.593759
++  type: 'test'
++  ...
++# Subtest: uploadPatchFile uploads zip as binary content
++ok 5 - uploadPatchFile uploads zip as binary content
++  ---
++  duration_ms: 0.45054
++  type: 'test'
++  ...
++# Subtest: uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++ok 6 - uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++  ---
++  duration_ms: 75.604139
++  type: 'test'
++  ...
++# Subtest: parseRepositoryInput accepts owner/repo and GitHub URLs
++ok 7 - parseRepositoryInput accepts owner/repo and GitHub URLs
++  ---
++  duration_ms: 3.141828
++  type: 'test'
++  ...
++# Subtest: looksLikePatchDownloadText detects loose Chinese diff labels
++ok 8 - looksLikePatchDownloadText detects loose Chinese diff labels
++  ---
++  duration_ms: 0.591382
++  type: 'test'
++  ...
++# Subtest: buildPatchUploadPath creates safe unique paths
++ok 9 - buildPatchUploadPath creates safe unique paths
++  ---
++  duration_ms: 1.127849
++  type: 'test'
++  ...
++# Subtest: zip upload paths and metadata paths are supported
++ok 10 - zip upload paths and metadata paths are supported
++  ---
++  duration_ms: 0.385598
++  type: 'test'
++  ...
++# Subtest: buildDefaultCommitTitle distinguishes zip packages
++ok 11 - buildDefaultCommitTitle distinguishes zip packages
++  ---
++  duration_ms: 0.131623
++  type: 'test'
++  ...
++# Subtest: encodeBase64Bytes encodes binary data
++ok 12 - encodeBase64Bytes encodes binary data
++  ---
++  duration_ms: 0.1806
++  type: 'test'
++  ...
++# Subtest: sanitizePatchName keeps fallback usable
++ok 13 - sanitizePatchName keeps fallback usable
++  ---
++  duration_ms: 0.085923
++  type: 'test'
++  ...
++# Subtest: roundpack helpers detect archive artifacts and build safe paths
++ok 14 - roundpack helpers detect archive artifacts and build safe paths
++  ---
++  duration_ms: 0.691527
++  type: 'test'
++  ...
++1..14
++# tests 14
++# suites 0
++# pass 14
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 397.373656
++manifest ok
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/npm_test_v15.log diff_v15/openpatch_agent_gateway_v15_candidate/checks/npm_test_v15.log
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/npm_test_v15.log	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/npm_test_v15.log	2026-05-06 09:15:20.760377896 +0000
+@@ -0,0 +1,98 @@
++
++> openpatch@0.2.0 test
++> node --test
++
++TAP version 13
++# Subtest: encodeGitHubPath preserves path separators and escapes segments
++ok 1 - encodeGitHubPath preserves path separators and escapes segments
++  ---
++  duration_ms: 0.600817
++  type: 'test'
++  ...
++# Subtest: buildContentsApiUrl encodes repository and path
++ok 2 - buildContentsApiUrl encodes repository and path
++  ---
++  duration_ms: 0.13731
++  type: 'test'
++  ...
++# Subtest: uploadPatchText uploads metadata first then patch to target branch
++ok 3 - uploadPatchText uploads metadata first then patch to target branch
++  ---
++  duration_ms: 4.344491
++  type: 'test'
++  ...
++# Subtest: uploadPatchText resolves missing owner from GitHub token user
++ok 4 - uploadPatchText resolves missing owner from GitHub token user
++  ---
++  duration_ms: 0.515947
++  type: 'test'
++  ...
++# Subtest: uploadPatchFile uploads zip as binary content
++ok 5 - uploadPatchFile uploads zip as binary content
++  ---
++  duration_ms: 0.473944
++  type: 'test'
++  ...
++# Subtest: uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++ok 6 - uploadRoundArchiveContent uploads artifact, manifest, receipt, and latest
++  ---
++  duration_ms: 5.722088
++  type: 'test'
++  ...
++# Subtest: parseRepositoryInput accepts owner/repo and GitHub URLs
++ok 7 - parseRepositoryInput accepts owner/repo and GitHub URLs
++  ---
++  duration_ms: 3.272954
++  type: 'test'
++  ...
++# Subtest: looksLikePatchDownloadText detects loose Chinese diff labels
++ok 8 - looksLikePatchDownloadText detects loose Chinese diff labels
++  ---
++  duration_ms: 0.577408
++  type: 'test'
++  ...
++# Subtest: buildPatchUploadPath creates safe unique paths
++ok 9 - buildPatchUploadPath creates safe unique paths
++  ---
++  duration_ms: 0.852514
++  type: 'test'
++  ...
++# Subtest: zip upload paths and metadata paths are supported
++ok 10 - zip upload paths and metadata paths are supported
++  ---
++  duration_ms: 0.38654
++  type: 'test'
++  ...
++# Subtest: buildDefaultCommitTitle distinguishes zip packages
++ok 11 - buildDefaultCommitTitle distinguishes zip packages
++  ---
++  duration_ms: 0.163858
++  type: 'test'
++  ...
++# Subtest: encodeBase64Bytes encodes binary data
++ok 12 - encodeBase64Bytes encodes binary data
++  ---
++  duration_ms: 0.151994
++  type: 'test'
++  ...
++# Subtest: sanitizePatchName keeps fallback usable
++ok 13 - sanitizePatchName keeps fallback usable
++  ---
++  duration_ms: 0.08102
++  type: 'test'
++  ...
++# Subtest: roundpack helpers detect archive artifacts and build safe paths
++ok 14 - roundpack helpers detect archive artifacts and build safe paths
++  ---
++  duration_ms: 0.648987
++  type: 'test'
++  ...
++1..14
++# tests 14
++# suites 0
++# pass 14
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 748.923915
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/events.jsonl diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/events.jsonl
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/events.jsonl	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/events.jsonl	2026-05-06 09:15:42.134976708 +0000
+@@ -0,0 +1,10 @@
++{"schema_version":"openpatch.bridge_event.v1","type":"codex_brief_requested","detail":{"project":"openpatch-smoke","target":"bridge-only","result":"go","action_now":"run_bridge_smoke_or_request_roundpack"},"created_at":"2026-05-06T09:15:39.338Z"}
++{"schema_version":"openpatch.bridge_event.v1","type":"auto_continue_plan","detail":{"project":"openpatch-smoke","should_request_roundpack":false,"reason":"continue_allowed"},"created_at":"2026-05-06T09:15:39.540Z"}
++{"schema_version":"openpatch.bridge_event.v1","type":"codex_brief_requested","detail":{"project":"openpatch-smoke","target":"bridge-only","result":"go","action_now":"run_bridge_smoke_or_request_roundpack"},"created_at":"2026-05-06T09:15:39.646Z"}
++{"schema_version":"openpatch.bridge_event.v1","type":"archive_base64","detail":{"project":"openpatch-smoke","round_id":"v15-smoke-001","status":"dry_run_planned","file_sha256":"360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef","repo_alias":"","key_alias":"","dry_run":true},"created_at":"2026-05-06T09:15:39.848Z"}
++{"schema_version":"openpatch.bridge_event.v1","type":"bridge_smoke_run","detail":{"project":"openpatch-smoke","round_id":"v15-smoke-001","pass":true,"evidence_path":"/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/evidence/openpatch-smoke/v15-smoke-001.json"},"created_at":"2026-05-06T09:15:39.856Z"}
++{"schema_version":"openpatch.bridge_event.v1","type":"codex_brief_requested","detail":{"project":"openpatch-smoke","target":"bridge-only","result":"go","action_now":"read_latest_receipt_or_fetch_roundpack"},"created_at":"2026-05-06T09:15:40.849Z"}
++{"schema_version":"openpatch.bridge_event.v1","type":"auto_continue_plan","detail":{"project":"openpatch-smoke","should_request_roundpack":false,"reason":"continue_allowed"},"created_at":"2026-05-06T09:15:41.440Z"}
++{"schema_version":"openpatch.bridge_event.v1","type":"codex_brief_requested","detail":{"project":"openpatch-smoke","target":"bridge-only","result":"go","action_now":"read_latest_receipt_or_fetch_roundpack"},"created_at":"2026-05-06T09:15:41.539Z"}
++{"schema_version":"openpatch.bridge_event.v1","type":"archive_base64","detail":{"project":"openpatch-smoke","round_id":"v15-cli-smoke-001","status":"dry_run_planned","file_sha256":"dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce","repo_alias":"","key_alias":"","dry_run":true},"created_at":"2026-05-06T09:15:42.054Z"}
++{"schema_version":"openpatch.bridge_event.v1","type":"bridge_smoke_run","detail":{"project":"openpatch-smoke","round_id":"v15-cli-smoke-001","pass":true,"evidence_path":"/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/evidence/openpatch-smoke/v15-cli-smoke-001.json"},"created_at":"2026-05-06T09:15:42.134Z"}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/evidence/openpatch-smoke/v15-cli-smoke-001.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/evidence/openpatch-smoke/v15-cli-smoke-001.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/evidence/openpatch-smoke/v15-cli-smoke-001.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/evidence/openpatch-smoke/v15-cli-smoke-001.json	2026-05-06 09:15:42.059085537 +0000
+@@ -0,0 +1,157 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_smoke_evidence.v15",
++  "project": "openpatch-smoke",
++  "round_id": "v15-cli-smoke-001",
++  "target": "bridge-only",
++  "status": "pass",
++  "pass": true,
++  "started_at": "2026-05-06T09:15:42.034Z",
++  "finished_at": "2026-05-06T09:15:42.058Z",
++  "checks": [
++    {
++      "id": "health",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:42.034Z",
++      "error": ""
++    },
++    {
++      "id": "config_lint",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:42.034Z",
++      "error": ""
++    },
++    {
++      "id": "readiness",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:42.039Z",
++      "error": ""
++    },
++    {
++      "id": "dry_run_archive",
++      "ok": true,
++      "status": "dry_run_planned",
++      "at": "2026-05-06T09:15:42.045Z",
++      "error": ""
++    },
++    {
++      "id": "latest",
++      "ok": true,
++      "status": "dry_run_planned",
++      "at": "2026-05-06T09:15:42.056Z",
++      "error": ""
++    },
++    {
++      "id": "events_recent",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:42.058Z",
++      "error": ""
++    }
++  ],
++  "blockers": [],
++  "warnings": [
++    {
++      "code": "no_browser_instances_registered",
++      "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
++    }
++  ],
++  "latest_round": "v15-cli-smoke-001",
++  "dry_run_receipt": {
++    "ok": true,
++    "status": "dry_run_planned",
++    "mode": "bridge_archive_base64",
++    "project": "openpatch-smoke",
++    "round_id": "v15-cli-smoke-001",
++    "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
++    "repo_alias": "",
++    "key_alias": "",
++    "paths": {
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/webai-roundpack-bridge-smoke.zip",
++      "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/archive_manifest.json",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/upload_receipt.json",
++      "latest_path": "index/latest/openpatch-smoke.json"
++    },
++    "github": {
++      "owner": "",
++      "repo": "",
++      "branch": "webai-archive",
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/webai-roundpack-bridge-smoke.zip",
++      "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/archive_manifest.json",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/upload_receipt.json",
++      "latest_path": "index/latest/openpatch-smoke.json",
++      "dry_run": true
++    },
++    "commit_sha": "",
++    "receipt": {
++      "schema_version": "openpatch.upload_receipt.v7",
++      "status": "dry_run_planned",
++      "archive_only": true,
++      "allow_execution": false,
++      "project": "openpatch-smoke",
++      "round_id": "v15-cli-smoke-001",
++      "file_name": "webai-roundpack-bridge-smoke.zip",
++      "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
++      "size_bytes": 71,
++      "route_context": {
++        "project": "openpatch-smoke",
++        "repo_alias": "",
++        "key_alias": "",
++        "archive_root": "rounds",
++        "index_root": "index",
++        "route_profile": "manual"
++      },
++      "github": {
++        "owner": "",
++        "repo": "",
++        "branch": "webai-archive",
++        "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/webai-roundpack-bridge-smoke.zip",
++        "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/archive_manifest.json",
++        "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/upload_receipt.json",
++        "latest_path": "index/latest/openpatch-smoke.json",
++        "dry_run": true
++      },
++      "created_at": "2026-05-06T09:15:42.047Z",
++      "next_actions": [
++        "read_latest",
++        "fetch_roundpack",
++        "read_receipt",
++        "continue_agent_workflow"
++      ]
++    },
++    "latest": {
++      "schema_version": "openpatch.latest.v7",
++      "project": "openpatch-smoke",
++      "latest_round": "v15-cli-smoke-001",
++      "status": "dry_run_planned",
++      "archive_only": true,
++      "allow_execution": false,
++      "latest": {
++        "round_id": "v15-cli-smoke-001",
++        "project": "openpatch-smoke",
++        "status": "dry_run_planned",
++        "file_name": "webai-roundpack-bridge-smoke.zip",
++        "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
++        "size_bytes": 71,
++        "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/webai-roundpack-bridge-smoke.zip",
++        "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/upload_receipt.json",
++        "created_at": "2026-05-06T09:15:42.047Z"
++      },
++      "recent_rounds": [],
++      "codex_should_read": [
++        "upload_receipt.json",
++        "archive_manifest.json",
++        "NEXT_FOR_CODEX.md",
++        "ROUND_SUMMARY.md"
++      ],
++      "next_actor": "codex_or_reviewer",
++      "updated_at": "2026-05-06T09:15:42.047Z"
++    },
++    "duplicate": null
++  },
++  "next_recommended_action": "proceed_to_chrome_dev_profile_smoke_or_github_test_upload_gate",
++  "codex_next_command": "node local-bridge/openpatch-ledger-cli.mjs codex-brief --project openpatch-smoke"
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/evidence/openpatch-smoke/v15-smoke-001.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/evidence/openpatch-smoke/v15-smoke-001.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/evidence/openpatch-smoke/v15-smoke-001.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/evidence/openpatch-smoke/v15-smoke-001.json	2026-05-06 09:15:39.856077740 +0000
+@@ -0,0 +1,157 @@
++{
++  "ok": true,
++  "schema_version": "openpatch.bridge_smoke_evidence.v15",
++  "project": "openpatch-smoke",
++  "round_id": "v15-smoke-001",
++  "target": "bridge-only",
++  "status": "pass",
++  "pass": true,
++  "started_at": "2026-05-06T09:15:39.763Z",
++  "finished_at": "2026-05-06T09:15:39.850Z",
++  "checks": [
++    {
++      "id": "health",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:39.763Z",
++      "error": ""
++    },
++    {
++      "id": "config_lint",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:39.763Z",
++      "error": ""
++    },
++    {
++      "id": "readiness",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:39.838Z",
++      "error": ""
++    },
++    {
++      "id": "dry_run_archive",
++      "ok": true,
++      "status": "dry_run_planned",
++      "at": "2026-05-06T09:15:39.841Z",
++      "error": ""
++    },
++    {
++      "id": "latest",
++      "ok": true,
++      "status": "dry_run_planned",
++      "at": "2026-05-06T09:15:39.848Z",
++      "error": ""
++    },
++    {
++      "id": "events_recent",
++      "ok": true,
++      "status": "ok",
++      "at": "2026-05-06T09:15:39.850Z",
++      "error": ""
++    }
++  ],
++  "blockers": [],
++  "warnings": [
++    {
++      "code": "no_browser_instances_registered",
++      "detail": "bridge-only smoke can continue; chrome smoke should register an instance"
++    }
++  ],
++  "latest_round": "v15-smoke-001",
++  "dry_run_receipt": {
++    "ok": true,
++    "status": "dry_run_planned",
++    "mode": "bridge_archive_base64",
++    "project": "openpatch-smoke",
++    "round_id": "v15-smoke-001",
++    "file_sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
++    "repo_alias": "",
++    "key_alias": "",
++    "paths": {
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/webai-roundpack-bridge-smoke.zip",
++      "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/archive_manifest.json",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/upload_receipt.json",
++      "latest_path": "index/latest/openpatch-smoke.json"
++    },
++    "github": {
++      "owner": "",
++      "repo": "",
++      "branch": "webai-archive",
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/webai-roundpack-bridge-smoke.zip",
++      "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/archive_manifest.json",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/upload_receipt.json",
++      "latest_path": "index/latest/openpatch-smoke.json",
++      "dry_run": true
++    },
++    "commit_sha": "",
++    "receipt": {
++      "schema_version": "openpatch.upload_receipt.v7",
++      "status": "dry_run_planned",
++      "archive_only": true,
++      "allow_execution": false,
++      "project": "openpatch-smoke",
++      "round_id": "v15-smoke-001",
++      "file_name": "webai-roundpack-bridge-smoke.zip",
++      "file_sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
++      "size_bytes": 67,
++      "route_context": {
++        "project": "openpatch-smoke",
++        "repo_alias": "",
++        "key_alias": "",
++        "archive_root": "rounds",
++        "index_root": "index",
++        "route_profile": "manual"
++      },
++      "github": {
++        "owner": "",
++        "repo": "",
++        "branch": "webai-archive",
++        "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/webai-roundpack-bridge-smoke.zip",
++        "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/archive_manifest.json",
++        "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/upload_receipt.json",
++        "latest_path": "index/latest/openpatch-smoke.json",
++        "dry_run": true
++      },
++      "created_at": "2026-05-06T09:15:39.844Z",
++      "next_actions": [
++        "read_latest",
++        "fetch_roundpack",
++        "read_receipt",
++        "continue_agent_workflow"
++      ]
++    },
++    "latest": {
++      "schema_version": "openpatch.latest.v7",
++      "project": "openpatch-smoke",
++      "latest_round": "v15-smoke-001",
++      "status": "dry_run_planned",
++      "archive_only": true,
++      "allow_execution": false,
++      "latest": {
++        "round_id": "v15-smoke-001",
++        "project": "openpatch-smoke",
++        "status": "dry_run_planned",
++        "file_name": "webai-roundpack-bridge-smoke.zip",
++        "file_sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
++        "size_bytes": 67,
++        "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/webai-roundpack-bridge-smoke.zip",
++        "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/upload_receipt.json",
++        "created_at": "2026-05-06T09:15:39.844Z"
++      },
++      "recent_rounds": [],
++      "codex_should_read": [
++        "upload_receipt.json",
++        "archive_manifest.json",
++        "NEXT_FOR_CODEX.md",
++        "ROUND_SUMMARY.md"
++      ],
++      "next_actor": "codex_or_reviewer",
++      "updated_at": "2026-05-06T09:15:39.844Z"
++    },
++    "duplicate": null
++  },
++  "next_recommended_action": "proceed_to_chrome_dev_profile_smoke_or_github_test_upload_gate",
++  "codex_next_command": "node local-bridge/openpatch-ledger-cli.mjs codex-brief --project openpatch-smoke"
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/keys.local.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/keys.local.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/keys.local.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/keys.local.json	2026-05-06 09:15:37.251382806 +0000
+@@ -0,0 +1,10 @@
++{
++  "schema_version": "openpatch.keys.local.v1",
++  "keys": [
++    {
++      "key_alias": "example-gh-token-env",
++      "provider": "github",
++      "token_env": "GITHUB_TOKEN_FOR_OPENPATCH_ARCHIVE"
++    }
++  ]
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/latest/openpatch-smoke.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/latest/openpatch-smoke.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/latest/openpatch-smoke.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/latest/openpatch-smoke.json	2026-05-06 09:15:42.049777293 +0000
+@@ -0,0 +1,34 @@
++{
++  "schema_version": "openpatch.bridge_latest.v7",
++  "project": "openpatch-smoke",
++  "latest_round": "v15-cli-smoke-001",
++  "status": "dry_run_planned",
++  "latest": {
++    "project": "openpatch-smoke",
++    "round_id": "v15-cli-smoke-001",
++    "status": "dry_run_planned",
++    "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
++    "receipt_path": "/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-cli-smoke-001.json",
++    "received_at": "2026-05-06T09:15:42.047Z"
++  },
++  "recent_rounds": [
++    {
++      "project": "openpatch-smoke",
++      "round_id": "v15-cli-smoke-001",
++      "status": "dry_run_planned",
++      "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
++      "receipt_path": "/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-cli-smoke-001.json",
++      "received_at": "2026-05-06T09:15:42.047Z"
++    },
++    {
++      "project": "openpatch-smoke",
++      "round_id": "v15-smoke-001",
++      "status": "dry_run_planned",
++      "file_sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
++      "receipt_path": "/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-smoke-001.json",
++      "received_at": "2026-05-06T09:15:39.844Z"
++    }
++  ],
++  "codex_next_query": "/latest?project=openpatch-smoke",
++  "updated_at": "2026-05-06T09:15:42.048Z"
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/queue.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/queue.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/queue.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/queue.json	2026-05-06 09:15:37.253795178 +0000
+@@ -0,0 +1,5 @@
++{
++  "schema_version": "openpatch.bridge_queue.v2",
++  "items": [],
++  "updated_at": "2026-05-06T09:15:37.252Z"
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-cli-smoke-001.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-cli-smoke-001.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-cli-smoke-001.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-cli-smoke-001.json	2026-05-06 09:15:42.048121004 +0000
+@@ -0,0 +1,98 @@
++{
++  "schema_version": "openpatch.bridge_archive_receipt.v7",
++  "source": "local-bridge",
++  "local_receipt_path": "/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-cli-smoke-001.json",
++  "receipt": {
++    "schema_version": "openpatch.upload_receipt.v7",
++    "status": "dry_run_planned",
++    "archive_only": true,
++    "allow_execution": false,
++    "project": "openpatch-smoke",
++    "round_id": "v15-cli-smoke-001",
++    "file_name": "webai-roundpack-bridge-smoke.zip",
++    "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
++    "size_bytes": 71,
++    "route_context": {
++      "project": "openpatch-smoke",
++      "repo_alias": "",
++      "key_alias": "",
++      "archive_root": "rounds",
++      "index_root": "index",
++      "route_profile": "manual"
++    },
++    "github": {
++      "owner": "",
++      "repo": "",
++      "branch": "webai-archive",
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/webai-roundpack-bridge-smoke.zip",
++      "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/archive_manifest.json",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/upload_receipt.json",
++      "latest_path": "index/latest/openpatch-smoke.json",
++      "dry_run": true
++    },
++    "created_at": "2026-05-06T09:15:42.047Z",
++    "next_actions": [
++      "read_latest",
++      "fetch_roundpack",
++      "read_receipt",
++      "continue_agent_workflow"
++    ]
++  },
++  "manifest": {
++    "schema_version": "openpatch.archive_manifest.v7",
++    "archive_only": true,
++    "allow_execution": false,
++    "project": "openpatch-smoke",
++    "round_id": "v15-cli-smoke-001",
++    "title": "bridge smoke dry-run archive",
++    "files": [
++      {
++        "name": "webai-roundpack-bridge-smoke.zip",
++        "sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
++        "size_bytes": 71,
++        "role": "roundpack_or_artifact",
++        "path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/webai-roundpack-bridge-smoke.zip"
++      }
++    ],
++    "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/upload_receipt.json",
++    "latest_path": "index/latest/openpatch-smoke.json",
++    "route_context": {
++      "project": "openpatch-smoke",
++      "repo_alias": "",
++      "key_alias": "",
++      "archive_root": "rounds",
++      "index_root": "index",
++      "route_profile": "manual"
++    },
++    "created_at": "2026-05-06T09:15:42.047Z"
++  },
++  "latest": {
++    "schema_version": "openpatch.latest.v7",
++    "project": "openpatch-smoke",
++    "latest_round": "v15-cli-smoke-001",
++    "status": "dry_run_planned",
++    "archive_only": true,
++    "allow_execution": false,
++    "latest": {
++      "round_id": "v15-cli-smoke-001",
++      "project": "openpatch-smoke",
++      "status": "dry_run_planned",
++      "file_name": "webai-roundpack-bridge-smoke.zip",
++      "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
++      "size_bytes": 71,
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/webai-roundpack-bridge-smoke.zip",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-cli-smoke-001/upload_receipt.json",
++      "created_at": "2026-05-06T09:15:42.047Z"
++    },
++    "recent_rounds": [],
++    "codex_should_read": [
++      "upload_receipt.json",
++      "archive_manifest.json",
++      "NEXT_FOR_CODEX.md",
++      "ROUND_SUMMARY.md"
++    ],
++    "next_actor": "codex_or_reviewer",
++    "updated_at": "2026-05-06T09:15:42.047Z"
++  },
++  "commit_sha": ""
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-smoke-001.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-smoke-001.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-smoke-001.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-smoke-001.json	2026-05-06 09:15:39.845191299 +0000
+@@ -0,0 +1,98 @@
++{
++  "schema_version": "openpatch.bridge_archive_receipt.v7",
++  "source": "local-bridge",
++  "local_receipt_path": "/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-smoke-001.json",
++  "receipt": {
++    "schema_version": "openpatch.upload_receipt.v7",
++    "status": "dry_run_planned",
++    "archive_only": true,
++    "allow_execution": false,
++    "project": "openpatch-smoke",
++    "round_id": "v15-smoke-001",
++    "file_name": "webai-roundpack-bridge-smoke.zip",
++    "file_sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
++    "size_bytes": 67,
++    "route_context": {
++      "project": "openpatch-smoke",
++      "repo_alias": "",
++      "key_alias": "",
++      "archive_root": "rounds",
++      "index_root": "index",
++      "route_profile": "manual"
++    },
++    "github": {
++      "owner": "",
++      "repo": "",
++      "branch": "webai-archive",
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/webai-roundpack-bridge-smoke.zip",
++      "manifest_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/archive_manifest.json",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/upload_receipt.json",
++      "latest_path": "index/latest/openpatch-smoke.json",
++      "dry_run": true
++    },
++    "created_at": "2026-05-06T09:15:39.844Z",
++    "next_actions": [
++      "read_latest",
++      "fetch_roundpack",
++      "read_receipt",
++      "continue_agent_workflow"
++    ]
++  },
++  "manifest": {
++    "schema_version": "openpatch.archive_manifest.v7",
++    "archive_only": true,
++    "allow_execution": false,
++    "project": "openpatch-smoke",
++    "round_id": "v15-smoke-001",
++    "title": "bridge smoke dry-run archive",
++    "files": [
++      {
++        "name": "webai-roundpack-bridge-smoke.zip",
++        "sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
++        "size_bytes": 67,
++        "role": "roundpack_or_artifact",
++        "path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/webai-roundpack-bridge-smoke.zip"
++      }
++    ],
++    "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/upload_receipt.json",
++    "latest_path": "index/latest/openpatch-smoke.json",
++    "route_context": {
++      "project": "openpatch-smoke",
++      "repo_alias": "",
++      "key_alias": "",
++      "archive_root": "rounds",
++      "index_root": "index",
++      "route_profile": "manual"
++    },
++    "created_at": "2026-05-06T09:15:39.844Z"
++  },
++  "latest": {
++    "schema_version": "openpatch.latest.v7",
++    "project": "openpatch-smoke",
++    "latest_round": "v15-smoke-001",
++    "status": "dry_run_planned",
++    "archive_only": true,
++    "allow_execution": false,
++    "latest": {
++      "round_id": "v15-smoke-001",
++      "project": "openpatch-smoke",
++      "status": "dry_run_planned",
++      "file_name": "webai-roundpack-bridge-smoke.zip",
++      "file_sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
++      "size_bytes": 67,
++      "archive_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/webai-roundpack-bridge-smoke.zip",
++      "receipt_path": "rounds/openpatch-smoke/2026/05/06/v15-smoke-001/upload_receipt.json",
++      "created_at": "2026-05-06T09:15:39.844Z"
++    },
++    "recent_rounds": [],
++    "codex_should_read": [
++      "upload_receipt.json",
++      "archive_manifest.json",
++      "NEXT_FOR_CODEX.md",
++      "ROUND_SUMMARY.md"
++    ],
++    "next_actor": "codex_or_reviewer",
++    "updated_at": "2026-05-06T09:15:39.844Z"
++  },
++  "commit_sha": ""
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/repo_aliases.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/repo_aliases.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/repo_aliases.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/repo_aliases.json	2026-05-06 09:15:37.250213557 +0000
+@@ -0,0 +1,15 @@
++{
++  "schema_version": "openpatch.repo_aliases.v1",
++  "repos": [
++    {
++      "repo_alias": "example-dry-run-archive",
++      "provider": "github",
++      "owner": "example-owner",
++      "repo": "example-archive-repo",
++      "branch": "webai-archive",
++      "archive_root": "rounds",
++      "index_root": "index",
++      "dry_run": true
++    }
++  ]
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/route_profiles.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/route_profiles.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/route_profiles.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/route_profiles.json	2026-05-06 09:15:37.247108137 +0000
+@@ -0,0 +1,4 @@
++{
++  "schema_version": "openpatch.route_profiles.v1",
++  "profiles": []
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/sha_index.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/sha_index.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/sha_index.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/sha_index.json	2026-05-06 09:15:42.053456624 +0000
+@@ -0,0 +1,24 @@
++{
++  "schema_version": "openpatch.sha_index.v1",
++  "entries": [
++    {
++      "project": "openpatch-smoke",
++      "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
++      "first_round_id": "v15-cli-smoke-001",
++      "latest_round_id": "v15-cli-smoke-001",
++      "count": 1,
++      "created_at": "2026-05-06T09:15:42.048Z",
++      "updated_at": "2026-05-06T09:15:42.048Z"
++    },
++    {
++      "project": "openpatch-smoke",
++      "file_sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
++      "first_round_id": "v15-smoke-001",
++      "latest_round_id": "v15-smoke-001",
++      "count": 1,
++      "created_at": "2026-05-06T09:15:39.845Z",
++      "updated_at": "2026-05-06T09:15:39.845Z"
++    }
++  ],
++  "updated_at": "2026-05-06T09:15:42.048Z"
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/status.json diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/status.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/checks/v15_bridge_data/status.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/status.json	2026-05-06 09:15:42.050938022 +0000
+@@ -0,0 +1,25 @@
++{
++  "schema_version": "openpatch.bridge_status.v10",
++  "receipts": [
++    {
++      "project": "openpatch-smoke",
++      "round_id": "v15-cli-smoke-001",
++      "status": "dry_run_planned",
++      "file_sha256": "dda3955e0a548617adbcfc0cd4ae4a375e700d7c514c06fa51e03768beebd7ce",
++      "receipt_path": "/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-cli-smoke-001.json",
++      "received_at": "2026-05-06T09:15:42.047Z"
++    },
++    {
++      "project": "openpatch-smoke",
++      "round_id": "v15-smoke-001",
++      "status": "dry_run_planned",
++      "file_sha256": "360afd7ad3bb52c37a63d685e19bcdbeb3bee69b5d5ccd207681f4eeaada35ef",
++      "receipt_path": "/mnt/data/openpatch_agent_gateway_v15_candidate/checks/v15_bridge_data/receipts/openpatch-smoke/v15-smoke-001.json",
++      "received_at": "2026-05-06T09:15:39.844Z"
++    }
++  ],
++  "updated_at": "2026-05-06T09:15:42.048Z",
++  "latest_by_project": {
++    "openpatch-smoke": "v15-cli-smoke-001"
++  }
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/docs/42_V15_IMPLEMENTATION_REPORT.md diff_v15/openpatch_agent_gateway_v15_candidate/docs/42_V15_IMPLEMENTATION_REPORT.md
+--- diff_v14/openpatch_agent_gateway_v14_candidate/docs/42_V15_IMPLEMENTATION_REPORT.md	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/docs/42_V15_IMPLEMENTATION_REPORT.md	2026-05-06 09:16:31.463326051 +0000
+@@ -0,0 +1,39 @@
++# OPENPATCH Agent Gateway v15 Implementation Report
++
++## 本轮目标
++
++把 v14 的 preflight / upload-gate / Auto Continue preflight 控制面继续推进成更方便 Codex 与其他 agent 行动的版本：提供更短的决策摘要、一键 bridge-only smoke runner、operation brief，并把结果固化为可查询 evidence。
++
++## 本轮新增
++
++✅ 新增 `/codex/brief`：返回低 token 的 Codex 决策摘要、下一条建议命令、最新 round、队列计数、stop 条件。  
++✅ 新增 `/operation/brief`：把 preflight、next-action、auto-continue、实例状态、队列状态压成一个 agent 可读的一页摘要。  
++✅ 新增 `/smoke/bridge-only/run`：bridge 内部执行 health / config-lint / readiness / dry-run archive / compact-summary，并写入本地 evidence JSON。  
++✅ CLI 新增 `codex-brief`、`operation-brief`、`bridge-smoke-run`。  
++✅ 插件 marker 升级到 `openpatch.agent_button.v15`。  
++✅ health capabilities 增加 `codex_brief`、`bridge_smoke_run`、`operation_brief`。  
++✅ 自测新增 v15 smoke：API 与 CLI 均可调用。
++
++## 设计意图
++
++v15 不限制 Codex；相反，它把 Codex 下一步需要的信息压缩成短 API，让 Codex 少读文档、少猜状态、少翻日志：
++
++```text
++Codex -> /codex/brief
++      -> 若需要 smoke：/smoke/bridge-only/run
++      -> 若已有 latest：读取 receipt/latest
++      -> 若需要 Auto Continue：/operation/brief 或 /auto-continue/preflight
++```
++
++## 当前仍未完成
++
++⬜ 真实 Chrome Dev profile unpacked extension 安装测试。  
++⬜ 真实 GitHub fine-grained PAT 单测试仓 archive-only 上传测试。  
++⬜ live Auto Continue 当前脚本接入实测。  
++⬜ 多浏览器长期运行真实压测。  
++
++## go/no-go
++
++✅ 可交给 Codex 做 bridge-only smoke。  
++⚠️ 仍不是生产安装版。  
++⚠️ 真实上传 GitHub 前仍需要单测试仓和 key_alias/repo_alias 配置检查。
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/docs/43_V15_AGENT_API_QUICK_REFERENCE.md diff_v15/openpatch_agent_gateway_v15_candidate/docs/43_V15_AGENT_API_QUICK_REFERENCE.md
+--- diff_v14/openpatch_agent_gateway_v14_candidate/docs/43_V15_AGENT_API_QUICK_REFERENCE.md	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/docs/43_V15_AGENT_API_QUICK_REFERENCE.md	2026-05-06 09:16:31.463965299 +0000
+@@ -0,0 +1,77 @@
++# V15 Agent API Quick Reference
++
++## Codex 最短入口
++
++```text
++node local-bridge/openpatch-ledger-cli.mjs codex-brief --project <project>
++```
++
++返回：
++
++```text
++result
++latest_round
++latest_status
++queue_counts
++action_now
++next_command
++warnings
++stop_if
++```
++
++## 一键 bridge-only smoke
++
++```text
++node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project <project>
++```
++
++它会调用 bridge 内部流程：
++
++```text
++health
++config-lint
++readiness
++dry-run archive
++compact-summary
++write evidence JSON
++```
++
++输出包含：
++
++```text
++pass
++blockers
++warnings
++evidence_path
++next_recommended_action
++```
++
++## 综合操作摘要
++
++```text
++node local-bridge/openpatch-ledger-cli.mjs operation-brief --project <project> --intent continue
++```
++
++适合 Auto Continue / Codex / 其他 agent 在继续前快速判断：
++
++```text
++should_pause_auto
++can_continue_auto
++queue_counts
++active_instances
++stale_instances
++recommended_agent_action
++command_to_run
++```
++
++## HTTP API
++
++```text
++POST /codex/brief
++POST /operation/brief
++POST /smoke/bridge-only/run
++```
++
++## 约束说明
++
++这些接口是便利 Codex 行动的控制面，不打印 token，不读 secrets，不触发真实 GitHub 上传，除非调用 archive/upload 相关 API 且 route/key/repo 已配置。
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/docs/44_V15_CODEX_BRIDGE_SMOKE_PATH.md diff_v15/openpatch_agent_gateway_v15_candidate/docs/44_V15_CODEX_BRIDGE_SMOKE_PATH.md
+--- diff_v14/openpatch_agent_gateway_v14_candidate/docs/44_V15_CODEX_BRIDGE_SMOKE_PATH.md	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/docs/44_V15_CODEX_BRIDGE_SMOKE_PATH.md	2026-05-06 09:16:31.464473869 +0000
+@@ -0,0 +1,45 @@
++# V15 Codex Bridge-only Smoke Path
++
++## 目的
++
++让 Codex 用最少步骤确认 Local Bridge 候选是否能作为 agent 控制接入层工作。
++
++## 推荐步骤
++
++```text
++1. node local-bridge/openpatch-ledger-cli.mjs health
++2. node local-bridge/openpatch-ledger-cli.mjs codex-brief --project openpatch-smoke
++3. node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project openpatch-smoke
++4. node local-bridge/openpatch-ledger-cli.mjs operation-brief --project openpatch-smoke --intent continue
++```
++
++## 期望结果
++
++```text
++health.ok = true
++codex-brief.ok = true
++bridge-smoke-run.pass = true
++operation-brief.ok = true
++```
++
++## 回传证据
++
++Codex 应回传一个 JSON：
++
++```json
++{
++  "schema_version": "openpatch.codex_bridge_smoke_return.v15",
++  "status": "pass_or_blocked",
++  "commands_run": [],
++  "evidence_files": [],
++  "blockers": [],
++  "warnings": [],
++  "next_recommended_action": ""
++}
++```
++
++## 停止条件
++
++⚠️ 如果输出中出现 token/cookie/.env 内容，立即停止。  
++⚠️ 如果 config-lint 有 error，先修配置，不做真实上传。  
++⚠️ 如果需要真实 GitHub 上传，必须先走单测试仓 fine-grained PAT smoke。
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/local-bridge/openpatch-ledger-cli.mjs diff_v15/openpatch_agent_gateway_v15_candidate/local-bridge/openpatch-ledger-cli.mjs
+--- diff_v14/openpatch_agent_gateway_v14_candidate/local-bridge/openpatch-ledger-cli.mjs	2026-05-06 02:55:18.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/local-bridge/openpatch-ledger-cli.mjs	2026-05-06 09:15:14.156744448 +0000
+@@ -10,6 +10,9 @@
+   config-snapshot
+   config-lint
+   preflight [--project <project>] [--target <bridge-only|chrome|github|auto-continue>]
++  codex-brief [--project <project>] [--target <bridge-only|chrome|github|auto-continue>]
++  operation-brief [--project <project>] [--intent <continue|auto-continue|smoke>]
++  bridge-smoke-run [--project <project>] [--round <round_id>]
+   github-upload-gate [--project <project>] [--url <page_url>] [--title <title>]
+   auto-continue-preflight --project <project> [--message-count <n>] [--force]
+   instances-compact
+@@ -87,6 +90,9 @@
+   if (command === "config-snapshot") return print(await request("/config/snapshot"));
+   if (command === "config-lint") return print(await request("/config-lint"));
+   if (command === "preflight") return print(await request("/preflight", { method: "POST", body: { project: getArg("--project", "openpatch-smoke"), target: getArg("--target", "bridge-only"), message_count: Number(getArg("--message-count", "0")), page_url: getArg("--url", ""), title: getArg("--title", "") } }));
++  if (command === "codex-brief") return print(await request("/codex/brief", { method: "POST", body: { project: getArg("--project", "openpatch-smoke"), target: getArg("--target", "bridge-only"), page_url: getArg("--url", ""), title: getArg("--title", "") } }));
++  if (command === "operation-brief") return print(await request("/operation/brief", { method: "POST", body: { project: getArg("--project", "openpatch-smoke"), intent: getArg("--intent", "continue"), message_count: Number(getArg("--message-count", "0")), page_url: getArg("--url", ""), title: getArg("--title", "") } }));
++  if (command === "bridge-smoke-run") return print(await request("/smoke/bridge-only/run", { method: "POST", body: { project: getArg("--project", "openpatch-smoke"), round_id: getArg("--round", "") } }));
+   if (command === "github-upload-gate") return print(await request("/github/upload-gate", { method: "POST", body: { project: getArg("--project", "openpatch-smoke"), page_url: getArg("--url", ""), title: getArg("--title", ""), route_profile: getArg("--route-profile", "") } }));
+   if (command === "auto-continue-preflight") return print(await request("/auto-continue/preflight", { method: "POST", body: { project: getArg("--project", "openpatch-smoke"), message_count: Number(getArg("--message-count", "0")), force_roundpack: hasFlag("--force"), page_url: getArg("--url", ""), title: getArg("--title", "") } }));
+   if (command === "instances-compact") return print(await request("/instances/compact"));
+@@ -225,7 +231,7 @@
+       }
+     }
+     await Promise.all(Array.from({ length: parallel }, (_, i) => worker(i + 1)));
+-    return print({ ok: true, schema_version: "openpatch.stress_archive.v12", project, count, parallel, results_count: results.length, sample: results.slice(0, 5) });
++    return print({ ok: true, schema_version: "openpatch.stress_archive.v15", project, count, parallel, results_count: results.length, sample: results.slice(0, 5) });
+   }
+   throw new Error(`unknown command: ${command}`);
+ }
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/local-bridge/openpatch-local-bridge.mjs diff_v15/openpatch_agent_gateway_v15_candidate/local-bridge/openpatch-local-bridge.mjs
+--- diff_v14/openpatch_agent_gateway_v14_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-06 02:56:46.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/local-bridge/openpatch-local-bridge.mjs	2026-05-06 09:15:14.156274708 +0000
+@@ -1308,7 +1308,7 @@
+   }
+   if (target === 'all' || target === 'chrome') {
+     steps.push(smokeStep('chrome-load-unpacked', 'Load unpacked extension in dedicated Chrome Dev profile', 'owner_or_codex_with_approval', 'open browser-smoke/CHROME_DEV_PROFILE_SMOKE_TEST_V11.md', 'extension loads; no real upload required', 'controlled'));
+-    steps.push(smokeStep('chrome-marker-check', 'Open a ChatGPT page with a test attachment and verify v11 marker/status badge', 'codex_or_owner', 'use page event openpatch:api:get-buttons', 'schemaVersion=openpatch.agent_button.v11', 'controlled'));
++    steps.push(smokeStep('chrome-marker-check', 'Open a ChatGPT page with a test attachment and verify v11 marker/status badge', 'codex_or_owner', 'use page event openpatch:api:get-buttons', 'schemaVersion=openpatch.agent_button.v15', 'controlled'));
+   }
+   if (target === 'all' || target === 'github') {
+     steps.push(smokeStep('github-test-upload', 'Archive-only upload to a single fine-grained PAT test repo', 'codex_with_owner_approval', 'open task_cards/FOR_GITHUB_TEST_UPLOAD_V11.md', 'receipt/latest/result created in archive repo', 'approval_required'));
+@@ -1520,17 +1520,149 @@
+   };
+ }
+ 
++
++async function codexBrief(body = {}) {
++  const project = safeId(body.project || body.project_hint || 'default', 'default');
++  const target = safeString(body.target || 'bridge-only', 80);
++  const preflight = await preflightBundle({ ...body, project, target });
++  const latest = preflight.compact_summary || await compactSummary(project);
++  const queue = await queueStats(project);
++  const brief = {
++    ok: true,
++    schema_version: 'openpatch.codex_brief.v15',
++    project,
++    target,
++    result: preflight.result,
++    latest_round: latest.latest_round || '',
++    latest_status: latest.status || 'missing',
++    queue_counts: queue.counts || {},
++    action_now: preflight.blockers?.length ? 'fix_preflight_blockers' : (latest.latest_round ? 'read_latest_receipt_or_fetch_roundpack' : 'run_bridge_smoke_or_request_roundpack'),
++    next_command: latest.latest_round
++      ? `node local-bridge/openpatch-ledger-cli.mjs receipt --project ${project} --round ${latest.latest_round}`
++      : `node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project ${project}`,
++    stop_if: preflight.blockers || [],
++    warnings: [
++      ...(preflight.readiness?.warnings || []),
++      ...(preflight.config_lint?.warnings || []),
++      ...(preflight.github_upload_gate?.warnings || [])
++    ].slice(0, 12),
++    codex_should_read: ['codex_brief', 'latest_or_receipt', 'bridge_smoke_evidence_when_requested'],
++    checked_at: nowIso()
++  };
++  await appendEvent('codex_brief_requested', { project, target, result: brief.result, action_now: brief.action_now });
++  return brief;
++}
++
++async function bridgeSmokeRun(body = {}) {
++  const project = safeId(body.project || body.project_hint || 'openpatch-smoke', 'openpatch-smoke');
++  const roundId = safeId(body.round_id || body.roundId || `bridge-smoke-${Date.now()}`, 'bridge-smoke');
++  const startedAt = nowIso();
++  const commands = [];
++  const checks = [];
++  async function step(id, fn) {
++    const at = nowIso();
++    try {
++      const result = await fn();
++      checks.push({ id, ok: result?.ok !== false, status: result?.status || result?.result || 'ok', at, sample: result });
++      return result;
++    } catch (error) {
++      checks.push({ id, ok: false, status: 'failed', at, error: safeString(error.message, 500) });
++      return null;
++    }
++  }
++  const health = await step('health', async () => ({ ok: true, schema_version: 'openpatch.bridge_health_check.v15', root: ROOT }));
++  const lint = await step('config_lint', () => configLint());
++  const readiness = await step('readiness', () => readinessReport({ project, target: 'bridge-only' }));
++  const archive = await step('dry_run_archive', () => archiveBase64({
++    project,
++    round_id: roundId,
++    file_name: 'webai-roundpack-bridge-smoke.zip',
++    content_base64: Buffer.from(`bridge-smoke:${project}:${roundId}:${startedAt}`, 'utf8').toString('base64'),
++    dry_run: true,
++    title: 'bridge smoke dry-run archive'
++  }));
++  const receipt = await step('latest', () => compactSummary(project));
++  const events = await step('events_recent', () => ({ ok: true, events: [] }));
++  const pass = checks.every((item) => item.ok) && (lint?.ok !== false) && (readiness?.ok !== false) && Boolean(archive?.ok);
++  const blockers = checks.filter((item) => !item.ok).map((item) => ({ id: item.id, status: item.status, error: item.error || '' }));
++  const evidence = {
++    ok: true,
++    schema_version: 'openpatch.bridge_smoke_evidence.v15',
++    project,
++    round_id: roundId,
++    target: 'bridge-only',
++    status: pass ? 'pass' : 'blocked',
++    pass,
++    started_at: startedAt,
++    finished_at: nowIso(),
++    checks: checks.map((item) => ({ id: item.id, ok: item.ok, status: item.status, at: item.at, error: item.error || '' })),
++    blockers,
++    warnings: [
++      ...(lint?.warnings || []),
++      ...(readiness?.warnings || [])
++    ].slice(0, 20),
++    latest_round: receipt?.latest_round || archive?.round_id || '',
++    dry_run_receipt: archive || null,
++    next_recommended_action: pass ? 'proceed_to_chrome_dev_profile_smoke_or_github_test_upload_gate' : 'fix_bridge_smoke_blockers_then_retry',
++    codex_next_command: pass
++      ? `node local-bridge/openpatch-ledger-cli.mjs codex-brief --project ${project}`
++      : `node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project ${project}`
++  };
++  const evidencePath = path.join(ROOT, 'evidence', project, `${roundId}.json`);
++  await writeJsonAtomic(evidencePath, evidence);
++  await appendEvent('bridge_smoke_run', { project, round_id: roundId, pass, evidence_path: evidencePath });
++  return { ...evidence, evidence_path: evidencePath };
++}
++
++async function operationBrief(body = {}) {
++  const project = safeId(body.project || body.project_hint || 'default', 'default');
++  const intent = safeString(body.intent || 'continue', 80);
++  const [brief, next, auto, instances, queue] = await Promise.all([
++    codexBrief({ ...body, project }),
++    agentNextAction({ ...body, project }),
++    autoContinuePreflight({ ...body, project }),
++    instancesCompact({ project }),
++    queueStats(project)
++  ]);
++  const recommended = intent === 'auto-continue'
++    ? auto.recommended_agent_action
++    : (brief.action_now || next.recommended_agent_action);
++  return {
++    ok: true,
++    schema_version: 'openpatch.operation_brief.v15',
++    project,
++    intent,
++    recommended_agent_action: recommended,
++    one_line: `${project}: ${brief.result}; ${recommended}`,
++    command_to_run: brief.next_command,
++    can_continue_auto: auto.should_pause === false,
++    should_pause_auto: Boolean(auto.should_pause),
++    queue_counts: queue.counts || {},
++    active_instances: instances.active_count || 0,
++    stale_instances: instances.stale_count || 0,
++    brief,
++    next_action: next.actions?.[0] || null,
++    auto_continue: { should_pause: auto.should_pause, should_request_roundpack: auto.should_request_roundpack, action: auto.recommended_agent_action },
++    generated_at: nowIso()
++  };
++}
++
+ async function handle(req, res) {
+   if (req.method === "OPTIONS") return jsonResponse(res, 200, { ok: true });
+   const url = new URL(req.url || "/", `http://${req.headers.host || "127.0.0.1"}`);
+ 
++  if (req.method === "POST" && url.pathname === "/codex/brief") return jsonResponse(res, 200, await codexBrief(await collectBody(req)));
++  if (req.method === "GET" && url.pathname === "/codex/brief") return jsonResponse(res, 200, await codexBrief({ project: url.searchParams.get("project") || "default", target: url.searchParams.get("target") || "bridge-only" }));
++  if (req.method === "POST" && url.pathname === "/smoke/bridge-only/run") return jsonResponse(res, 200, await bridgeSmokeRun(await collectBody(req)));
++  if (req.method === "POST" && url.pathname === "/operation/brief") return jsonResponse(res, 200, await operationBrief(await collectBody(req)));
++  if (req.method === "GET" && url.pathname === "/operation/brief") return jsonResponse(res, 200, await operationBrief({ project: url.searchParams.get("project") || "default", intent: url.searchParams.get("intent") || "continue" }));
+ 
+   if (req.method === "POST" && url.pathname === "/preflight") return jsonResponse(res, 200, await preflightBundle(await collectBody(req)));
+   if (req.method === "POST" && url.pathname === "/github/upload-gate") return jsonResponse(res, 200, await githubUploadGate(await collectBody(req)));
+   if (req.method === "POST" && url.pathname === "/auto-continue/preflight") return jsonResponse(res, 200, await autoContinuePreflight(await collectBody(req)));
+   if (req.method === "GET" && url.pathname === "/instances/compact") return jsonResponse(res, 200, await instancesCompact({}));
+   if (req.method === "POST" && url.pathname === "/instances/compact") return jsonResponse(res, 200, await instancesCompact(await collectBody(req)));
+-  if (req.method === "GET" && url.pathname === "/health") return jsonResponse(res, 200, { ok: true, schema_version: "openpatch.bridge_health.v14", service: "openpatch-local-bridge", root: ROOT, capabilities: ["routes", "resolve_route", "receipts", "latest", "sha_index", "queue", "config_status", "archive_base64", "bridge_side_github_upload", "agent_summary", "receipt_query", "queue_claim", "queue_retry", "auto_continue_plan", "events", "compact_summary", "recent_receipts", "queue_stats", "queue_claim_batch", "queue_release", "lease_reclaim", "github_rate_backoff", "events_compact", "archive_size_guard", "stress_test_ready", "route_conflict_detector", "queue_reclaim_expired", "route_ambiguity_report", "route_visual_map", "route_fix_suggestions", "route_resolution_stress", "multi_browser_planning", "config_lint", "smoke_plan", "browser_instance_registry", "real_smoke_handoff", "readiness_report", "codex_handoff", "evidence_template", "instances_prune_stale", "config_snapshot", "projects", "agent_next_action", "alias_binding_lint", "preflight_bundle", "github_upload_gate", "auto_continue_preflight", "instances_compact"], time: nowIso() });
++  if (req.method === "GET" && url.pathname === "/health") return jsonResponse(res, 200, { ok: true, schema_version: "openpatch.bridge_health.v15", service: "openpatch-local-bridge", root: ROOT, capabilities: ["routes", "resolve_route", "receipts", "latest", "sha_index", "queue", "config_status", "archive_base64", "bridge_side_github_upload", "agent_summary", "receipt_query", "queue_claim", "queue_retry", "auto_continue_plan", "events", "compact_summary", "recent_receipts", "queue_stats", "queue_claim_batch", "queue_release", "lease_reclaim", "github_rate_backoff", "events_compact", "archive_size_guard", "stress_test_ready", "route_conflict_detector", "queue_reclaim_expired", "route_ambiguity_report", "route_visual_map", "route_fix_suggestions", "route_resolution_stress", "multi_browser_planning", "config_lint", "smoke_plan", "browser_instance_registry", "real_smoke_handoff", "readiness_report", "codex_handoff", "evidence_template", "instances_prune_stale", "config_snapshot", "projects", "agent_next_action", "alias_binding_lint", "preflight_bundle", "github_upload_gate", "auto_continue_preflight", "instances_compact", "codex_brief", "bridge_smoke_run", "operation_brief"], time: nowIso() });
+   if (req.method === "GET" && url.pathname === "/config-status") return jsonResponse(res, 200, await sanitizedConfigStatus());
+   if (req.method === "GET" && url.pathname === "/config/snapshot") return jsonResponse(res, 200, await configSnapshot());
+   if (req.method === "GET" && url.pathname === "/projects") return jsonResponse(res, 200, await projectList());
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/openpatch-main/src/content-script.js diff_v15/openpatch_agent_gateway_v15_candidate/openpatch-main/src/content-script.js
+--- diff_v14/openpatch_agent_gateway_v14_candidate/openpatch-main/src/content-script.js	2026-05-06 02:55:18.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/openpatch-main/src/content-script.js	2026-05-06 09:15:14.155470233 +0000
+@@ -263,7 +263,7 @@
+   function buildAgentMarker({ sourceButton, suggestedName, label, archiveMode = false }) {
+     const href = sourceButton.getAttribute("href") || "";
+     return {
+-      schemaVersion: "openpatch.agent_button.v14",
++      schemaVersion: "openpatch.agent_button.v15",
+       marker: "openpatch-inline-upload",
+       status: "ready",
+       mode: archiveMode ? "roundpack_archive" : "patch_upload",
+@@ -427,7 +427,7 @@
+     };
+     button.__openpatchAgentMarker = next;
+ 
+-    button.dataset.openpatchMarker = next.schemaVersion || "openpatch.agent_button.v4";
++    button.dataset.openpatchMarker = next.schemaVersion || "openpatch.agent_button.v15";
+     button.dataset.openpatchStatus = String(next.status || "unknown");
+     button.dataset.openpatchMode = String(next.mode || "patch_upload");
+     button.dataset.openpatchAction = String(next.action || "upload_openpatch_content");
+@@ -491,7 +491,7 @@
+       return JSON.parse(button.dataset.openpatchContext || "{}");
+     } catch {
+       return {
+-        schemaVersion: button.dataset.openpatchMarker || "openpatch.agent_button.v14",
++        schemaVersion: button.dataset.openpatchMarker || "openpatch.agent_button.v15",
+         status: button.dataset.openpatchStatus || "unknown",
+         fileName: button.dataset.openpatchFileName || ""
+       };
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/schemas/codex_brief.v15.schema.example.json diff_v15/openpatch_agent_gateway_v15_candidate/schemas/codex_brief.v15.schema.example.json
+--- diff_v14/openpatch_agent_gateway_v14_candidate/schemas/codex_brief.v15.schema.example.json	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/schemas/codex_brief.v15.schema.example.json	2026-05-06 09:16:31.465403510 +0000
+@@ -0,0 +1,19 @@
++{
++  "schema_version": "openpatch.codex_brief.v15",
++  "project": "example",
++  "target": "bridge-only",
++  "result": "go|go_with_warnings|no_go",
++  "latest_round": "",
++  "latest_status": "missing|received|validated",
++  "queue_counts": {},
++  "action_now": "run_bridge_smoke_or_request_roundpack",
++  "next_command": "node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project example",
++  "stop_if": [],
++  "warnings": [],
++  "codex_should_read": [
++    "codex_brief",
++    "latest_or_receipt",
++    "bridge_smoke_evidence_when_requested"
++  ],
++  "checked_at": "ISO-8601"
++}
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/task_cards/FOR_AUTO_CONTINUE_V15.md diff_v15/openpatch_agent_gateway_v15_candidate/task_cards/FOR_AUTO_CONTINUE_V15.md
+--- diff_v14/openpatch_agent_gateway_v14_candidate/task_cards/FOR_AUTO_CONTINUE_V15.md	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/task_cards/FOR_AUTO_CONTINUE_V15.md	2026-05-06 09:16:31.464995180 +0000
+@@ -0,0 +1,25 @@
++# FOR AUTO CONTINUE - V15 Integration Note
++
++Auto Continue 可在继续前调用：
++
++```text
++operation-brief --project <project> --intent auto-continue
++```
++
++若返回：
++
++```text
++should_pause_auto=true
++```
++
++则暂停自动继续，并请求 Web AI 生成 RoundPack。
++
++若返回：
++
++```text
++can_continue_auto=true
++```
++
++则可以继续下一轮。
++
++不要让 Auto Continue 管理 GitHub token；它只调用 operation brief / auto-continue preflight / 页面事件。
+diff -ruN diff_v14/openpatch_agent_gateway_v14_candidate/task_cards/FOR_CODEX_MINIMAL_V15.md diff_v15/openpatch_agent_gateway_v15_candidate/task_cards/FOR_CODEX_MINIMAL_V15.md
+--- diff_v14/openpatch_agent_gateway_v14_candidate/task_cards/FOR_CODEX_MINIMAL_V15.md	1970-01-01 00:00:00.000000000 +0000
++++ diff_v15/openpatch_agent_gateway_v15_candidate/task_cards/FOR_CODEX_MINIMAL_V15.md	2026-05-06 09:16:31.464739046 +0000
+@@ -0,0 +1,35 @@
++# FOR CODEX - Minimal V15 Task
++
++任务：在隔离目录中运行 OPENPATCH Agent Gateway v15 的 bridge-only smoke，不安装浏览器插件，不使用真实 GitHub token，不接真实仓库。
++
++默认命令：
++
++```text
++node local-bridge/openpatch-local-bridge.mjs
++node local-bridge/openpatch-ledger-cli.mjs health
++node local-bridge/openpatch-ledger-cli.mjs codex-brief --project openpatch-smoke
++node local-bridge/openpatch-ledger-cli.mjs bridge-smoke-run --project openpatch-smoke
++node local-bridge/openpatch-ledger-cli.mjs operation-brief --project openpatch-smoke --intent continue
++```
++
++输出：
++
++```text
++health.json
++codex_brief.json
++bridge_smoke_run.json
++operation_brief.json
++codex_bridge_smoke_return.json
++```
++
++允许：
++
++✅ 本地 bridge-only dry-run。  
++✅ 读取 sanitized config/status/result。  
++✅ 生成 evidence JSON。  
++
++不要：
++
++⚠️ 不使用真实 token。  
++⚠️ 不安装到真实浏览器 profile。  
++⚠️ 不做真实 GitHub 上传。

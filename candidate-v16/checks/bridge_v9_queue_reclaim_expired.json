@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.queue_reclaim_expired.v9",
+  "project": "v9-queue",
+  "count": 1,
+  "tasks": [
+    {
+      "schema_version": "openpatch.bridge_queue_item.v1",
+      "idempotency_key": "v9-queue-r1-abc",
+      "project": "v9-queue",
+      "round_id": "r1",
+      "file_sha256": "abc",
+      "status": "retry_requested",
+      "action": "archive_roundpack",
+      "route_context": {},
+      "created_at": "2026-05-06T00:56:58.370Z",
+      "updated_at": "2026-05-06T00:58:22.082Z",
+      "claimed_by": "",
+      "lease_until": "",
+      "reclaimed_reason": "smoke_expired"
+    }
+  ],
+  "reclaimed_at": "2026-05-06T00:58:22.082Z"
+}

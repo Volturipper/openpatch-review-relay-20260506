@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "schema_version": "openpatch.instance_register.v11",
+  "instance": {
+    "schema_version": "openpatch.browser_instance.v1",
+    "instance_id": "cli-test-001",
+    "browser_profile": "cli",
+    "page_url_host": "",
+    "project_hint": "test-proj",
+    "route_profile": "test-route",
+    "capabilities": [
+      "cli_smoke"
+    ],
+    "ttl_ms": 600000,
+    "first_seen_at": "2026-05-06T01:38:24.071Z",
+    "last_seen_at": "2026-05-06T01:38:24.071Z"
+  }
+}
