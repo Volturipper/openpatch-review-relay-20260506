@@ -1,0 +1,62 @@
+{
+  "schema_version": "openpatch.review_evidence_index.v1",
+  "review_round": 2,
+  "candidate": {
+    "generation": "v17-button-marker-candidate",
+    "commit": "3edbd489e6f67201455ef92e0996acc358e3b776",
+    "tree": "candidate-v17-button-marker/",
+    "zip_sha256": "708d66e12c1094821a89418a8aace4508733de11a3983ba5107ca18a545073a8"
+  },
+  "reviewed_files": [
+    {
+      "path": "candidate-v17-button-marker/README_FOR_WEB_AI_REVIEW.md",
+      "finding": "Entry confirms expanded tree, file count, candidate zip path, and candidate SHA."
+    },
+    {
+      "path": "candidate-v17-button-marker/README.md",
+      "finding": "Stale: still identifies package as v16 and marker as openpatch.agent_button.v16."
+    },
+    {
+      "path": "candidate-v17-button-marker/docs/openpatch-agent-gateway-contract-v17.md",
+      "finding": "Documents v17 marker contract and required data-openpatch-re-* fields; states loaded-DOM counts are not history counts."
+    },
+    {
+      "path": "candidate-v17-button-marker/docs/51_V17_BUTTON_MARKER_COUNTER_FOLLOWUP.md",
+      "finding": "Documents narrow follow-up, local message identity, lazy-loading semantics, self-test evidence, and known gaps."
+    },
+    {
+      "path": "candidate-v17-button-marker/schemas/openpatch.agent_button.v17.schema.json",
+      "finding": "Requires new marker fields but is permissive on enum/const semantics and additional properties."
+    },
+    {
+      "path": "candidate-v17-button-marker/checks/V17_BUTTON_MARKER_COUNTER_SELF_TEST.mjs",
+      "finding": "String-presence self-test; useful regression smoke, not a runtime DOM proof."
+    },
+    {
+      "path": "candidate-v17-button-marker/checks/V17_BUTTON_MARKER_COUNTER_RESULTS.json",
+      "finding": "Reports pass; schema field assertions use object values for passed in several entries."
+    },
+    {
+      "path": "candidate-v17-button-marker/openpatch-main/src/content-script.js",
+      "finding": "Implements requested DOM dataset fields, counter computation, message hash, message-local index, marker refresh, and agent event marker output."
+    },
+    {
+      "path": "candidate-v17-button-marker/checks/V17_CLASSIFIER_FIXTURE_RESULTS.json",
+      "finding": "Classifier fixtures pass for candidate archive, review result archive, exact changed-files.zip, webai-roundpack.zip, and unknown zip blocked."
+    },
+    {
+      "path": "candidate-v17-button-marker/checks/SENSITIVE_SCAN_V17_BUTTON_MARKER.json",
+      "finding": "Reports no sensitive findings."
+    },
+    {
+      "path": "candidate-v17-button-marker/audit_decision.json",
+      "finding": "Designer self-decision keeps real GitHub upload/apply, production install, live Auto Continue install, and secrets exposure blocked."
+    }
+  ],
+  "unverified_or_not_run": [
+    "No independent local extraction or package execution was performed in this GitHub-only review.",
+    "No real Chrome Dev profile smoke was performed by this reviewer.",
+    "No real GitHub upload/apply was performed or approved.",
+    "No live Auto Continue adapter was installed or controlled."
+  ]
+}

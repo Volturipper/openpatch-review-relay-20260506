@@ -1,0 +1,73 @@
+{
+  "schema_version": "openpatch.independent_review_decision.v2",
+  "candidate_generation": "v17-button-marker-candidate",
+  "candidate_commit": "3edbd489e6f67201455ef92e0996acc358e3b776",
+  "candidate_tree": "candidate-v17-button-marker/",
+  "candidate_sha256": "708d66e12c1094821a89418a8aace4508733de11a3983ba5107ca18a545073a8",
+  "verdict": "ready_for_controlled_smoke",
+  "controlled_smoke_allowed": true,
+  "production_release_allowed": false,
+  "github_upload_apply_allowed": false,
+  "live_auto_continue_allowed": false,
+  "allowed_controlled_smoke_scope": [
+    "Chrome/CDP observe-only marker inspection in an isolated profile",
+    "bridge-only dry-run if no secrets, no real upload, and no apply path is triggered",
+    "page-event query only: openpatch:api:get-buttons, openpatch:api:get-runtime-status, openpatch:api:get-compact-summary"
+  ],
+  "blocked_actions": [
+    "real GitHub upload/apply",
+    "production install",
+    "live Auto Continue adapter install or control",
+    "requesting or exposing PATs, cookies, browser profile internals, .env, or private credentials",
+    "treating hosted GitHub artifacts as merge/install/owner approval"
+  ],
+  "issues": [
+    {
+      "id": "OPRE17-P1-SELFTEST-STRING-ONLY",
+      "severity": "P1",
+      "status": "non_blocking_for_observe_only_smoke",
+      "summary": "Button-marker self-test checks source-string presence, not a runtime DOM fixture or schema validation path.",
+      "evidence": [
+        "checks/V17_BUTTON_MARKER_COUNTER_SELF_TEST.mjs uses content.includes(...) checks.",
+        "checks/V17_BUTTON_MARKER_COUNTER_RESULTS.json records schema field assertions with object values in passed instead of strict booleans."
+      ],
+      "impact": "A future regression could satisfy string checks while failing DOM behavior or schema-level semantics."
+    },
+    {
+      "id": "OPRE17-P1-SCHEMA-TOO-PERMISSIVE",
+      "severity": "P1",
+      "status": "non_blocking_for_observe_only_smoke",
+      "summary": "openpatch.agent_button.v17.schema.json requires key fields but leaves status, asset_kind, route_decision, allowed_action, counter_scope as generic strings and allows additional properties.",
+      "impact": "Invalid route/approval semantics could pass schema-shaped checks."
+    },
+    {
+      "id": "OPRE17-P1-README-STALE-V16",
+      "severity": "P1",
+      "status": "fix_before_next_packaging_iteration",
+      "summary": "candidate-v17-button-marker/README.md still identifies the package as v16 and says marker upgraded to openpatch.agent_button.v16.",
+      "impact": "Codex or a reviewer using the root README as the entry point may misread the active generation and marker contract."
+    },
+    {
+      "id": "OPRE17-P2-COUNT-SEMANTICS-NEED-OBSERVE-EVIDENCE",
+      "severity": "P2",
+      "status": "verify_during_controlled_smoke",
+      "summary": "Global visible count and API response count remain loaded-DOM counts. Docs state agents should prefer button_id or message_id plus message_button_index, but live evidence is still needed under ChatGPT lazy loading.",
+      "impact": "A naive agent could still misuse loaded-DOM counts as historical totals."
+    },
+    {
+      "id": "OPRE17-P2-MESSAGE-ID-CONFIDENCE",
+      "severity": "P2",
+      "status": "recommended_v18_hardening",
+      "summary": "message_id falls back to a compact hash of mutable text/link/button hints when explicit message attributes are unavailable.",
+      "impact": "It is a practical local locator, not a cryptographic or persistent identity."
+    }
+  ],
+  "required_fixes": [
+    "Before v18 packaging, update README.md and any root entry text from v16 to v17-button-marker and openpatch.agent_button.v17.",
+    "Replace string-only marker self-test with a small DOM/runtime fixture that creates buttons, calls marker functions or page APIs, and asserts actual dataset values.",
+    "Make V17_BUTTON_MARKER_COUNTER_RESULTS.json assertion passed values strict booleans.",
+    "Tighten openpatch.agent_button.v17.schema.json with enums or consts for status, asset_kind, route_decision, allowed_action, not_approval semantics, and counter_scope; keep unknown values blocked.",
+    "Add smoke evidence fields proving agents should use button_id or message_id plus message_button_index, not whole-page counts."
+  ],
+  "recommended_next_step": "Run one controlled Chrome/CDP observe-only v17 marker smoke and return evidence JSON; do not click upload/apply. In parallel, prepare v18 fixes for README staleness, stricter schema, and runtime DOM self-test."
+}
