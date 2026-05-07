@@ -1,0 +1,26 @@
+{
+  "schema_version": "openpatch.re.doc_only_followup.v1",
+  "candidate": "openpatch-re-v17-button-marker-doc-only-followup",
+  "scope": "doc_only",
+  "changes": [
+    "candidate-v17-button-marker/README.md",
+    "candidate-v17-button-marker/docs/CODEX_CONTROLLED_SMOKE_EVIDENCE_V17.md"
+  ],
+  "canonical_codex_entry_points": [
+    "docs/49_V17_AGENT_API_QUICK_REFERENCE.md",
+    "docs/51_V17_BUTTON_MARKER_COUNTER_FOLLOWUP.md",
+    "docs/openpatch-agent-gateway-contract-v17.md"
+  ],
+  "allowed_next": [
+    "bridge-only dry-run smoke",
+    "Chrome/CDP observe-only marker/API smoke"
+  ],
+  "blocked": [
+    "real GitHub upload/apply",
+    "production install",
+    "live Auto Continue adapter install",
+    "secrets/PAT/cookie/.env/browser-profile exposure"
+  ],
+  "no_new_features": true,
+  "github_hosted_assets_are": "hosted evidence only, not merge/install/approval"
+}
